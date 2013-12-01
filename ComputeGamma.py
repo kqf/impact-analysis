@@ -54,6 +54,7 @@ class ComputeGamma(object):
                 , self.__dataPoints[-1].t + ( self.__dataPoints[-1].t - self.__dataPoints[-2].t )/2. )
 
     def __generateMC(self):
+        """Generates MC data"""
         for i, point in enumerate(self.__dataPoints):
             mu = point.ds
             sigma = point.err
@@ -77,7 +78,8 @@ class ComputeGamma(object):
         return graph
 
     def __createDiffCsFunct(self):
-        # diff_cs = lambda x,p: x[0]
+        """Creates TF1 function for fitting data"""
+
         function = TF1('function', diff_cs, 0, 10, 9)
 
         function.SetParameter(0, (30.14)**0.5)
@@ -87,15 +89,17 @@ class ComputeGamma(object):
         function.SetParameter(4, (7.67))
         function.SetParameter(5, (1.858))
         function.SetParLimits(5, 0, 20)
-        function.FixParameter(6, self.sigma) #  sigma0
+        function.FixParameter(6, self.sigma) 
         function.FixParameter(7, 38.94)      #  sigma0
-        function.FixParameter(8, self.rho)   #  rho
+        function.FixParameter(8, self.rho)
+        # function.SetParameter(6, self.sigma)
+        # function.SetParameter(8, self.rho)
 
         function.SetLineColor(38)
-
         return function
+
     def __createGammaFunction(self, parameters):
-        # TODO: Create function
+        """Creates \Gamma(b) functor uses __dataPoints !"""
         self.gammaComputor = GammaApproximation(self.__dataPoints)
         self.getGamma = lambda x, p: self.gammaComputor.gamma(x, p)
 
@@ -119,6 +123,7 @@ class ComputeGamma(object):
         self.function.Draw('same')
         # TODO: Initialize functor with  dataPoints
         parameters = [ self.function.GetParameter(i) for i in range(9) ]
+        self.chi2 = self.function.GetChisquare()/ (self.function.GetNDF() if self.function.GetNDF() != 0 else 1)
 
         print parameters
         self.__gamma = self.__createGammaFunction(parameters)
@@ -126,6 +131,9 @@ class ComputeGamma(object):
         gPad.SetLogy()
         self.__gamma.Draw()
 
+        self.__canvas.cd(1)
+        self.legend = self.getLegendForDiffCS()
+        self.legend.Draw()
 
         self.__canvas.Update()
 
@@ -158,8 +166,19 @@ class ComputeGamma(object):
                     g = getGamma(i)
                 i += 3./nuber_of_points
                 file.write(str(i) + '\t' + str(g) + '\n')
+
     def getCanvas(self):
         return self.__canvas
+
+    def getLegendForDiffCS(self):
+        """Creates legend for ds/dt graph"""
+        legend = TLegend(0.9, 0.7, 0.3, 0.8)
+        legend.AddEntry(self.graph ,
+                '#sqrt{s} = '         + str(self.__energy) +
+                'GeV #sigma_{tot} = ' + str(self.sigma   )  +
+                'mb #rho = '          + str(self.rho)     )
+        legend.AddEntry(self.function , '#chi^{2}/ndf = ' + str(self.chi2))
+        return legend
 
 
 def main():
@@ -172,7 +191,6 @@ def main():
     c.performComputations()
     # c.performComputationsMC(100, 'a')
     raw_input('press any key ...')
-    
 
 if __name__ == "__main__":
     main()

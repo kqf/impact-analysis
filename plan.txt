@@ -1,39 +1,38 @@
 
-ENERGY = 23.506
-RHO    = 0.02     # \sqrt{s} = 23.5
-SIGMA  = 39.65    # \sqrt{s} = 23.5
-PROCESS = 'pp'
+    ENERGY = 23.506
+    RHO    = 0.02     # \sqrt{s} = 23.5
+    SIGMA  = 39.65    # \sqrt{s} = 23.5
+    PROCESS = 'pp'
 
-ENERGY = 44.699
-RHO    = 0.062    # \sqrt{s} = 44.7
-SIGMA  = 41.7     # exact value
-PROCESS = 'pp'
-
-
-ENERGY = 53.018
-RHO    =  0.07    # \sqrt{s} = 52.8
-SIGMA  = 21.49    # exact value
-PROCESS = 'pp'
+    ENERGY = 44.699
+    RHO    = 0.062    # \sqrt{s} = 44.7
+    SIGMA  = 41.7     # exact value
+    PROCESS = 'pp'
 
 
-ENERGY = 53
-RHO    = 0.1
-SIGMA  = 43.65
-PROCESS = 'p#bar{p}'
-
-ENERGY = 546
-RHO    = 0.15
-SIGMA  = 61.9
-PROCESS = 'p#bar{p}'
-
-ENERGY = 1800
-RHO    = 0.15
-SIGMA  = 74.5
-PROCESS = 'p#bar{p}'
+    ENERGY = 53.018
+    RHO    =  0.07    # \sqrt{s} = 52.8
+    SIGMA  = 21.49    # exact value
+    PROCESS = 'pp'
 
 
-ENERGY = 7000
-RHO    = 0.141
-SIGMA  = 98.58
-PROCESS = 'pp'
+    ENERGY = 53
+    RHO    = 0.1
+    SIGMA  = 43.65
+    PROCESS = 'p#bar{p}'
+
+    ENERGY = 546
+    RHO    = 0.15
+    SIGMA  = 61.9
+    PROCESS = 'p#bar{p}'
+
+    ENERGY = 1800
+    RHO    = 0.15
+    SIGMA  = 74.5
+    PROCESS = 'p#bar{p}'
+
+    ENERGY = 7000
+    RHO    = 0.141
+    SIGMA  = 98.58
+    PROCESS = 'pp'
 
