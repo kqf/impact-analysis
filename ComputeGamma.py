@@ -10,7 +10,7 @@ class ComputeGamma(object):
     __canvas = TCanvas('canvas', 'Impact Analysis', 800, 600)
     __observable = {'pp': 310, 'p#bar{p}': 311}
     
-    def __init__(self, ptype, energy, sigma, rho, is_mc = False):
+    def __init__(self, ptype, energy, sigma, rho):
         self.sigma = sigma
         self.rho = rho
 
@@ -23,8 +23,6 @@ class ComputeGamma(object):
         self.title = ptype
         # Reading data from file
         self.__readDataCS()
-        if is_mc:
-            self.__generateMC()
 
     def __readDataCS(self):
         """Reading data from alldata_v1_4.dat file"""
@@ -55,10 +53,13 @@ class ComputeGamma(object):
 
     def __generateMC(self):
         """Generates MC data"""
+        mc_list = list(self.__dataPoints)
         for i, point in enumerate(self.__dataPoints):
             mu = point.ds
             sigma = point.err
-            self.__dataPoints[i].ds = gauss(mu, sigma)
+            mc_list[i].ds = gauss(mu, sigma)
+
+        return mc_list
 
     def __createDiffCsGraph(self):
         """Creates TGraphErrors, with differential cross section data"""
@@ -139,33 +140,40 @@ class ComputeGamma(object):
 
     def performComputationsMC(self, nuber_of_points, prefix):
         """Writes points from b = 0 to b = 3 to file"""
-        self.graph = self.__createDiffCsGraph()
 
-        self.function = self.__createDiffCsFunct()
-        # self.graph.Fit(self.function, 'r')
+        file_name = 'parameters_' + self.title + str(self.__energy) + '.dat'
+        try:
+            with open(file_name, 'r') as file:
+                data = file.readline().split()
+                parameters = [float(i) for i in data]
+        except IOError:
+            self.graph    = self.__createDiffCsGraph()
+            self.function = self.__createDiffCsFunct()
 
-        # TODO: correct hardcoded parameters
-        # parameters = [7.84799185336423, 1.5012093138338845, 1.1213117749438828,
-                      # 8.276553417529822, 4.488295630955916, 4.599604734749989,
-                      # 97.98762962023775, 39.22381587849738, 0.15588368317954668 ]
-        parameters = [ 7.428437251797944, 1.8425102008870191, 1.1699384365535779,
-                       8.307894270633678, 4.630583811454606, 4.657402188541418,
-                       98.58, 38.94, 0.141]
-        # parameters = [ self.function.GetParameter(i) for i in range(9) ]
+            self.graph.Fit(self.function, 'r')
+            parameters = [ self.function.GetParameter(i) for i in range(9) ]
+
+            with open(file_name, 'w') as file:
+                [file.write(str(i) + ' ') for i in parameters]
+
+        mcPoints = self.__generateMC()
 
         gammaComputorMC = GammaApproximation(self.__dataPoints)
         getGamma = lambda x: gammaComputorMC.gamma([x], parameters)
 
-        # TODO: Rewrite using list comprehention
-        with open(self.name + str(prefix) + '.dat', 'w') as file:
-            i = 0
-            while i < 3:
-                if i == 0:
-                    g = getGamma(1e-5)
-                else:
-                    g = getGamma(i)
-                i += 3./nuber_of_points
-                file.write(str(i) + '\t' + str(g) + '\n')
+        b_max = 3.
+        b = 0
+        result = []
+        while b < b_max:
+            if b == 0:
+                g = getGamma(1e-5)
+            else:
+                g = getGamma(b)
+
+            b += b_max/nuber_of_points
+            result.append(g)
+        print '%d percent is done' % (prefix)
+        return result
 
     def getCanvas(self):
         return self.__canvas
@@ -187,7 +195,7 @@ def main():
     SIGMA  = 98.58
     PROCESS = 'pp'
 
-    c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO, False)
+    c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
     c.performComputations()
     # c.performComputationsMC(100, 'a')
     raw_input('press any key ...')

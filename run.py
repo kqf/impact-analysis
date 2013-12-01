@@ -38,14 +38,13 @@ MC_AMOUNT = 100
 
 # TODO: Rewrite  performComputationsMC return list
 # Uncomment lines below to perform generation of files
-for i in range(MC_AMOUNT):
-    c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO , True)
-    c.performComputationsMC(100, i)
-    del c
 
 mc = []
 for i in range(MC_AMOUNT):
-    processPoint(PROCESS + str(ENERGY) + str(i) + '.dat', mc)
+    c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
+    mc.append( c.performComputationsMC(100, i) )
+    del c
+
 
 gaussFunction = TF1('gaussFunction','gaus', 0, 1.4)
 gaussFunction.SetParameter(0, 1)
