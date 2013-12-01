@@ -122,8 +122,8 @@ class ComputeGamma(object):
         self.function = self.__createDiffCsFunct()
         self.graph.Fit(self.function, 'r')
         self.function.Draw('same')
-        # TODO: Initialize functor with  dataPoints
         parameters = [ self.function.GetParameter(i) for i in range(9) ]
+
         self.chi2 = self.function.GetChisquare()/ (self.function.GetNDF() if self.function.GetNDF() != 0 else 1)
 
         print parameters
@@ -136,6 +136,10 @@ class ComputeGamma(object):
         self.legend = self.getLegendForDiffCS()
         self.legend.Draw()
 
+        gamma_0 = self.getGamma([1e-5], parameters)
+
+        with open('gamma_at_zero.txt', 'a') as file:
+            file.write( '%f\t%f' % (self.__energy, gamma_0) )
         self.__canvas.Update()
 
     def performComputationsMC(self, nuber_of_points, prefix):
