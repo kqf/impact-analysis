@@ -26,14 +26,13 @@ def getGraph(lst):
     [graph.SetPointError(i, 0, p[1]) for i, p in enumerate(lst)]
     return graph
 
+
 ENERGY = 7000
 RHO    = 0.141
 SIGMA  = 98.58
 PROCESS = 'pp'
 
 MC_AMOUNT = 100
-
-
 
 
 # TODO: Rewrite  performComputationsMC return list
@@ -86,5 +85,9 @@ graph = getGraph(gamma_points)
 canvas_point.cd(2)
 graph.Draw('same')
 canvas_point.Update()
+canvas_point.SaveAs(str(ENERGY) + PROCESS + '.eps')
+
+with open('gamma_at_zero_errors.txt', 'a') as file:
+    file.write('%f\n' % gamma_points[0][1])
 
 raw_input('pease enter any key ...')
