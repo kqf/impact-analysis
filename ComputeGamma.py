@@ -126,7 +126,6 @@ class ComputeGamma(object):
 
         self.chi2 = self.function.GetChisquare()/ (self.function.GetNDF() if self.function.GetNDF() != 0 else 1)
 
-        print parameters
         self.__gamma = self.__createGammaFunction(parameters)
         self.__canvas.cd(2)
         gPad.SetLogy()
@@ -139,7 +138,11 @@ class ComputeGamma(object):
         gamma_0 = self.getGamma([1e-5], parameters)
 
         with open('gamma_at_zero.txt', 'a') as file:
-            file.write( '%f\t%f' % (self.__energy, gamma_0) )
+            file.write( '%f\t%f\n' % (self.__energy, gamma_0) )
+
+        with open('fit_parameters.txt', 'a') as file:
+            file.write(str(self.__energy) + ' ' + str(parameters) + '\n')
+
         self.__canvas.Update()
 
     def performComputationsMC(self, nuber_of_points, prefix):
@@ -158,7 +161,7 @@ class ComputeGamma(object):
             parameters = [ self.function.GetParameter(i) for i in range(9) ]
 
             with open(file_name, 'w') as file:
-                [file.write(str(i) + ' ') for i in parameters]
+                [ file.write(str(i) + ' ') for i in parameters ]
 
         mcPoints = self.__generateMC()
 
