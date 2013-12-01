@@ -28,12 +28,14 @@ class ComputeGamma(object):
 
     def __readDataCS(self):
         """Reading data from alldata_v1_4.dat file"""
-        toint = lambda x: int( float(x) )
+        toint1 = lambda x: int( 1000 * float(x) )
+        toint2 = lambda x: int( float(x) )
+
         raw_data = []
         with open('alldata_v1_4.dat','r') as file:
             for line in file:
                 data = line.lower().split()
-                if toint(data[0]) == self.__energy and toint(data[6]) == self.__procesType:
+                if toint1(data[0]) == 1000*self.__energy and toint2(data[6]) == self.__procesType:
                     raw_data.append([float(data[1]), float(data[2]), float(data[5])])
 
         self.__dataPoints = [ DataPoint(i[0], i[1], i[2]) for i in raw_data ]
