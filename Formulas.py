@@ -78,22 +78,26 @@ class GammaApproximation(object):
         """Gives gamma(b) from points"""
         B = b[0]
 
-        extrapolation1 = self.getGammaExtrapNearZero(b, p) # taking into account extrapolation near zero 
-        result = extrapolation1
+        # extrapolation1 = self.getGammaExtrapNearZero(b, p) # taking into account extrapolation near zero 
+        # result = extrapolation1
 
         k_norm = self.k_norm
         k_fm = self.k_fm
-        for i in self.__dataPoints:
-            A_i = sqrt( fabs(i.ds - getReal(i.t, p)**2) )
-            q1 = sqrt(i.lower)
-            q2 = sqrt(i.upper)
-            result = result + ( (1/sqrt(pi*k_norm))
-                               *(
-                                    q2*j1(B*q2/k_fm)
-                                 -  q1*j1(B*q1/k_fm)
-                                )
-                               *A_i*(k_fm/B))
-        return result
+        # for i in self.__dataPoints:
+            # A_i = sqrt( fabs(i.ds - getReal(i.t, p)**2) )
+            # q1 = sqrt(i.lower)
+            # q2 = sqrt(i.upper)
+            # result = result + ( (1/sqrt(pi*k_norm))
+                               # *(
+                                    # q2*j1(B*q2/k_fm)
+                                 # -  q1*j1(B*q1/k_fm)
+                                # )
+                               # *A_i*(k_fm/B))
+
+         imA = lambda t: getImage(t, p)
+         f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
+         result =  integrate.quad(f, 0, self.__dataPoints[-1].upper**0.5)[0]  # integral from zero to lower bound
+         return result
 
 
 
