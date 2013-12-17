@@ -197,10 +197,10 @@ class ComputeGamma(object):
 
 
 def main():
-    ENERGY = 7000
-    RHO    = 0.141
-    SIGMA  = 98.58
-    PROCESS = 'pp'
+    ENERGY = 53
+    RHO    = 0.1
+    SIGMA  = 43.65
+    PROCESS = 'p#bar{p}'
 
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
     c.performComputations()
