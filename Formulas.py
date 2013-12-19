@@ -7,23 +7,26 @@ from scipy.special import j0, j1
 # from array  import array
 from random import randrange
 
-def amplitude(t, p):
-    A1 = p[0]
-    A2 = p[1]
-    A3 = p[2]
+def amplitude(t_, p):
+    t = t_[0]
+    a1 = p[0]
+    a2 = p[1]
+    a4 = p[2]
+
     b1 = p[3]
     b2 = p[4]
     b3 = p[5]
-    sigma = p[6]              # from tamble 2
-    sigma0 = p[7] 
-    rho = p[8]               # from tamble 2
-    j = complex(0, 1)
+    b4 = p[6]
 
-    alpha =  (sigma/sigma0)*(1 - j*rho)
-    secondTerm = A1*Exp(-0.5*b1*t[0]*alpha) + A2*Exp(-0.5*b2*t[0]*alpha)
-    # print 'second term ', A2*Exp(-0.5*b2*t[0]*alpha)
-    thirdTerm = -A3*j*Exp(-0.5*b3*t[0])
-    ampl = j*alpha * secondTerm + thirdTerm
+    a5 = p[7]
+    b5 = p[8]
+    b6 = p[9]
+    a_s = p[10]/(sqrt(pi)*4)
+    rho = p[11]
+
+    im = a1*Exp(-b1*t) + a2*Exp(-b2*t) + (a_s - a1 - a2)/( (1. + t/b3)**4 )
+    re = a4*Exp(-b4*t) + a5*Exp(-b5*t) + (a_s*rho - a4 - a5)/( (1. + t/b6)**4 )
+    ampl = re + 1j*im
 
     return ampl
 
@@ -39,8 +42,14 @@ def diff_cs(t, p):
         result =  ( (A.real)**2 + (A.imag)**2 )
     except OverflowError:
         print 'Real ', A.real, ' Imag ', A.imag
-        result =  round(  (A.real)**2 + (A.imag)**2  )
+        result = A.imag
+        # result =  round(  (A.real)**2 + (A.imag)**2  )
     return result
+
+def ratio(t, p):
+    A = amplitude(t,p)
+    r_ = abs(A.real/A.imag )
+    return r_
 
 class GammaApproximation(object):
     k_fm   = 0.1973269718

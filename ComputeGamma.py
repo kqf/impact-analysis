@@ -3,7 +3,7 @@
 from ROOT import *
 from DataPoint import *
 # from readCSData import *
-from Formulas import diff_cs, GammaApproximation
+from Formulas import diff_cs, GammaApproximation, ratio
 from random import gauss
 
 class ComputeGamma(object):
@@ -23,6 +23,7 @@ class ComputeGamma(object):
         self.title = ptype
         # Reading data from file
         self.__readDataCS()
+        self.nParemeters = 12
 
     def __readDataCS(self):
         """Reading data from alldata_v1_4.dat file"""
@@ -33,7 +34,7 @@ class ComputeGamma(object):
         with open('alldata_v1_4.dat','r') as file:
             for line in file:
                 data = line.lower().split()
-                if toint1(data[0]) == 1000*self.__energy and toint2(data[6]) == self.__procesType:
+                if toint1(data[0]) == 1000*self.__energy and toint2(data[6]) == self.__procesType and float(data[1]) > 0.1:
                     raw_data.append([float(data[1]), float(data[2]), float(data[5])])
 
         self.__dataPoints = [ DataPoint(i[0], i[1], i[2]) for i in raw_data ]
@@ -81,20 +82,23 @@ class ComputeGamma(object):
     def __createDiffCsFunct(self):
         """Creates TF1 function for fitting data"""
 
-        function = TF1('function', diff_cs, 0, 10, 9)
+        function = TF1('function', diff_cs, 0, 10, self.nParemeters)
 
-        function.SetParameter(0, (30.14)**0.5)
-        function.SetParameter(1, (11.29)**0.5 )
-        function.SetParameter(2, (0.0025)**0.5)
-        function.SetParameter(3, (14.3))
-        function.SetParameter(4, (7.67))
-        function.SetParameter(5, (1.858))
-        function.SetParLimits(5, 0, 20)
-        function.FixParameter(6, self.sigma) 
-        function.FixParameter(7, 38.94)      #  sigma0
-        function.FixParameter(8, self.rho)
-        # function.SetParameter(6, self.sigma)
-        # function.SetParameter(8, self.rho)
+        parameters = [ 0.4889050e+1
+                        , -0.2359077e+1
+                        , 0.8361616e+1
+                        , 0.1897855e+2
+                        , 0.3124509e+1
+                        , 0.6373324e+0
+                        , 0.2497367e+3
+                        , -0.9019945e+1
+                        , 0.5679274e+1
+                        , 0.1946379e+0]
+
+        [function.SetParameter(i, par) for i, par in enumerate(parameters)]
+
+        function.FixParameter(10, self.sigma)
+        function.FixParameter(11, self.rho)
 
         function.SetLineColor(38)
         return function
@@ -104,7 +108,33 @@ class ComputeGamma(object):
         self.gammaComputor = GammaApproximation(self.__dataPoints)
         self.getGamma = lambda x, p: self.gammaComputor.gamma(x, p)
 
-        gamma = TF1('#Gamma(b)', self.getGamma,0, 3, 9)
+        gamma = TF1('#Gamma(b)', self.getGamma,0, 3, self.nParemeters)
+        [gamma.SetParameter(i, p) for i, p in enumerate(parameters)]
+
+        gamma.SetLineColor(46)
+        gamma.GetXaxis().SetTitle('b\t,fm')
+        gamma.GetYaxis().SetTitle('#Gamma')
+        return gamma
+
+    def __createRatioFunction(self, parameters):
+        """Creates TF1 function for fitting data"""
+
+        function = TF1('ratio', ratio, 0, 10, self.nParemeters)
+        [function.SetParameter(i, par) for i, par in enumerate(parameters)]
+
+        function.FixParameter(10, self.sigma)
+        function.FixParameter(11, self.rho)
+        print 'Ratio at zero is : ', ratio([0], parameters)
+
+        function.SetLineColor(38)
+        return function
+
+    def __createGammaFunction(self, parameters):
+        """Creates \Gamma(b) functor uses __dataPoints !"""
+        self.gammaComputor = GammaApproximation(self.__dataPoints)
+        self.getGamma = lambda x, p: self.gammaComputor.gamma(x, p)
+
+        gamma = TF1('#Gamma(b)', self.getGamma,0, 3, self.nParemeters)
         [gamma.SetParameter(i, p) for i, p in enumerate(parameters)]
 
         gamma.SetLineColor(46)
@@ -113,16 +143,17 @@ class ComputeGamma(object):
         return gamma
 
     def performComputations(self):
-        self.__canvas.Divide(2, 1)
+        self.__canvas.Divide(3, 1)
         self.__canvas.cd(1)
         gPad.SetLogy()
         self.graph = self.__createDiffCsGraph()
         self.graph.Draw('AP')
+        print self.graph.GetN()
 
         self.function = self.__createDiffCsFunct()
-        self.graph.Fit(self.function, 'r')
+        self.graph.Fit(self.function,'r')
         self.function.Draw('same')
-        parameters = [ self.function.GetParameter(i) for i in range(9) ]
+        parameters = [ self.function.GetParameter(i) for i in range(self.nParemeters) ]
 
         self.chi2 = self.function.GetChisquare()/ (self.function.GetNDF() if self.function.GetNDF() != 0 else 1)
 
@@ -135,6 +166,7 @@ class ComputeGamma(object):
         self.legend = self.getLegendForDiffCS()
         self.legend.Draw()
 
+
         gamma_0 = self.getGamma([1e-5], parameters)
 
         with open('gamma_at_zero.txt', 'a') as file:
@@ -143,7 +175,12 @@ class ComputeGamma(object):
         with open('fit_parameters.txt', 'a') as file:
             file.write(str(self.__energy) + ' ' + str(parameters) + '\n')
 
+        self.__canvas.cd(3)
+        gPad.SetLogy()
+        ratio = self.__createRatioFunction(parameters)
+        ratio.Draw()
         self.__canvas.Update()
+
 
     def performComputationsMC(self, nuber_of_points, prefix):
         """Writes points from b = 0 to b = 3 to file"""
@@ -190,17 +227,23 @@ class ComputeGamma(object):
         legend = TLegend(0.9, 0.7, 0.3, 0.8)
         legend.AddEntry(self.graph ,
                 '#sqrt{s} = '         + str(self.__energy) +
-                'GeV #sigma_{tot} = ' + str(self.sigma   )  +
-                'mb #rho = '          + str(self.rho)     )
+                'GeV #sigma_{tot} = ' + str(self.sigma   ) +
+                'mb #rho = '          + str(self.rho)    )
         legend.AddEntry(self.function , '#chi^{2}/ndf = ' + str(self.chi2))
         return legend
 
 
 def main():
+    # ENERGY = 44.699
+    # RHO    = 0.062    # \sqrt{s} = 44.7
+    # SIGMA  = 41.7     # exact value
+    # PROCESS = 'pp'
+
     ENERGY = 53
     RHO    = 0.1
     SIGMA  = 43.65
     PROCESS = 'p#bar{p}'
+
 
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
     c.performComputations()
