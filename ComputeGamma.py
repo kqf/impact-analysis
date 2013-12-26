@@ -84,19 +84,15 @@ class ComputeGamma(object):
 
         function = TF1('function', diff_cs, 0, 10, self.nParemeters)
 
-        parameters = [ 0.4889050e+1
-                        , -0.2359077e+1
-                        , 0.8361616e+1
-                        , 0.1897855e+2
-                        , 0.3124509e+1
-                        , 0.6373324e+0
-                        , 0.2497367e+3
-                        , -0.9019945e+1
-                        , 0.5679274e+1
-                        , 0.1946379e+0]
+        parameters = [0.2690138e+00, 0, 0.3944798e-01, 0.1281479e+01, 0.2408678e+01, 0, 0.2272305e+01, 0, 0.4509552e+01, 0]
 
         [function.SetParameter(i, par) for i, par in enumerate(parameters)]
 
+
+        # function.SetParLimits(1, -100, 0)
+        function.FixParameter(1, 0)
+        function.FixParameter(5, 0)
+        function.FixParameter(7, 0)
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
 
@@ -120,6 +116,7 @@ class ComputeGamma(object):
         """Creates TF1 function for fitting data"""
 
         function = TF1('ratio', ratio, 0, 10, self.nParemeters)
+        # ratio.GetXaxis().SetRange(0, 2)
         [function.SetParameter(i, par) for i, par in enumerate(parameters)]
 
         function.FixParameter(10, self.sigma)
@@ -151,7 +148,7 @@ class ComputeGamma(object):
         print self.graph.GetN()
 
         self.function = self.__createDiffCsFunct()
-        self.graph.Fit(self.function,'r')
+        # self.graph.Fit(self.function,'r')
         self.function.Draw('same')
         parameters = [ self.function.GetParameter(i) for i in range(self.nParemeters) ]
 
@@ -167,7 +164,8 @@ class ComputeGamma(object):
         self.legend.Draw()
 
 
-        gamma_0 = self.getGamma([1e-5], parameters)
+        # gamma_0 = self.getGamma([1e-5], parameters)
+        gamma_0 = 0
 
         with open('gamma_at_zero.txt', 'a') as file:
             file.write( '%f\t%f\n' % (self.__energy, gamma_0) )

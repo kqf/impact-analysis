@@ -24,9 +24,8 @@ def amplitude(t_, p):
     a_s = p[10]/(sqrt(pi)*4)
     rho = p[11]
 
-    im = a1*Exp(-b1*t) + a2*Exp(-b2*t) + (a_s - a1 - a2)/( (1. + t/b3)**4 )
-    re = a4*Exp(-b4*t) + a5*Exp(-b5*t) + (a_s*rho - a4 - a5)/( (1. + t/b6)**4 )
-    ampl = re + 1j*im
+    alpha = (1 - 1j*rho)*a_s
+    ampl = 1j*alpha*( a1*Exp(-0.5*alpha*b1*t) + (1 - a1)*Exp(-0.5*alpha*b2*t) ) - 1j*a4*Exp(-0.5*b4*t) - a4*rho/((1 + t/b5)**4)
 
     return ampl
 
@@ -37,9 +36,10 @@ def getReal(t, p):
     return amplitude([t], p).real
 
 def diff_cs(t, p):
+    k_norm = 0.389379338
     A = amplitude(t,p)
     try:
-        result =  ( (A.real)**2 + (A.imag)**2 )
+        result =  ( (A.real)**2 + (A.imag)**2 )/k_norm
     except OverflowError:
         print 'Real ', A.real, ' Imag ', A.imag
         result = A.imag
@@ -48,7 +48,8 @@ def diff_cs(t, p):
 
 def ratio(t, p):
     A = amplitude(t,p)
-    r_ = abs(A.real/A.imag )
+    # r_ = abs(A.real/A.imag )
+    r_ = A.imag
     return r_
 
 class GammaApproximation(object):
