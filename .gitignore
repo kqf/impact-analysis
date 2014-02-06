@@ -1,3 +1,5 @@
 *.dat
 *.pyc
 *.eps
+all_old_results
+new_results

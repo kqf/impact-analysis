@@ -24,6 +24,8 @@ class ComputeGamma(object):
         # Reading data from file
         self.__readDataCS()
         self.nParemeters = 12
+        self.gammaAtZero = 0
+        self.parametersFile = ''
 
     def __readDataCS(self):
         """Reading data from alldata_v1_4.dat file"""
@@ -84,7 +86,9 @@ class ComputeGamma(object):
 
         function = TF1('function', diff_cs, 0, 10, self.nParemeters)
 
-        parameters = [0.2690138e+00, 0, 0.3944798e-01, 0.1281479e+01, 0.2408678e+01, 0, 0.2272305e+01, 0, 0.4509552e+01, 0]
+        parameters = [0.2867574, 0, 0.3005147e-01, 0.1318668e+01
+                    , 0.2405179e+01, 0, 0.1821596e+01, 0 ,0.7800825e-01, 0]
+                    # 0, 0.4509552e+01, 0]
 
         [function.SetParameter(i, par) for i, par in enumerate(parameters)]
 
@@ -95,6 +99,13 @@ class ComputeGamma(object):
         function.FixParameter(7, 0)
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
+
+        function.SetParLimits(0, 0, 6)
+        function.SetParLimits(2, -50, 250)
+        function.SetParLimits(3, 0, 50)
+        function.SetParLimits(4, 0.1, 50)
+        function.SetParLimits(6, 0, 100)
+        function.SetParLimits(8, 0.078, 100)
 
         function.SetLineColor(38)
         return function
@@ -140,15 +151,17 @@ class ComputeGamma(object):
         return gamma
 
     def performComputations(self):
-        self.__canvas.Divide(3, 1)
+        self.__canvas.Divide(2, 1)
         self.__canvas.cd(1)
         gPad.SetLogy()
+
         self.graph = self.__createDiffCsGraph()
         self.graph.Draw('AP')
         print self.graph.GetN()
 
         self.function = self.__createDiffCsFunct()
-        # self.graph.Fit(self.function,'r')
+        self.graph.Fit(self.function,'r')
+
         self.function.Draw('same')
         parameters = [ self.function.GetParameter(i) for i in range(self.nParemeters) ]
 
@@ -164,19 +177,18 @@ class ComputeGamma(object):
         self.legend.Draw()
 
 
-        # gamma_0 = self.getGamma([1e-5], parameters)
-        gamma_0 = 0
+        gamma_0 = self.getGamma([1e-5], parameters)
 
-        with open('gamma_at_zero.txt', 'a') as file:
-            file.write( '%f\t%f\n' % (self.__energy, gamma_0) )
+
+        self.gammaAtZero = gamma_0
 
         with open('fit_parameters.txt', 'a') as file:
             file.write(str(self.__energy) + ' ' + str(parameters) + '\n')
 
-        self.__canvas.cd(3)
-        gPad.SetLogy()
-        ratio = self.__createRatioFunction(parameters)
-        ratio.Draw()
+        # self.__canvas.cd(3)
+        # gPad.SetLogy()
+        # ratio = self.__createRatioFunction(parameters)
+        # ratio.Draw()
         self.__canvas.Update()
 
 
@@ -184,6 +196,8 @@ class ComputeGamma(object):
         """Writes points from b = 0 to b = 3 to file"""
 
         file_name = 'parameters_' + self.title + str(self.__energy) + '.dat'
+        # needs to be deleted from the outside of the class
+        self.parametersFile = file_name
         try:
             with open(file_name, 'r') as file:
                 data = file.readline().split()
@@ -193,8 +207,7 @@ class ComputeGamma(object):
             self.function = self.__createDiffCsFunct()
 
             self.graph.Fit(self.function, 'r')
-            parameters = [ self.function.GetParameter(i) for i in range(9) ]
-
+            parameters = [ self.function.GetParameter(i) for i in range(self.nParemeters) ]
             with open(file_name, 'w') as file:
                 [ file.write(str(i) + ' ') for i in parameters ]
 
@@ -237,11 +250,10 @@ def main():
     # SIGMA  = 41.7     # exact value
     # PROCESS = 'pp'
 
-    ENERGY = 53
-    RHO    = 0.1
-    SIGMA  = 43.65
-    PROCESS = 'p#bar{p}'
-
+    ENERGY = 52.818
+    RHO    = 0.077
+    SIGMA  = 42.75
+    PROCESS = 'pp'
 
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
     c.performComputations()

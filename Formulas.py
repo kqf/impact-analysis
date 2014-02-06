@@ -25,7 +25,10 @@ def amplitude(t_, p):
     rho = p[11]
 
     alpha = (1 - 1j*rho)*a_s
-    ampl = 1j*alpha*( a1*Exp(-0.5*alpha*b1*t) + (1 - a1)*Exp(-0.5*alpha*b2*t) ) - 1j*a4*Exp(-0.5*b4*t) - a4*rho/((1 + t/b5)**4)
+    try:
+        ampl= 1j*alpha*( a1*Exp(-0.5*alpha*b1*t) + (1 - a1)*Exp(-0.5*alpha*b2*t) ) - 1j*a4*Exp(-0.5*b4*t) - a4*rho/((1 + t/b5)**4)
+    except OverflowError:
+        ampl = 0
 
     return ampl
 

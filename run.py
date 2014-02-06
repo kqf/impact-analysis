@@ -3,6 +3,7 @@
 
 from ROOT import *
 from ComputeGamma import *
+import os
 
 # TODO: change name for function
 def processPoint(filename, my_list):
@@ -27,10 +28,10 @@ def getGraph(lst):
     return graph
 
 
-ENERGY = 7000
-RHO    = 0.141
-SIGMA  = 98.58
-PROCESS = 'pp'
+ENERGY = 1800
+RHO    = 0.14
+SIGMA  = 75.0
+PROCESS = 'p#bar{p}'
 
 MC_AMOUNT = 100
 
@@ -42,6 +43,11 @@ mc = []
 for i in range(MC_AMOUNT):
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
     mc.append( c.performComputationsMC(100, i) )
+
+    if i == range(MC_AMOUNT)[-1]:
+        print 'go'
+        os.remove(c.parametersFile)
+
     del c
 
 
@@ -88,6 +94,6 @@ canvas_point.Update()
 canvas_point.SaveAs(str(ENERGY) + PROCESS + '.eps')
 
 with open('gamma_at_zero_errors.txt', 'a') as file:
-    file.write('%f\n' % gamma_points[0][1])
+    file.write('%f\t%f\t%f\n' % (my_gamma.gammaAtZero ,gamma_points[0][1], ENERGY) )
 
 raw_input('pease enter any key ...')
