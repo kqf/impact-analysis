@@ -23,8 +23,8 @@
 
 
     ENERGY = 53.018
-    RHO    =  0.07    # \sqrt{s} = 52.8
-    SIGMA  = 21.49    # exact value
+    RHO    = 0.077
+    SIGMA  = 42.75
     PROCESS = 'pp'
 
     ENERGY = 62.500

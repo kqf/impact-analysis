@@ -3,6 +3,7 @@
 
 from ROOT import *
 from ComputeGamma import *
+from Formulas import getRealGammaError, getRealGamma
 import os
 
 # TODO: change name for function
@@ -27,11 +28,10 @@ def getGraph(lst):
     [graph.SetPointError(i, 0, p[1]) for i, p in enumerate(lst)]
     return graph
 
-
-ENERGY = 1800
-RHO    = 0.14
-SIGMA  = 75.0
-PROCESS = 'p#bar{p}'
+ENERGY = 52.818
+RHO    = 0.077
+SIGMA  = 42.75
+PROCESS = 'pp'
 
 MC_AMOUNT = 100
 
@@ -94,6 +94,9 @@ canvas_point.Update()
 canvas_point.SaveAs(str(ENERGY) + PROCESS + '.eps')
 
 with open('gamma_at_zero_errors.txt', 'a') as file:
-    file.write('%f\t%f\t%f\n' % (my_gamma.gammaAtZero ,gamma_points[0][1], ENERGY) )
+    file.write('%f\t%f\t%f\t%f\t%f\n' % (my_gamma.gammaAtZero ,gamma_points[0][1],
+                    getRealGamma(0e-5, my_gamma.t_max(), my_gamma.parameters),
+                    getRealGammaError(0e-5, my_gamma.t_max(), my_gamma.parameters, my_gamma.parametersErrors),
+                    ENERGY) )
 
 raw_input('pease enter any key ...')

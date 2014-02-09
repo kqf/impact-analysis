@@ -3,13 +3,13 @@
 from ROOT import *
 from DataPoint import *
 # from readCSData import *
-from Formulas import diff_cs, GammaApproximation, ratio
+from Formulas import diff_cs, GammaApproximation, ratio, getRealGamma, getRealGammaError
 from random import gauss
 
 class ComputeGamma(object):
     __canvas = TCanvas('canvas', 'Impact Analysis', 800, 600)
     __observable = {'pp': 310, 'p#bar{p}': 311}
-    
+
     def __init__(self, ptype, energy, sigma, rho):
         self.sigma = sigma
         self.rho = rho
@@ -36,6 +36,10 @@ class ComputeGamma(object):
         with open('alldata_v1_4.dat','r') as file:
             for line in file:
                 data = line.lower().split()
+                # Silly but simpliest way to handle problem
+                if 1000*self.__energy == 52818 and toint1(data[0]) == 53018:
+                    data[0] = 52.818
+
                 if toint1(data[0]) == 1000*self.__energy and toint2(data[6]) == self.__procesType and float(data[1]) > 0.1:
                     raw_data.append([float(data[1]), float(data[2]), float(data[5])])
 
@@ -100,28 +104,15 @@ class ComputeGamma(object):
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
 
-        function.SetParLimits(0, 0, 6)
-        function.SetParLimits(2, -50, 250)
-        function.SetParLimits(3, 0, 50)
-        function.SetParLimits(4, 0.1, 50)
-        function.SetParLimits(6, 0, 100)
+    #     function.SetParLimits(0, 0, 6)
+        # function.SetParLimits(2, -50, 250)
+        # function.SetParLimits(3, 0, 50)
+        # function.SetParLimits(4, 0.1, 50)
+        # function.SetParLimits(6, 0, 100)
         function.SetParLimits(8, 0.078, 100)
 
         function.SetLineColor(38)
         return function
-
-    def __createGammaFunction(self, parameters):
-        """Creates \Gamma(b) functor uses __dataPoints !"""
-        self.gammaComputor = GammaApproximation(self.__dataPoints)
-        self.getGamma = lambda x, p: self.gammaComputor.gamma(x, p)
-
-        gamma = TF1('#Gamma(b)', self.getGamma,0, 3, self.nParemeters)
-        [gamma.SetParameter(i, p) for i, p in enumerate(parameters)]
-
-        gamma.SetLineColor(46)
-        gamma.GetXaxis().SetTitle('b\t,fm')
-        gamma.GetYaxis().SetTitle('#Gamma')
-        return gamma
 
     def __createRatioFunction(self, parameters):
         """Creates TF1 function for fitting data"""
@@ -162,8 +153,15 @@ class ComputeGamma(object):
         self.function = self.__createDiffCsFunct()
         self.graph.Fit(self.function,'r')
 
+        virtualFitter = TVirtualFitter.GetFitter()
+        parameters = virtualFitter.GetCovarianceMatrix()
+
         self.function.Draw('same')
         parameters = [ self.function.GetParameter(i) for i in range(self.nParemeters) ]
+        parametersErrors = [ self.function.GetParError(i) for i in range(self.nParemeters) ]
+        # Needed to compute gamma at zero
+        self.parameters = parameters
+        self.parametersErrors = parametersErrors
 
         self.chi2 = self.function.GetChisquare()/ (self.function.GetNDF() if self.function.GetNDF() != 0 else 1)
 
@@ -185,10 +183,7 @@ class ComputeGamma(object):
         with open('fit_parameters.txt', 'a') as file:
             file.write(str(self.__energy) + ' ' + str(parameters) + '\n')
 
-        # self.__canvas.cd(3)
-        # gPad.SetLogy()
-        # ratio = self.__createRatioFunction(parameters)
-        # ratio.Draw()
+
         self.__canvas.Update()
 
 
@@ -242,6 +237,8 @@ class ComputeGamma(object):
                 'mb #rho = '          + str(self.rho)    )
         legend.AddEntry(self.function , '#chi^{2}/ndf = ' + str(self.chi2))
         return legend
+    def t_max(self):
+        return self.__dataPoints[-1].t
 
 
 def main():
@@ -257,6 +254,9 @@ def main():
 
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
     c.performComputations()
+
+    # print 'Current value is ',getRealGamma(0.1, c.t_max(), c.parameters)
+    # print 'Current error is ',getRealGammaError(0.1, c.t_max(), c.parameters, c.parametersErrors)
     # c.performComputationsMC(100, 'a')
     raw_input('press any key ...')
 
