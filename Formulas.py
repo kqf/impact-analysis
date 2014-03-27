@@ -4,8 +4,15 @@ from cmath import exp as Exp
 from math  import exp, pi, fabs, sqrt, log, sin, cos
 from scipy import integrate
 from scipy.special import j0, j1
-# from array  import array
+
 from random import randrange
+
+from math import sin as Sin
+from math import cos as Cos
+from math import pow as Power
+from math import e as E
+
+import numpy as np
 
 def amplitude(t_, p):
     t = t_[0]
@@ -39,12 +46,7 @@ def getImage(t, p):
 def getReal(t, p):
     return amplitude([t], p).real
 
-from math import sin as Sin
-from math import cos as Cos
-from math import pow as Power
-from math import e as E
-
-def getRealError(t, p, pe):
+def getRealError(t, p, covariance, dsigma, drho):
     a1 = p[0]
     a2 = p[1]
     a4 = p[2]
@@ -59,23 +61,26 @@ def getRealError(t, p, pe):
     b6 = p[9]
     a_s = p[10]/(sqrt(pi)*4)
     rho = p[11]
- 
+
     # errors
-    a1e = pe[0]
-    a2e = pe[1]
-    a4e = pe[2]
+#     a1e = pe[0]
+    # a2e = pe[1]
+    # a4e = pe[2]
 
-    b1e = pe[3]
-    b2e = pe[4]
-    b3e = pe[5]
-    b4e = pe[6]
+    # b1e = pe[3]
+    # b2e = pe[4]
+    # b3e = pe[5]
+    # b4e = pe[6]
 
-    a5e = pe[7]
-    b5e = pe[8]
-    b6e = pe[9]
-    a_se = pe[10]/(sqrt(pi)*4)
-    rhoe = pe[11]
+    # a5e = pe[7]
+    # b5e = pe[8]
+    # b6e = pe[9]
+    # a_se = pe[10]/(sqrt(pi)*4)
+    # rhoe = pe[11]
 
+#     print '\n'
+    # print 'a1 =', a1e, ';'
+ 
     d_a1 = (a4 + a_s)*(
                    rho*( Power(E,((-a4 - a_s)*b1*t)/2.)*Cos(((a4 + a_s)*b1*t*rho)/2.)
                        - Power(E,((-a4 - a_s)*b2*t)/2.)*Cos(((a4 + a_s)*b2*t*rho)/2.) )
@@ -144,35 +149,48 @@ def getRealError(t, p, pe):
                          - ((1 - a1)*(a4 + a_s)*b2*Power(E,((-a4 - a_s)*b2*t)/2.)*t*Sin(((a4 + a_s)*b2*t*rho)/2.))/2.)
                          )
             )
-    error = sqrt(
-                      (d_a1**2)*(a1e**2)
-                    + (d_a4**2)*(a4e**2)
-                    + (d_as**2)*(a_se**2)
-                    + (d_b1**2)*(b1e**2)
-                    + (d_b2**2)*(b2e**2)
-                    + (d_b5**2)*(b5e**2)
-                    + (d_rho**2)*(rhoe**2)
-                )
 
+    A = [ 
+          (d_a1),
+          (d_a4),
+          (d_b1),
+          (d_b2),
+          0, #b4
+          (d_b5)
+           # (d_as),
+           # (d_rho)
+        ]
+
+    error_squared = 0
+
+    # REMEMBER that a_s error should be multiplied by 1/(sqrt(pi)*4)
+
+
+    for i in range(len(A)):
+        for j in range(len(A)):
+            error_squared += covariance[i][j]*A[i]*A[j]
+
+    error_squared += (dsigma ** 2) * (d_as/(sqrt(pi)*4.))**2 + (drho ** 2) * (d_rho)**2
+    error = sqrt(error_squared)
     return error
 
-def getRealGammaError(b, t_max, p, pe):
+def getRealGammaError(B, p, covariance, dsigma, drho):
+    b = B[0]
     k_fm   = 0.1973269718
     k_norm = 0.389379338
 
-    f = lambda q :  q*j0(b*q/k_fm)*getRealError(q*q, p, pe)/sqrt(pi*k_norm)
-    result =  integrate.quad(f, 0, t_max**0.5)[0]  # integral from zero to lower bound
+    f = lambda q :  q*j0(b*q/k_fm)*getRealError(q*q, p, covariance, dsigma, drho)/sqrt(pi*k_norm)
+    result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
 
     return result
 
-def getRealGamma(B, t_max, p):
+def getRealGamma(B, p):
     b = B[0]
     k_fm   = 0.1973269718
     k_norm = 0.389379338
 
     f = lambda q :  q*j0(b*q/k_fm)*getReal(q*q, p)/sqrt(pi*k_norm)
-    result =  integrate.quad(f, 0, t_max**0.5)[0]  # integral from zero to lower bound
-
+    result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
     return result
 
 def diff_cs(t, p):
@@ -181,7 +199,7 @@ def diff_cs(t, p):
     try:
         result =  ( (A.real)**2 + (A.imag)**2 )/k_norm
     except OverflowError:
-        print 'Real ', A.real, ' Imag ', A.imag
+        # print 'Real ', A.real, ' Imag ', A.imag
         result = A.imag
         # result =  round(  (A.real)**2 + (A.imag)**2  )
     return result
@@ -223,12 +241,28 @@ class GammaApproximation(object):
         result =  integrate.quad(f, 0, self.__dataPoints[0].lower**0.5)[0]  # integral from zero to lower bound
         return result
 
+    def getGammaExtrapNearInf(self, b, p): # need to be checked !!!
+        """Calculate extrapolation term near zero"""
+        B = b[0]
+        k_norm = self.k_norm
+        k_fm = self.k_fm
+
+        imA = lambda t: getImage(t, p)
+        f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
+        # f = lambda q :  q*j0(B*q/k_fm)*getImage(q**2, p)/sqrt(pi*k_norm)
+        result =  integrate.quad(f, self.__dataPoints[-1].upper**0.5, np.infty)[0]  # integral from zero to lower bound
+        return result
+
+
     def gamma(self ,b, p):
         """Gives gamma(b) from points"""
         B = b[0]
 
         extrapolation1 = self.getGammaExtrapNearZero(b, p) # taking into account extrapolation near zero 
-        result = extrapolation1
+        extrapolation2 = self.getGammaExtrapNearInf(b, p)
+
+        # if B <= 0.01 : print  'At b = ', B, 'ext',extrapolation2
+        result = extrapolation1 + extrapolation2
 
         k_norm = self.k_norm
         k_fm = self.k_fm

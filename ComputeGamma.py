@@ -1,9 +1,8 @@
 #!/usr/bin/python2.7
-
 from ROOT import *
 from DataPoint import *
 # from readCSData import *
-from Formulas import diff_cs, GammaApproximation, ratio, getRealGamma, getRealGammaError
+from Formulas import diff_cs, GammaApproximation, ratio, getRealGamma, getRealGammaError, getRealError
 from random import gauss
 
 class ComputeGamma(object):
@@ -97,19 +96,30 @@ class ComputeGamma(object):
         [function.SetParameter(i, par) for i, par in enumerate(parameters)]
 
 
+        
+        function.FixParameter(10, self.sigma)
+        function.FixParameter(11, self.rho)
+
+#         function.SetParameter(10, self.sigma)
+        # function.SetParameter(11, self.rho)
+
+        # function.SetParLimits(10, self.sigma - 2.2, self.sigma + 2.2)
+        # function.SetParLimits(11, self.rho - 0.08, self.rho + 0.01)
+
         # function.SetParLimits(1, -100, 0)
         function.FixParameter(1, 0)
         function.FixParameter(5, 0)
         function.FixParameter(7, 0)
-        function.FixParameter(10, self.sigma)
-        function.FixParameter(11, self.rho)
+        function.FixParameter(9, 0)
 
-    #     function.SetParLimits(0, 0, 6)
-        # function.SetParLimits(2, -50, 250)
-        # function.SetParLimits(3, 0, 50)
-        # function.SetParLimits(4, 0.1, 50)
-        # function.SetParLimits(6, 0, 100)
+
+        function.SetParLimits(0, 0, 6)
+        function.SetParLimits(2, -50, 250)
+        function.SetParLimits(3, 0, 50)
+        function.SetParLimits(4, 0.1, 50)
+        function.SetParLimits(6, 0, 100)
         function.SetParLimits(8, 0.078, 100)
+        # function.FixParameter(8, 0.078)
 
         function.SetLineColor(38)
         return function
@@ -151,10 +161,7 @@ class ComputeGamma(object):
         print self.graph.GetN()
 
         self.function = self.__createDiffCsFunct()
-        self.graph.Fit(self.function,'r')
-
-        virtualFitter = TVirtualFitter.GetFitter()
-        parameters = virtualFitter.GetCovarianceMatrix()
+        self.graph.Fit(self.function,'rE')
 
         self.function.Draw('same')
         parameters = [ self.function.GetParameter(i) for i in range(self.nParemeters) ]
@@ -176,16 +183,27 @@ class ComputeGamma(object):
 
 
         gamma_0 = self.getGamma([1e-5], parameters)
-
+        # Needs to be called from outside:
+        self.getReal_Gamma = lambda b : self.getGamma(b, parameters)
 
         self.gammaAtZero = gamma_0
+
+        # print '\Gamma(0) = ', self.gammaAtZero
 
         with open('fit_parameters.txt', 'a') as file:
             file.write(str(self.__energy) + ' ' + str(parameters) + '\n')
 
+        fitter = TVirtualFitter.GetFitter()
+        # cov = fitter.GetCovarianceMatrix()
 
+
+        covariance =  [ [0 for i in range(6)] for j in range(6)]
+        for i in range(6):
+            for j in range(6):
+                covariance[i][j]  =  fitter.GetCovarianceMatrixElement(i, j)
+
+        self.covariance = covariance
         self.__canvas.Update()
-
 
     def performComputationsMC(self, nuber_of_points, prefix):
         """Writes points from b = 0 to b = 3 to file"""
@@ -201,7 +219,7 @@ class ComputeGamma(object):
             self.graph    = self.__createDiffCsGraph()
             self.function = self.__createDiffCsFunct()
 
-            self.graph.Fit(self.function, 'r')
+            self.graph.Fit(self.function, 'rE')
             parameters = [ self.function.GetParameter(i) for i in range(self.nParemeters) ]
             with open(file_name, 'w') as file:
                 [ file.write(str(i) + ' ') for i in parameters ]
@@ -211,17 +229,20 @@ class ComputeGamma(object):
         gammaComputorMC = GammaApproximation(self.__dataPoints)
         getGamma = lambda x: gammaComputorMC.gamma([x], parameters)
 
-        b_max = 3.
+        b_max = 3.0
         b = 0
         result = []
-        while b < b_max:
+        while b <= b_max + 0.000001:
             if b == 0:
                 g = getGamma(1e-5)
             else:
                 g = getGamma(b)
 
             b += b_max/nuber_of_points
+            # print b, b <= b_max
+
             result.append(g)
+
         print '%d percent is done' % (prefix)
         return result
 
@@ -240,24 +261,22 @@ class ComputeGamma(object):
     def t_max(self):
         return self.__dataPoints[-1].t
 
-
 def main():
-    # ENERGY = 44.699
-    # RHO    = 0.062    # \sqrt{s} = 44.7
-    # SIGMA  = 41.7     # exact value
-    # PROCESS = 'pp'
+    ENERGY = 7000
+    RHO    = 0.14
+    SIGMA  = 98.3
 
-    ENERGY = 52.818
-    RHO    = 0.077
-    SIGMA  = 42.75
+    DSIGMA = 2.23
+    DRHO =   0.007
+
     PROCESS = 'pp'
 
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
     c.performComputations()
 
-    # print 'Current value is ',getRealGamma(0.1, c.t_max(), c.parameters)
-    # print 'Current error is ',getRealGammaError(0.1, c.t_max(), c.parameters, c.parametersErrors)
-    # c.performComputationsMC(100, 'a')
+    print 'im Gamma', getRealGamma([1e-5], c.parameters)
+    print 'delta im Gamma', getRealGammaError( [1e-5], c.parameters, c.covariance, DSIGMA, DRHO)
+
     raw_input('press any key ...')
 
 if __name__ == "__main__":
