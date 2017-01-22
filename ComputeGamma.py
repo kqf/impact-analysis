@@ -2,7 +2,7 @@
 from ROOT import *
 from DataPoint import *
 # from readCSData import *
-from Formulas import diff_cs, GammaApproximation, ratio, getRealGamma, getRealGammaError, getRealError
+from Formulas import diff_cs, GammaApproximation, ratio, getRealGamma, getRealGammaError, getRealError, getImagGamma, amplitude
 from random import gauss
 
 class ComputeGamma(object):
@@ -89,9 +89,16 @@ class ComputeGamma(object):
 
         function = TF1('function', diff_cs, 0, 10, self.nParemeters)
 
-        parameters = [0.2867574, 0, 0.3005147e-01, 0.1318668e+01
-                    , 0.2405179e+01, 0, 0.1821596e+01, 0 ,0.7800825e-01, 0]
-                    # 0, 0.4509552e+01, 0]
+        # parameters = [0.2867574, 0, 0.3005147e-01, 0.1318668e+01
+                    # , 0.2405179e+01, 0, 0.1821596e+01, 0 ,0.7800825e-01, 0]
+                    # # 0, 0.4509552e+01, 0]
+        # parameters = [0.1198810, 0, 0.7276397, 0.7088795,
+                      # 0.1382631e+01, 0, 0.4637189e+01, 0, 0.5886629e+00, 0]
+        parameters = [0.11986832441123918, 0.0, 1.1660221228353649, 0.44233049876624964,
+                       0.8627662804403674, 0.0, 4.63711534711051, 0.0, 0.588952821602961, 0.0 ]
+
+        self.parameters = parameters
+
 
         [function.SetParameter(i, par) for i, par in enumerate(parameters)]
 
@@ -205,7 +212,7 @@ class ComputeGamma(object):
         self.covariance = covariance
         self.__canvas.Update()
 
-    def performComputationsMC(self, nuber_of_points, prefix):
+    def performComputationsMC(self, nuber_of_points, prefix, dsigma):
         """Writes points from b = 0 to b = 3 to file"""
 
         file_name = 'parameters_' + self.title + str(self.__energy) + '.dat'
@@ -227,7 +234,8 @@ class ComputeGamma(object):
         mcPoints = self.__generateMC()
 
         gammaComputorMC = GammaApproximation(self.__dataPoints)
-        getGamma = lambda x: gammaComputorMC.gamma([x], parameters)
+        new_sigma = gauss(self.sigma, dsigma)
+        getGamma = lambda x: gammaComputorMC.gamma([x], parameters, new_sigma)
 
         b_max = 3.0
         b = 0
@@ -272,10 +280,15 @@ def main():
     PROCESS = 'pp'
 
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
-    c.performComputations()
+    # c.performComputations()
 
-    print 'im Gamma', getRealGamma([1e-5], c.parameters)
-    print 'delta im Gamma', getRealGammaError( [1e-5], c.parameters, c.covariance, DSIGMA, DRHO)
+
+
+    # print 'im Gamma', getRealGamma([1e-5], c.parameters)
+    # print 'delta im Gamma', getRealGammaError( [1e-5], c.parameters, c.covariance, DSIGMA, DRHO)
+    # print 're gamma', c.getGamma([1e-5], c.parameters)
+    # print 're gamma', getImagGamma([1e-5], c.parameters)
+
 
     raw_input('press any key ...')
 

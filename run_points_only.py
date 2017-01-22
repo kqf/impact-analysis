@@ -71,7 +71,7 @@ def imGammaPoints(comp):
 mc = []
 for i in range(MC_AMOUNT):
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
-    mc.append( c.performComputationsMC(N_POINTS, i) )
+    mc.append( c.performComputationsMC(N_POINTS, i, DRHO) )
 
     if i == range(MC_AMOUNT)[-1]:
         print 'go'

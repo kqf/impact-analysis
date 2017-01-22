@@ -1,6 +1,7 @@
 *.dat
 *.pyc
 *.eps
+*.txt
 all_old_results
 new_results
 errors_mathematica

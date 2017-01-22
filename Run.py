@@ -28,13 +28,13 @@ def getGraph(lst):
     [graph.SetPointError(i, 0, p[1]) for i, p in enumerate(lst)]
     return graph
 
-ENERGY = 30.700
-RHO    = 0.036    # \sqrt{s} = 44.7
-SIGMA  = 40.1     # exact value
+ENERGY = 7000
+RHO    = 0.14
+SIGMA  = 98.3
 PROCESS = 'pp'
 
-DSIGMA = 0.2
-DRHO = 0.06
+DSIGMA = 2.23
+DRHO = 0.007
 
 MC_AMOUNT = 100
 
@@ -45,7 +45,7 @@ MC_AMOUNT = 100
 mc = []
 for i in range(MC_AMOUNT):
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
-    mc.append( c.performComputationsMC(100, i) )
+    mc.append( c.performComputationsMC(100, i, DSIGMA) )
 
     if i == range(MC_AMOUNT)[-1]:
         print 'go'
