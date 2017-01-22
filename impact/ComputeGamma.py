@@ -1,4 +1,5 @@
 #!/usr/bin/python2.7
+
 from ROOT import *
 from DataPoint import *
 # from readCSData import *
@@ -211,6 +212,7 @@ class ComputeGamma(object):
 
         self.covariance = covariance
         self.__canvas.Update()
+        return [ self.getReal_Gamma( [(1e-5) * (i == 0) + i / 10. ]) for i in range(30)]
 
     def performComputationsMC(self, nuber_of_points, prefix, dsigma):
         """Writes points from b = 0 to b = 3 to file"""
@@ -279,8 +281,8 @@ def main():
 
     PROCESS = 'pp'
 
-    c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
-    # c.performComputations()
+    c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO) 
+    print c.performComputations()
 
 
 
