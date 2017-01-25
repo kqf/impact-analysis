@@ -1,82 +1,43 @@
 #!/usr/bin/python2.7
 
 from ROOT import *
-from DataPoint import *
+from DataPoint import DataPoint, DataReader
 # from readCSData import *
 from Formulas import diff_cs, GammaApproximation, ratio, getRealGamma, getRealGammaError, getRealError, getImagGamma, amplitude
-from random import gauss
+import random as rnd
 
 class ComputeGamma(object):
     __canvas = TCanvas('canvas', 'Impact Analysis', 800, 600)
-    __observable = {'pp': 310, 'p#bar{p}': 311}
+    observable = {'pp': 310, 'p#bar{p}': 311}
 
     def __init__(self, ptype, energy, sigma, rho):
         self.sigma = sigma
         self.rho = rho
-
-        # TODO: Add try-catch block for check proper ptype
-        self.__procesType = self.__observable[ptype]
-        self.__energy = energy
-        self.__dataPoints = []
-
+        self.energy = energy
         self.name = ptype + str(energy)
         self.title = ptype
         # Reading data from file
-        self.__readDataCS()
+        # TODO: Add try-catch block for check proper ptype
+        self.dataPoints = DataReader(self.energy, self.observable[ptype]).read()
         self.nParemeters = 12
         self.gammaAtZero = 0
         self.parametersFile = ''
-
-    def __readDataCS(self):
-        """Reading data from alldata_v1_4.dat file"""
-        toint1 = lambda x: int( 1000 * float(x) )
-        toint2 = lambda x: int( float(x) )
-
-        raw_data = []
-        with open('alldata_v1_4.dat','r') as file:
-            for line in file:
-                data = line.lower().split()
-                # Silly but simpliest way to handle problem
-                if 1000*self.__energy == 52818 and toint1(data[0]) == 53018:
-                    data[0] = 52.818
-
-                if toint1(data[0]) == 1000*self.__energy and toint2(data[6]) == self.__procesType and float(data[1]) > 0.1:
-                    raw_data.append([float(data[1]), float(data[2]), float(data[5])])
-
-        self.__dataPoints = [ DataPoint(i[0], i[1], i[2]) for i in raw_data ]
-        self.__dataPoints.sort()
-
-        self.__dataPoints[0].setBinRange( self.__dataPoints[0].t - (self.__dataPoints[0].t - self.__dataPoints[1].t)/2. 
-                                       ,( self.__dataPoints[1].t + self.__dataPoints[0].t )/2. )
-
-        [ self.__dataPoints[i].setBinRange(
-              ( self.__dataPoints[i - 1].t + self.__dataPoints[i    ].t )/2.
-            , ( self.__dataPoints[i    ].t + self.__dataPoints[i + 1].t )/2.
-            ) for i in range(1,len(self.__dataPoints) - 1) ]
-
-        self.__dataPoints[-1].setBinRange(
-                ( self.__dataPoints[-2].t +  self.__dataPoints[-1].t)/2
-                , self.__dataPoints[-1].t + ( self.__dataPoints[-1].t - self.__dataPoints[-2].t )/2. )
+        
 
     def __generateMC(self):
         """Generates MC data"""
-        mc_list = list(self.__dataPoints)
-        for i, point in enumerate(self.__dataPoints):
-            mu = point.ds
-            sigma = point.err
-            mc_list[i].ds = gauss(mu, sigma)
+        return [DataPoint(p.t, rnd.gauss(p.ds, p.err), p.err, p.lower, p.upper) for p in self.dataPoints]
 
-        return mc_list
 
     def __createDiffCsGraph(self):
         """Creates TGraphErrors, with differential cross section data"""
         # TODO: Check if data red properly
-        graph = TGraphErrors( len(self.__dataPoints) )
+        graph = TGraphErrors( len(self.dataPoints) )
         graph.SetName(self.name)
         graph.SetTitle(self.title)
 
-        [ graph.SetPoint(i, p.t, p.ds) for i, p in enumerate(self.__dataPoints) ]
-        [ graph.SetPointError(i, 0, p.err) for i, p in enumerate(self.__dataPoints) ]
+        [ graph.SetPoint(i, p.t, p.ds) for i, p in enumerate(self.dataPoints) ]
+        [ graph.SetPointError(i, 0, p.err) for i, p in enumerate(self.dataPoints) ]
 
         graph.GetXaxis().SetTitle('-t, GeV/c')
         graph.GetYaxis().SetTitle('#frac{d#sigma}{dt}, mb/GeV^{2}')
@@ -147,8 +108,8 @@ class ComputeGamma(object):
         return function
 
     def __createGammaFunction(self, parameters):
-        """Creates \Gamma(b) functor uses __dataPoints !"""
-        self.gammaComputor = GammaApproximation(self.__dataPoints)
+        """Creates \Gamma(b) functor uses dataPoints !"""
+        self.gammaComputor = GammaApproximation(self.dataPoints)
         self.getGamma = lambda x, p: self.gammaComputor.gamma(x, p)
 
         gamma = TF1('#Gamma(b)', self.getGamma,0, 3, self.nParemeters)
@@ -199,7 +160,7 @@ class ComputeGamma(object):
         # print '\Gamma(0) = ', self.gammaAtZero
 
         with open('fit_parameters.txt', 'a') as file:
-            file.write(str(self.__energy) + ' ' + str(parameters) + '\n')
+            file.write(str(self.energy) + ' ' + str(parameters) + '\n')
 
         fitter = TVirtualFitter.GetFitter()
         # cov = fitter.GetCovarianceMatrix()
@@ -217,7 +178,7 @@ class ComputeGamma(object):
     def performComputationsMC(self, nuber_of_points, prefix, dsigma):
         """Writes points from b = 0 to b = 3 to file"""
 
-        file_name = 'parameters_' + self.title + str(self.__energy) + '.dat'
+        file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
         # needs to be deleted from the outside of the class
         self.parametersFile = file_name
         try:
@@ -235,8 +196,8 @@ class ComputeGamma(object):
 
         mcPoints = self.__generateMC()
 
-        gammaComputorMC = GammaApproximation(self.__dataPoints)
-        new_sigma = gauss(self.sigma, dsigma)
+        gammaComputorMC = GammaApproximation(self.dataPoints)
+        new_sigma = rnd.gauss(self.sigma, dsigma)
         getGamma = lambda x: gammaComputorMC.gamma([x], parameters, new_sigma)
 
         b_max = 3.0
@@ -263,13 +224,13 @@ class ComputeGamma(object):
         """Creates legend for ds/dt graph"""
         legend = TLegend(0.9, 0.7, 0.3, 0.8)
         legend.AddEntry(self.graph ,
-                '#sqrt{s} = '         + str(self.__energy) +
+                '#sqrt{s} = '         + str(self.energy) +
                 'GeV #sigma_{tot} = ' + str(self.sigma   ) +
                 'mb #rho = '          + str(self.rho)    )
         legend.AddEntry(self.function , '#chi^{2}/ndf = ' + str(self.chi2))
         return legend
     def t_max(self):
-        return self.__dataPoints[-1].t
+        return self.dataPoints[-1].t
 
 def main():
     ENERGY = 7000
