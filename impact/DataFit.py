@@ -1,9 +1,11 @@
 #!/usr/bin/python2
 import ROOT
+from Formulas import diff_cs, GammaApproximation
 
 class DataFit(object):
     def __init__(self, data, name, title, sigma , rho, nparameters = 12):
-        super(DataReader, self).__init__()
+        super(DataFit, self).__init__()
+        self.canvas = ROOT.TCanvas('canvas', 'Impact Analysis', 800, 600)
         self.data = data
         self.name = name
         self.title = title
@@ -12,10 +14,10 @@ class DataFit(object):
         self.nparameters = nparameters
 
 
-   def differential_cs(self):
+    def differential_cs(self):
         """Creates TGraphErrors, with differential cross section data"""
         # TODO: Check if data red properly
-        graph = TGraphErrors( len(self.data) )
+        graph = ROOT.TGraphErrors( len(self.data) )
         graph.SetName(self.name)
         graph.SetTitle(self.title)
 
@@ -92,3 +94,50 @@ class DataFit(object):
         gamma.GetXaxis().SetTitle('b\t,fm')
         gamma.GetYaxis().SetTitle('#Gamma')
         return gamma 
+
+
+    def draw(self):
+        self.canvas.Divide(2, 1)
+        self.canvas.cd(1).SetLogy()
+
+        graph = self.differential_cs()
+        graph.Draw('AP')
+
+        cs_function = self.differential_cs_approx()
+        graph.Fit(cs_function,'rE')
+        cs_function.Draw('same')
+
+        gamma = self.gamma_function([cs_function.GetParameter(i) for i in range(self.nparameters)])
+        self.canvas.cd(2).SetLogy()
+        gamma.Draw()
+        self.canvas.Update()
+        # self.canvas.cd(1)
+        # self.legend = self.getLegendForDiffCS()
+        # self.legend.Draw()
+        raw_input()
+
+
+        # gamma_0 = self.getGamma([1e-5], parameters)
+        # # Needs to be called from outside:
+        # self.getReal_Gamma = lambda b : self.getGamma(b, parameters)
+
+        # self.gammaAtZero = gamma_0
+
+        # # print '\Gamma(0) = ', self.gammaAtZero
+
+        # with open('fit_parameters.txt', 'a') as file:
+        #     file.write(str(self.energy) + ' ' + str(parameters) + '\n')
+
+        # fitter = TVirtualFitter.GetFitter()
+        # # cov = fitter.GetCovarianceMatrix()
+
+
+        # covariance =  [ [0 for i in range(6)] for j in range(6)]
+        # for i in range(6):
+        #     for j in range(6):
+        #         covariance[i][j]  =  fitter.GetCovarianceMatrixElement(i, j)
+
+        # self.covariance = covariance
+        # self.canvas.Update()
+        # return [ self.getReal_Gamma( [(1e-5) * (i == 0) + i / 10. ]) for i in range(30)]
+
