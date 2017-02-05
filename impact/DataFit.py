@@ -3,12 +3,13 @@ import ROOT
 from Formulas import diff_cs, GammaApproximation
 
 class DataFit(object):
-    def __init__(self, data, name, title, sigma , rho, nparameters = 12):
+    def __init__(self, data, name, title, energy, sigma , rho, nparameters = 12):
         super(DataFit, self).__init__()
         self.canvas = ROOT.TCanvas('canvas', 'Impact Analysis', 800, 600)
         self.data = data
         self.name = name
         self.title = title
+        self.energy = energy
         self.sigma = sigma
         self.rho = rho  
         self.nparameters = nparameters
@@ -95,8 +96,18 @@ class DataFit(object):
         gamma.GetYaxis().SetTitle('#Gamma')
         return gamma 
 
+    def get_legend(self, graph, function):
+        legend = ROOT.TLegend(0.9, 0.7, 0.3, 0.8)
+        chi2 = function.GetChisquare() / (function.GetNDF() + 1 * (function.GetNDF() == 0))
+        legend.AddEntry(graph ,
+                '#sqrt{s} = '         + str(self.energy) +
+                'GeV #sigma_{tot} = ' + str(self.sigma   ) +
+                'mb #rho = '          + str(self.rho)    )
+        legend.AddEntry(function , '#chi^{2}/ndf = ' + str(chi2))
+        return legend
 
-    def draw(self):
+
+    def fit(self):
         self.canvas.Divide(2, 1)
         self.canvas.cd(1).SetLogy()
 
@@ -107,37 +118,30 @@ class DataFit(object):
         graph.Fit(cs_function,'rE')
         cs_function.Draw('same')
 
+        self.legend = self.get_legend(graph, cs_function)
+        self.legend.Draw()
+
         gamma = self.gamma_function([cs_function.GetParameter(i) for i in range(self.nparameters)])
         self.canvas.cd(2).SetLogy()
         gamma.Draw()
         self.canvas.Update()
-        # self.canvas.cd(1)
-        # self.legend = self.getLegendForDiffCS()
-        # self.legend.Draw()
-        raw_input()
 
+        # real_gamma = lambda b : self.getGamma(b, parameters) 
+        return [gamma.Eval((1e-5) * (i == 0) + i / 10.) for i in range(30)]
 
-        # gamma_0 = self.getGamma([1e-5], parameters)
-        # # Needs to be called from outside:
-        # self.getReal_Gamma = lambda b : self.getGamma(b, parameters)
+    def get_save_parameters(self, func):
+        parameters = [func.GetParameter(i) for i in range(self.nparameters)]
 
-        # self.gammaAtZero = gamma_0
+        with open('fit_parameters.txt', 'a') as f:
+            f.write(str(self.energy) + ' ' + str(parameters) + '\n')
+        return parameters
 
-        # # print '\Gamma(0) = ', self.gammaAtZero
+    def covariance(self):
+        fitter = TVirtualFitter.GetFitter()
+        cov = fitter.GetCovarianceMatrix()
 
-        # with open('fit_parameters.txt', 'a') as file:
-        #     file.write(str(self.energy) + ' ' + str(parameters) + '\n')
-
-        # fitter = TVirtualFitter.GetFitter()
-        # # cov = fitter.GetCovarianceMatrix()
-
-
-        # covariance =  [ [0 for i in range(6)] for j in range(6)]
-        # for i in range(6):
-        #     for j in range(6):
-        #         covariance[i][j]  =  fitter.GetCovarianceMatrixElement(i, j)
-
-        # self.covariance = covariance
-        # self.canvas.Update()
-        # return [ self.getReal_Gamma( [(1e-5) * (i == 0) + i / 10. ]) for i in range(30)]
-
+        covariance =  [ [0 for i in range(6)] for j in range(6)]
+        for i in range(6):
+            for j in range(6):
+                covariance[i][j]  =  fitter.GetCovarianceMatrixElement(i, j)
+        return covariance

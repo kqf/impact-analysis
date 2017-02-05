@@ -15,5 +15,5 @@ class TestVisualRepresentation(unittest.TestCase):
 		
 		# TODO: Try to add quiet/dead mode
 		c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO) 
-		df = DataFit(c.dataPoints, 'a', 'a', SIGMA, RHO)
-		df.draw()
+		df = DataFit(c.dataPoints, 'a', 'a', ENERGY, SIGMA, RHO)
+		df.fit()
