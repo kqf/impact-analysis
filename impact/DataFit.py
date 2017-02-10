@@ -13,6 +13,9 @@ class DataFit(object):
         self.sigma = sigma
         self.rho = rho  
         self.nparameters = nparameters
+        self.parameters = [0.11986832441123918, 0.0, 1.1660221228353649, 0.44233049876624964, 
+                           0.8627662804403674, 0.0, 4.63711534711051, 0.0, 0.588952821602961, 0.0, self.sigma, self.rho]
+
 
 
     def differential_cs(self):
@@ -22,8 +25,8 @@ class DataFit(object):
         graph.SetName(self.name)
         graph.SetTitle(self.title)
 
-        [ graph.SetPoint(i, p.t, p.ds) for i, p in enumerate(self.data) ]
-        [ graph.SetPointError(i, 0, p.err) for i, p in enumerate(self.data) ]
+        [graph.SetPoint(i, p.t, p.ds) for i, p in enumerate(self.data)]
+        [graph.SetPointError(i, 0, p.err) for i, p in enumerate(self.data)]
 
         graph.GetXaxis().SetTitle('-t, GeV/c')
         graph.GetYaxis().SetTitle('#frac{d#sigma}{dt}, mb/GeV^{2}')
@@ -34,30 +37,14 @@ class DataFit(object):
 
     def differential_cs_approx(self):
         function = ROOT.TF1('function', diff_cs, 0, 10, self.nparameters)
-
-        # parameters = [0.2867574, 0, 0.3005147e-01, 0.1318668e+01
-                    # , 0.2405179e+01, 0, 0.1821596e+01, 0 ,0.7800825e-01, 0]
-                    # # 0, 0.4509552e+01, 0]
-        # parameters = [0.1198810, 0, 0.7276397, 0.7088795,
-                      # 0.1382631e+01, 0, 0.4637189e+01, 0, 0.5886629e+00, 0]
-        parameters = [0.11986832441123918, 0.0, 1.1660221228353649, 0.44233049876624964,
-                       0.8627662804403674, 0.0, 4.63711534711051, 0.0, 0.588952821602961, 0.0 ]
-
-        self.parameters = parameters
-        [function.SetParameter(i, par) for i, par in enumerate(parameters)]
-        
+        [function.SetParameter(i, par) for i, par in enumerate(self.parameters)]
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
-        # function.SetParameter(10, self.sigma)
-        # function.SetParameter(11, self.rho)
-        # function.SetParLimits(10, self.sigma - 2.2, self.sigma + 2.2)
-        # function.SetParLimits(11, self.rho - 0.08, self.rho + 0.01)
-        # function.SetParLimits(1, -100, 0)
+
         function.FixParameter(1, 0)
         function.FixParameter(5, 0)
         function.FixParameter(7, 0)
         function.FixParameter(9, 0)
-
 
         function.SetParLimits(0, 0, 6)
         function.SetParLimits(2, -50, 250)
@@ -96,6 +83,7 @@ class DataFit(object):
         gamma.GetYaxis().SetTitle('#Gamma')
         return gamma 
 
+
     def get_legend(self, graph, function):
         legend = ROOT.TLegend(0.9, 0.7, 0.3, 0.8)
         chi2 = function.GetChisquare() / (function.GetNDF() + 1 * (function.GetNDF() == 0))
@@ -116,6 +104,8 @@ class DataFit(object):
 
         cs_function = self.differential_cs_approx()
         graph.Fit(cs_function,'rE')
+
+        self.parameters = [cs_function.GetParameter(i) for i in range(self.nparameters)]
         cs_function.Draw('same')
 
         self.legend = self.get_legend(graph, cs_function)
@@ -129,12 +119,15 @@ class DataFit(object):
         # real_gamma = lambda b : self.getGamma(b, parameters) 
         return [gamma.Eval((1e-5) * (i == 0) + i / 10.) for i in range(30)]
 
-    def get_save_parameters(self, func):
-        parameters = [func.GetParameter(i) for i in range(self.nparameters)]
 
-        with open('fit_parameters.txt', 'a') as f:
-            f.write(str(self.energy) + ' ' + str(parameters) + '\n')
-        return parameters
+    def get_save_parameters(self):
+        file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
+
+        with open(file_name, 'w') as f:
+            [f.write(str(i) + ' ') for i in self.parameters]
+        return self.parameters
+
+
 
     def covariance(self):
         fitter = TVirtualFitter.GetFitter()

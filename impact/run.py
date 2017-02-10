@@ -5,6 +5,7 @@ from ROOT import *
 from ComputeGamma import *
 from Formulas import getRealGammaError, getRealGamma
 import os
+import progressbar
 
 # TODO: change name for function
 def processPoint(filename, my_list):
@@ -36,75 +37,84 @@ PROCESS = 'pp'
 DSIGMA = 2.23
 DRHO = 0.007
 
-MC_AMOUNT = 100
+MC_AMOUNT = 1000
 
 
-# TODO: Rewrite  performComputationsMC return list
-# Uncomment lines below to perform generation of files
+def main():
+    # TODO: Rewrite  performComputationsMC return list
+    # Uncomment lines below to perform generation of files
 
-mc = []
-for i in range(MC_AMOUNT):
-    c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
-    mc.append( c.performComputationsMC(100, i, DSIGMA) )
+    mc = []
+    bar = progressbar.ProgressBar()
+    for i in bar(range(MC_AMOUNT)):
+        c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
+        mc.append( c.performComputationsMC(100, i, DSIGMA) )
 
-    if i == range(MC_AMOUNT)[-1]:
-        print 'go'
-        os.remove(c.parametersFile)
-
-    del c
-
-
-gaussFunction = TF1('gaussFunction','gaus', 0, 1.4)
-gaussFunction.SetParameter(0, 1)
-gaussFunction.SetParameter(1, 0.1)
-gaussFunction.SetParameter(2, 1)
-    
-
-file = open('errors.dat','w')
-gamma_points = []
+        if i == range(MC_AMOUNT)[-1]:
+            print 'go'
+            os.remove(c.parametersFile)
+        del c
 
 
-canvas_new = TCanvas('canvas_new', 'Canvas', 800, 600)
+    gaussFunction = TF1('gaussFunction','gaus', 0, 1.4)
+    gaussFunction.SetParameter(0, 1)
+    gaussFunction.SetParameter(1, 0.1)
+    gaussFunction.SetParameter(2, 1)
+        
 
-for idx in range(len(mc[0])):
-    """iterate over each point"""
-    ds_point = [mc[j][idx] for j in range(len(mc))]
-    hist = getHist(ds_point)
-    hist.Fit(gaussFunction,'r')
-    ndf = gaussFunction.GetNDF()
-    if idx == 89:
-        canvas_new.cd()
-        hist.DrawClone()
-        gaussFunction.DrawClone('same')
-    print 'Chi^2 = ', gaussFunction.GetChisquare(), idx
+    file = open('errors.dat','w')
+    gamma_points = []
 
-    mu = gaussFunction.GetParameter(1)
-    sigma = gaussFunction.GetParameter(2)
 
-    file.write(str(mu) + '\t' + str(sigma) + '\n')
-    gamma_points.append([mu, sigma])
-    del hist
+    canvas_new = TCanvas('canvas_new', 'Canvas', 800, 600)
 
-my_gamma = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
-my_gamma.performComputations()
+    ROOT.gROOT.SetBatch(True)
+    for idx in range(len(mc[0])):
+        """iterate over each point"""
+        ds_point = [mc[j][idx] for j in range(len(mc))]
+        hist = getHist(ds_point)
+        hist.Fit(gaussFunction,'0qr')
+        ndf = gaussFunction.GetNDF()
+        # if idx == 89:
+            # canvas_new.cd()
+            # hist.DrawClone()
+            # gaussFunction.DrawClone('same')
+        print 'Chi^2 = ', gaussFunction.GetChisquare(), idx
 
-canvas_point = my_gamma.getCanvas()
-graph = getGraph(gamma_points)
+        mu = gaussFunction.GetParameter(1)
+        sigma = gaussFunction.GetParameter(2)
 
-canvas_point.cd(2)
-graph.Draw('same')
-canvas_point.Update()
-canvas_point.SaveAs(str(ENERGY) + PROCESS + '.eps')
+        file.write(str(mu) + '\t' + str(sigma) + '\n')
+        gamma_points.append([mu, sigma])
+        del hist
+    ROOT.gROOT.SetBatch(False)
 
-with open('gamma_at_zero_errors.txt', 'a') as file:
-    file.write('%f\t%f\t%f\t%f\t%f\n' % 
-                                        (
-                                           my_gamma.gammaAtZero ,
-                                           gamma_points[0][1],
-                                           getRealGamma([0e-5], my_gamma.parameters),
-                                           getRealGammaError([0e-5], my_gamma.parameters, my_gamma.covariance, DSIGMA, DRHO),
-                                           ENERGY
-                                        )
-              )
+    my_gamma = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO)
+    my_gamma.performComputations()
 
-raw_input('pease enter any key ...')
+    canvas_point = my_gamma.gamma_fitter.canvas
+    graph = getGraph(gamma_points)
+
+    canvas_point.cd(2)
+    graph.Draw('same')
+    canvas_point.Update()
+    canvas_point.SaveAs(str(ENERGY) + PROCESS + '.eps')
+    raw_input('pease enter any key ...')
+    return
+
+    # TODO: Fix this
+    with open('gamma_at_zero_errors.txt', 'a') as file:
+        file.write('%f\t%f\t%f\t%f\t%f\n' % 
+                                            (
+                                               my_gamma.gammaAtZero ,
+                                               gamma_points[0][1],
+                                               getRealGamma([0e-5], my_gamma.parameters),
+                                               getRealGammaError([0e-5], my_gamma.parameters, my_gamma.covariance, DSIGMA, DRHO),
+                                               ENERGY
+                                            )
+                  )
+
+    raw_input('pease enter any key ...')
+
+if __name__ == '__main__':
+    main()
