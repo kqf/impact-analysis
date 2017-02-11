@@ -1,32 +1,22 @@
 #!/usr/bin/python2.7
 
-from ROOT import *
 from DataPoint import DataPoint, DataReader
 from DataFit import DataFit
-# from readCSData import *
-from Formulas import diff_cs, GammaApproximation, ratio, getRealGamma, getRealGammaError, getRealError, getImagGamma, amplitude
+from Formulas import GammaApproximation 
 import random as rnd
 
 class ComputeGamma(object):
-    __canvas = TCanvas('canvas', 'Impact Analysis', 800, 600)
     observable = {'pp': 310, 'p#bar{p}': 311}
-
     def __init__(self, ptype, energy, sigma, rho):
         self.sigma = sigma
-        self.rho = rho
-        self.energy = energy
-        self.name = ptype + str(energy)
-        self.title = ptype
-        # Reading data from file
-        # TODO: Add try-catch block for check proper ptype
-        self.dataPoints = DataReader(self.energy, self.observable[ptype]).read()
-        self.parametersFile = ''
-        self.gamma_fitter = DataFit(self.dataPoints, self.name, self.title, self.energy, self.sigma, self.rho)
+        self.dataPoints = DataReader(energy, self.observable[ptype]).read()
+        self.gamma_fitter = DataFit(self.dataPoints, ptype + str(energy), ptype, energy, self.sigma, rho)
         
 
     def generate_mc(self):
         """Generates MC data"""
         return [DataPoint(p.t, rnd.gauss(p.ds, p.err), p.err, p.lower, p.upper) for p in self.dataPoints]
+
 
     def performComputations(self):
         return self.gamma_fitter.fit()
@@ -52,9 +42,6 @@ class ComputeGamma(object):
         ## Calculate values of Gamma function for the mc
         return [gamma((1e-5) * (i == 0) + i * 3.0 / nuber_of_points) for i in range(101)] 
 
-    def t_max(self):
-        return self.dataPoints[-1].t
-
 def main():
     ENERGY = 7000
     RHO    = 0.14
@@ -67,18 +54,7 @@ def main():
 
     c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO) 
     print c.performComputations()
-
-
-
-    # print 'im Gamma', getRealGamma([1e-5], c.parameters)
-    # print 'delta im Gamma', getRealGammaError( [1e-5], c.parameters, c.covariance, DSIGMA, DRHO)
-    # print 're gamma', c.getGamma([1e-5], c.parameters)
-    # print 're gamma', getImagGamma([1e-5], c.parameters)
-
-
     raw_input('press any key ...')
 
 if __name__ == "__main__":
     main()
-else:
-    print 'Module loaded'

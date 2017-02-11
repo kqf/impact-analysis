@@ -3,7 +3,7 @@ import ROOT
 from Formulas import diff_cs, GammaApproximation
 
 class DataFit(object):
-    def __init__(self, data, name, title, energy, sigma , rho, nparameters = 12):
+    def __init__(self, data, name, title, energy, sigma , rho):
         super(DataFit, self).__init__()
         self.canvas = ROOT.TCanvas('canvas', 'Impact Analysis', 800, 600)
         self.data = data
@@ -12,9 +12,9 @@ class DataFit(object):
         self.energy = energy
         self.sigma = sigma
         self.rho = rho  
-        self.nparameters = nparameters
         self.parameters = [0.11986832441123918, 0.0, 1.1660221228353649, 0.44233049876624964, 
                            0.8627662804403674, 0.0, 4.63711534711051, 0.0, 0.588952821602961, 0.0, self.sigma, self.rho]
+        self.nparameters = len(self.parameters)
         self.par_file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
 
 
