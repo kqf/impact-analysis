@@ -25,7 +25,7 @@ def getGraph(lst):
     graph = TGraphErrors()
     graph.SetName('graph')
     graph.SetTitle('graph')
-    [graph.SetPoint(i, i*3./100, p[0]) for i, p in enumerate(lst)]
+    [graph.SetPoint(i, i * 3./100, p[0]) for i, p in enumerate(lst)]
     [graph.SetPointError(i, 0, p[1]) for i, p in enumerate(lst)]
     return graph
 
@@ -37,7 +37,7 @@ PROCESS = 'pp'
 DSIGMA = 2.23
 DRHO = 0.007
 
-MC_AMOUNT = 1000
+MC_AMOUNT = 100
 
 
 def main():
@@ -52,7 +52,7 @@ def main():
 
         if i == range(MC_AMOUNT)[-1]:
             print 'go'
-            os.remove(c.parametersFile)
+            os.remove(c.gamma_fitter.par_file_name)
         del c
 
 

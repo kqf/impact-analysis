@@ -20,12 +20,11 @@ class ComputeGamma(object):
         # Reading data from file
         # TODO: Add try-catch block for check proper ptype
         self.dataPoints = DataReader(self.energy, self.observable[ptype]).read()
-        self.nparameters = 12
         self.parametersFile = ''
         self.gamma_fitter = DataFit(self.dataPoints, self.name, self.title, self.energy, self.sigma, self.rho)
         
 
-    def __generateMC(self):
+    def generate_mc(self):
         """Generates MC data"""
         return [DataPoint(p.t, rnd.gauss(p.ds, p.err), p.err, p.lower, p.upper) for p in self.dataPoints]
 
@@ -33,41 +32,25 @@ class ComputeGamma(object):
         return self.gamma_fitter.fit()
 
 
+    def read_parameters(self):
+        try:
+            with open(self.gamma_fitter.par_file_name, 'r') as file:
+                data = file.readline().split()
+                return [float(i) for i in data]
+        except IOError:
+            return self.gamma_fitter.get_save_parameters()
+
     def performComputationsMC(self, nuber_of_points, prefix, dsigma):
         """Writes points from b = 0 to b = 3 to file"""
-        ROOT.gROOT.SetBatch(True)
-        file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
+        ## Read parameters for real data approximation
+        parameters, mcPoints = self.read_parameters(), self.generate_mc()
 
-        # needs to be deleted from the outside of the class
-        self.parametersFile = file_name
-        try:
-            with open(file_name, 'r') as file:
-                data = file.readline().split()
-                parameters = [float(i) for i in data]
-        except IOError:
-            parameters = self.gamma_fitter.get_save_parameters()
+        ## Get gamma approximator using data points, generate random cross section value
+        mc_gamma, new_sigma = GammaApproximation(mcPoints), rnd.gauss(self.sigma, dsigma)
+        gamma = lambda x: mc_gamma.gamma([x], parameters, new_sigma)
 
-        mcPoints = self.__generateMC()
-
-        gammaComputorMC = GammaApproximation(mcPoints)
-        new_sigma = rnd.gauss(self.sigma, dsigma)
-        getGamma = lambda x: gammaComputorMC.gamma([x], parameters, new_sigma)
-
-        b_max = 3.0
-        b = 0
-        result = []
-        while b <= b_max + 0.000001:
-            if b == 0:
-                g = getGamma(1e-5)
-            else:
-                g = getGamma(b)
-
-            b += b_max/nuber_of_points
-            # print b, b <= b_max
-
-            result.append(g)
-        ROOT.gROOT.SetBatch(False)
-        return result
+        ## Calculate values of Gamma function for the mc
+        return [gamma((1e-5) * (i == 0) + i * 3.0 / nuber_of_points) for i in range(101)] 
 
     def t_max(self):
         return self.dataPoints[-1].t
