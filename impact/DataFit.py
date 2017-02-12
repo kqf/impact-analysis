@@ -5,7 +5,7 @@ from Formulas import diff_cs, GammaApproximation
 class DataFit(object):
     def __init__(self, data, name, title, energy, sigma , rho):
         super(DataFit, self).__init__()
-        self.canvas = ROOT.TCanvas('canvas', 'Impact Analysis', 800, 600)
+        self.canvas = ROOT.TCanvas('c1', 'Impact Analysis', 800, 600)
         self.data = data
         self.name = name
         self.title = title

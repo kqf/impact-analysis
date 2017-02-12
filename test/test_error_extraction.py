@@ -19,7 +19,7 @@ class TestMCImpactAmplitude(unittest.TestCase):
 		DRHO =   0.007
 		PROCESS = 'pp'
 
-		err = ErrorEstimator()
+		err = ErrorEstimator(PROCESS, ENERGY, SIGMA, RHO, DSIGMA, DRHO, 100)
 		values, errors = err.main()
 
 		# Test values
