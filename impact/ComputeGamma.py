@@ -30,7 +30,8 @@ class ComputeGamma(object):
         except IOError:
             return self.gamma_fitter.get_save_parameters()
 
-    def performComputationsMC(self, nuber_of_points, prefix, dsigma):
+
+    def generate_mc_gamma(self, nuber_of_points, prefix, dsigma):
         """Writes points from b = 0 to b = 3 to file"""
         ## Read parameters for real data approximation
         parameters, mcPoints = self.read_parameters(), self.generate_mc()
@@ -41,6 +42,13 @@ class ComputeGamma(object):
 
         ## Calculate values of Gamma function for the mc
         return [gamma((1e-5) * (i == 0) + i * 3.0 / nuber_of_points) for i in range(101)] 
+
+
+    def get_gamma(self, x):
+        parameters = self.read_parameters() 
+        computor = GammaApproximation(self.dataPoints)
+        return computor.gamma([x], parameters, self.sigma)
+
 
 def main():
     ENERGY = 7000

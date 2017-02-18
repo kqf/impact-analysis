@@ -17,6 +17,9 @@ class DataFit(object):
         self.nparameters = len(self.parameters)
         self.par_file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
 
+        # TODO: Find a better way to acheive this:
+        self.covariance = None
+
 
     def differential_cs(self):
         """Creates TGraphErrors, with differential cross section data"""
@@ -104,6 +107,7 @@ class DataFit(object):
 
         cs_function = self.differential_cs_approx()
         graph.Fit(cs_function,'rE')
+        self.covariance = self.get_covariance()
 
         self.parameters = [cs_function.GetParameter(i) for i in range(self.nparameters)]
         cs_function.Draw('same')
@@ -127,12 +131,12 @@ class DataFit(object):
 
 
 
-    def covariance(self):
-        fitter = TVirtualFitter.GetFitter()
+    def get_covariance(self):
+        fitter = ROOT.TVirtualFitter.GetFitter()
         cov = fitter.GetCovarianceMatrix()
 
         covariance =  [ [0 for i in range(6)] for j in range(6)]
         for i in range(6):
             for j in range(6):
-                covariance[i][j]  =  fitter.GetCovarianceMatrixElement(i, j)
+                covariance[i][j] = fitter.GetCovarianceMatrixElement(i, j)
         return covariance

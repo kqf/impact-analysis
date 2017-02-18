@@ -21,7 +21,7 @@ class TestMCImpactAmplitude(unittest.TestCase):
 		
 		# TODO: Try to add quiet/dead mode
 		c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO) 
-		result = c.performComputationsMC(100, 1, DSIGMA)
+		result = c.generate_mc_gamma(100, 1, DSIGMA)
 
 		for a, b in zip(result, self.nominal_value):
 				self.assertAlmostEqual(a, b)
