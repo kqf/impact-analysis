@@ -11,6 +11,7 @@ class ComputeGamma(object):
         self.sigma = sigma
         self.dataPoints = DataReader(energy, self.observable[ptype]).read()
         self.gamma_fitter = DataFit(self.dataPoints, ptype + str(energy), ptype, energy, self.sigma, rho)
+        self.parameters = None
         
 
     def generate_mc(self):
@@ -23,12 +24,9 @@ class ComputeGamma(object):
 
 
     def read_parameters(self):
-        try:
-            with open(self.gamma_fitter.par_file_name, 'r') as file:
-                data = file.readline().split()
-                return [float(i) for i in data]
-        except IOError:
-            return self.gamma_fitter.get_save_parameters()
+        if not self.parameters:
+            self.parameters = self.gamma_fitter.get_save_parameters()
+        return self.parameters
 
 
     def generate_mc_gamma(self, nuber_of_points, prefix, dsigma):
