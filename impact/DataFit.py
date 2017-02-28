@@ -17,13 +17,11 @@ class DataFit(object):
         self.nparameters = len(self.parameters)
         self.par_file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
 
-        # TODO: Find a better way to acheive this:
-        self.covariance = None
-
 
     def differential_cs(self):
-        """Creates TGraphErrors, with differential cross section data"""
-        # TODO: Check if data red properly
+        """
+            Creates TGraphErrors, with differential cross section data
+        """
         graph = ROOT.TGraphErrors( len(self.data) )
         graph.SetName(self.name)
         graph.SetTitle(self.title)
@@ -77,7 +75,7 @@ class DataFit(object):
         """Creates \Gamma(b) functor uses data !"""
         g = GammaApproximation(self.data)
         
-        # TODO: try to use functor
+        # lTODO: try to use functor
         gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g.gamma(x, p), 0, 3, self.nparameters)
         [gamma.SetParameter(i, p) for i, p in enumerate(parameters)]
 
