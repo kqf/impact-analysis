@@ -29,7 +29,7 @@ class ComputeGamma(object):
         return self.parameters
 
 
-    def generate_mc_gamma(self, nuber_of_points, prefix, dsigma):
+    def generate_mc_gamma(self, npoints, prefix, dsigma):
         """Writes points from b = 0 to b = 3 to file"""
         ## Read parameters for real data approximation
         parameters, mcPoints = self.read_parameters(), self.generate_mc()
@@ -39,7 +39,11 @@ class ComputeGamma(object):
         gamma = lambda x: mc_gamma.gamma([x], parameters, new_sigma)
 
         ## Calculate values of Gamma function for the mc
-        return [gamma((1e-5) * (i == 0) + i * 3.0 / nuber_of_points) for i in range(101)] 
+        return [gamma(value) for value in self.impact_range(npoints)] 
+
+
+    def impact_range(self, npoints):
+        return (((1e-5) * (i == 0) + i * 3.0 / npoints) for i in range(101))
 
 
     def get_gamma(self, x):
