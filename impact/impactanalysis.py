@@ -1,10 +1,12 @@
 #!/usr/bin/python2.7
 
+import os
+import progressbar
+import json
+
 from ROOT import *
 from ComputeGamma import *
 from Formulas import getRealGammaError, getRealGamma
-import os
-import progressbar
 
 
 
@@ -17,10 +19,12 @@ def getGraph(lst):
     return graph
 
 
+class ImpactAnalysis(object):
+    with open('config/impactanalysis.json') as f:
+        conf = json.load(f)
 
-class ErrorEstimator(object):
-    def __init__(self, ptype, energy, sigma, rho, dsigma, drho, nmc):
-        super(ErrorEstimator, self).__init__()
+    def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, nmc):
+        super(ImpactAnalysis, self).__init__()
         self.process = ptype
         self.energy = energy
         self.sigma = sigma
@@ -33,7 +37,11 @@ class ErrorEstimator(object):
         self.gausf.SetParameter(0, 1)
         self.gausf.SetParameter(1, 0.1)
         self.gausf.SetParameter(2, 1)
-        self.gamma_estimator = ComputeGamma(self.process, self.energy, self.sigma, self.rho)
+        self.gamma_estimator = ComputeGamma(infile, self.process, self.energy, self.sigma, self.rho)
+
+        self.points_pref = self.conf['points_pref']
+        self.ofile       = self.conf['ofile']
+        self.imgfile     = self.conf['imgfile']
 
 
     def average_and_deviation(self, data):
@@ -59,49 +67,44 @@ class ErrorEstimator(object):
         return [self.average_and_deviation(p) for p in bar(zip(*mc))]
 
 
-    def save_errors(self, mc_av_and_deviation):
-        f = open(self.process + '-' + str(self.energy) + '-errors.dat','w')
+    def save_points_vs_errors(self, mc_av_and_deviation, pref):
+        f = open(self.points_pref + pref + self.process + '-' + str(self.energy) + '-errors.dat', 'w')
         for i in mc_av_and_deviation: f.write('%f\t%f\n' % i)
 
 
-    def main(self):
+    def run(self):
         # Calculate experimental values of gamma
-        gamma_estimator = ComputeGamma(self.process, self.energy, self.sigma, self.rho)
-        gamma_estimator.performComputations()
+        self.gamma_estimator.performComputations()
 
         # Generate monte-carlo data
         mc = self.generate_mc_data()
         mc_av_and_deviation = self.estimate_deviations(mc)
 
-        self.draw_results(mc_av_and_deviation, gamma_estimator)
+        result = self.draw_results(mc_av_and_deviation)
 
-        # TODO: why do we need two outputs? 
-        # Save the results
-        self.save_result(gamma_estimator, mc_av_and_deviation)
+        # Save the results at avery gamma point
+        self.save_result(mc_av_and_deviation)
 
-        # Save the results
-        self.save_errors(mc_av_and_deviation)
-
+        # Save the results only at zero but add more parameters
+        self.save_points_vs_errors(mc_av_and_deviation, 'mc')
+        self.save_points_vs_errors(result, 'result')
 
         return zip(*mc_av_and_deviation)
 
 
-    def draw_results(self, mc_av_and_deviation, gamma_estimator):
-        canvas_point = gamma_estimator.gamma_fitter.canvas
+    def draw_results(self, mc_av_and_deviation):
+        canvas_point = self.gamma_estimator.gamma_fitter.canvas
         canvas_point.cd(2)
 
         # Rearrange all necessary quantities
         mu, sigma  = zip(*mc_av_and_deviation)
-        true_gamma = map(gamma_estimator.get_gamma, gamma_estimator.impact_range(self.nmc))
+        true_gamma = map(self.gamma_estimator.get_gamma, self.gamma_estimator.impact_range(self.nmc))
         fake_sigma = [0 for i in mu]
 
         # Remove this
         gamma_vs_errors = zip(true_gamma, sigma)
         average_vs_zero = zip(mu, fake_sigma)
 
-
-        # Drow both graphs
-        #
 
         final_result = getGraph(gamma_vs_errors)
         final_result.SetLineColor(37)
@@ -114,21 +117,21 @@ class ErrorEstimator(object):
         final_result.Draw('same')
         average_mc.Draw('same')
         canvas_point.Update()
-        canvas_point.SaveAs(str(self.energy) + self.process + '.eps')
+        canvas_point.SaveAs(self.imgfile % (str(self.energy) + '-' + self.process))
         raw_input('pease enter any key ...')
-        return gamma_estimator
+        return gamma_vs_errors
 
 
-    def save_result(self, gamma_estimator, averaged_mc_gammas):
+    def save_result(self, result):
         format = '%f\t%f\t%f\t%f\t%f\n'
-        parameters = gamma_estimator.read_parameters()
+        parameters = self.gamma_estimator.read_parameters()
         data = (
-                    gamma_estimator.get_gamma(1e-5), 
-                    averaged_mc_gammas[0][1], 
+                    result[0][0],
+                    result[0][1], 
                     getRealGamma([0], parameters),
-                    getRealGammaError([0], parameters, gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho), 
+                    getRealGammaError([0], parameters, self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho), 
                     self.energy
                 )
 
-        with open('gamma_at_zero_errors.txt', 'a') as ofile:
+        with open(self.ofile, 'a') as ofile:
             ofile.write(format % data)

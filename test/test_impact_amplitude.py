@@ -16,7 +16,7 @@ class TestImpactAmplitude(unittest.TestCase):
 		PROCESS = 'pp'
 		
 		# TODO: Try to add quiet/dead mode
-		c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO) 
+		c = ComputeGamma("input/alldata_v1_4.dat", PROCESS, ENERGY, SIGMA, RHO) 
 		result = c.performComputations()
 
 		for a, b in zip(result, self.nominal_value):

@@ -20,7 +20,7 @@ class TestMCImpactAmplitude(unittest.TestCase):
 		PROCESS = 'pp'
 		
 		# TODO: Try to add quiet/dead mode
-		c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO) 
+		c = ComputeGamma("input/alldata_v1_4.dat", PROCESS, ENERGY, SIGMA, RHO) 
 		result = c.generate_mc_gamma(100, 1, DSIGMA)
 
 		for a, b in zip(result, self.nominal_value):

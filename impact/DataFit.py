@@ -17,6 +17,9 @@ class DataFit(object):
         self.nparameters = len(self.parameters)
         self.par_file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
 
+        # Don't initialize these two without purpose
+        self.graph, self.gamma = None, None
+
 
     def differential_cs(self):
         """
@@ -100,26 +103,27 @@ class DataFit(object):
         self.canvas.Divide(2, 1)
         self.canvas.cd(1).SetLogy()
 
-        graph = self.differential_cs()
-        graph.Draw('AP')
+        self.graph = self.differential_cs()
+        self.graph.Draw('AP')
 
         cs_function = self.differential_cs_approx()
-        graph.Fit(cs_function,'rE')
+        self.graph.Fit(cs_function,'rE')
         self.covariance = self.get_covariance()
 
         self.parameters = [cs_function.GetParameter(i) for i in range(self.nparameters)]
         cs_function.Draw('same')
 
-        self.legend = self.get_legend(graph, cs_function)
+        self.legend = self.get_legend(self.graph, cs_function)
         self.legend.Draw()
 
-        gamma = self.gamma_function([cs_function.GetParameter(i) for i in range(self.nparameters)])
+        self.gamma = self.gamma_function([cs_function.GetParameter(i) for i in range(self.nparameters)])
         self.canvas.cd(2).SetLogy()
-        gamma.Draw()
+        self.gamma.Draw()
         self.canvas.Update()
 
+        # TODO: move these numbers to the config file
         # real_gamma = lambda b : self.getGamma(b, parameters) 
-        return [gamma.Eval((1e-5) * (i == 0) + i / 10.) for i in range(30)]
+        return [self.gamma.Eval((1e-5) * (i == 0) + i / 10.) for i in range(30)]
 
 
     def get_save_parameters(self):

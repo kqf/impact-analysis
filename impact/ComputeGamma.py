@@ -7,9 +7,9 @@ import random as rnd
 
 class ComputeGamma(object):
     observable = {'pp': 310, 'p#bar{p}': 311}
-    def __init__(self, ptype, energy, sigma, rho):
+    def __init__(self, infile, ptype, energy, sigma, rho):
         self.sigma = sigma
-        self.dataPoints = DataReader(energy, self.observable[ptype]).read()
+        self.dataPoints = DataReader(energy, self.observable[ptype]).read(infile)
         self.gamma_fitter = DataFit(self.dataPoints, ptype + str(energy), ptype, energy, self.sigma, rho)
         self.parameters = None
         

@@ -14,6 +14,6 @@ class TestVisualRepresentation(unittest.TestCase):
 		PROCESS = 'pp'
 		
 		# TODO: Try to add quiet/dead mode
-		c = ComputeGamma(PROCESS, ENERGY, SIGMA, RHO) 
+		c = ComputeGamma("input/alldata_v1_4.dat", PROCESS, ENERGY, SIGMA, RHO) 
 		df = DataFit(c.dataPoints, 'a', 'a', ENERGY, SIGMA, RHO)
 		df.fit()
