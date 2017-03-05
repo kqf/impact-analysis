@@ -1,22 +1,16 @@
-import unittest
 from impact.ComputeGamma import ComputeGamma
+from test.configurable import Configurable
 
-class TestImpactAmplitude(unittest.TestCase):
+class TestImpactAmplitude(Configurable):
 
 	def setUp(self):
-		self.nominal_value = [1.0389025625847184, 1.0300078117435136, 1.0041527737466565, 0.96365711841170454, 0.91186722102809636, 0.85251087701934336, 0.78903633096966619, 0.72411009393625925, 0.65939998556473167, 0.59567360192361363, 0.53313288473917808, 0.47182966979574353, 0.41199856151334963, 0.35420262087862664, 0.29928123238435628, 0.24817108361154028, 0.20170519421610045, 0.16047472728967954, 0.12478509414374482, 0.094685120310299464, 0.070022045988151579, 0.050482579632010478, 0.035608461702756326, 0.024802591782539945, 0.017351948113205128, 0.01248275732528812, 0.009441220127343837, 0.0075747435428261236, 0.0063852675613416052, 0.0055390661655976949]
+		super(TestImpactAmplitude, self).setUp()
+		self.nominal_value = self.data['impact_amplitude']
+
 
 	def testValues(self):
-
-		ENERGY = 7000
-		RHO    = 0.14
-		SIGMA  = 98.3
-		DSIGMA = 2.23
-		DRHO =   0.007
-		PROCESS = 'pp'
-		
 		# TODO: Try to add quiet/dead mode
-		c = ComputeGamma("input/alldata_v1_4.dat", PROCESS, ENERGY, SIGMA, RHO) 
+		c = ComputeGamma(self.infile, self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
 		result = c.performComputations()
 
 		for a, b in zip(result, self.nominal_value):
