@@ -1,8 +1,12 @@
 #!/usr/bin/python2
 import ROOT
 from Formulas import diff_cs, GammaApproximation
+import json
 
 class DataFit(object):
+    with open('config/datafit.json') as f:
+        conf = json.load(f)
+
     def __init__(self, data, name, title, energy, sigma , rho):
         super(DataFit, self).__init__()
         self.canvas = ROOT.TCanvas('c1', 'Impact Analysis', 800, 600)
@@ -12,10 +16,19 @@ class DataFit(object):
         self.energy = energy
         self.sigma = sigma
         self.rho = rho  
-        self.parameters = [0.11986832441123918, 0.0, 1.1660221228353649, 0.44233049876624964, 
-                           0.8627662804403674, 0.0, 4.63711534711051, 0.0, 0.588952821602961, 0.0, self.sigma, self.rho]
-        self.nparameters = len(self.parameters)
         self.par_file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
+
+        # Configure fit
+        self.parameters = self.conf['initial_parameters'] + [self.sigma, self.rho]
+        self.par_fixed  = self.conf['par_fixed']
+        self.par_limits = self.conf['par_limits']
+        self.step_nstep = self.conf['step_nstep']
+        self.zero       = self.conf['zero']
+        self.cov_size   = self.conf['cov_size']
+        self.legend     = self.conf['legend']
+        self.t_range    = self.conf['t_range']
+        self.b_range    = self.conf['b_range']
+        self.nparameters = len(self.parameters)
 
         # Don't initialize these two without purpose
         self.graph, self.gamma = None, None
@@ -40,22 +53,14 @@ class DataFit(object):
 
 
     def differential_cs_approx(self):
-        function = ROOT.TF1('function', diff_cs, 0, 10, self.nparameters)
+        tmin, tmax = self.t_range
+        function = ROOT.TF1('function', diff_cs, tmin, tmax, self.nparameters)
         [function.SetParameter(i, par) for i, par in enumerate(self.parameters)]
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
 
-        function.FixParameter(1, 0)
-        function.FixParameter(5, 0)
-        function.FixParameter(7, 0)
-        function.FixParameter(9, 0)
-
-        function.SetParLimits(0, 0, 6)
-        function.SetParLimits(2, -50, 250)
-        function.SetParLimits(3, 0, 50)
-        function.SetParLimits(4, 0.1, 50)
-        function.SetParLimits(6, 0, 100)
-        function.SetParLimits(8, 0.078, 100)
+        map(lambda x :function.FixParameter(*x), self.par_fixed)
+        map(lambda x :function.SetParLimits(*x), self.par_limits)
         # function.FixParameter(8, 0.078)
 
         function.SetLineColor(38)
@@ -63,7 +68,8 @@ class DataFit(object):
 
 
     def ratio(self, parameters):
-        function = ROOT.TF1('ratio', ratio, 0, 10, self.nparameters)
+        tmin, tmax = self.t_range
+        function = ROOT.TF1('ratio', ratio, tmin, tmax, self.nparameters)
         # ratio.GetXaxis().SetRange(0, 2)
         [function.SetParameter(i, par) for i, par in enumerate(parameters)]
         function.FixParameter(10, self.sigma)
@@ -77,9 +83,8 @@ class DataFit(object):
     def gamma_function(self, parameters):
         """Creates \Gamma(b) functor uses data !"""
         g = GammaApproximation(self.data)
-        
-        # lTODO: try to use functor
-        gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g.gamma(x, p), 0, 3, self.nparameters)
+        bmin, bmax = self.b_range
+        gamma = ROOT.TF1('#Gamma(b)', g, bmin, bmax, self.nparameters)
         [gamma.SetParameter(i, p) for i, p in enumerate(parameters)]
 
         gamma.SetLineColor(46)
@@ -89,19 +94,27 @@ class DataFit(object):
 
 
     def get_legend(self, graph, function):
-        legend = ROOT.TLegend(0.9, 0.7, 0.3, 0.8)
+        legend = ROOT.TLegend(*self.legend)
         chi2 = function.GetChisquare() / (function.GetNDF() + 1 * (function.GetNDF() == 0))
-        legend.AddEntry(graph ,
-                '#sqrt{s} = '         + str(self.energy) +
-                'GeV #sigma_{tot} = ' + str(self.sigma   ) +
-                'mb #rho = '          + str(self.rho)    )
+        legend.AddEntry(graph , '#sqrt{s} = ' + str(self.energy) + ' GeV')
+        legend.AddEntry(0, '#sigma_{tot} = ' + str(self.sigma) + 'mb #rho = ' + str(self.rho), '')
         legend.AddEntry(function , '#chi^{2}/ndf = ' + str(chi2))
+        legend.SetBorderSize(0)
+        legend.SetFillStyle(0)
+        legend.SetTextSize(0.04) 
         return legend
 
 
+    def decorate_pad(self, pad):
+        pad.SetLogy()
+        pad.SetTickx()
+        pad.SetTicky()
+        pad.SetGridy()
+        pad.SetGridx()
+
     def fit(self):
         self.canvas.Divide(2, 1)
-        self.canvas.cd(1).SetLogy()
+        self.decorate_pad(self.canvas.cd(1))
 
         self.graph = self.differential_cs()
         self.graph.Draw('AP')
@@ -117,13 +130,12 @@ class DataFit(object):
         self.legend.Draw()
 
         self.gamma = self.gamma_function([cs_function.GetParameter(i) for i in range(self.nparameters)])
-        self.canvas.cd(2).SetLogy()
+        self.decorate_pad(self.canvas.cd(2))
         self.gamma.Draw()
         self.canvas.Update()
 
-        # TODO: move these numbers to the config file
-        # real_gamma = lambda b : self.getGamma(b, parameters) 
-        return [self.gamma.Eval((1e-5) * (i == 0) + i / 10.) for i in range(30)]
+        step, npooints = self.step_nstep
+        return [self.gamma.Eval(self.zero * (i == 0) + i / step) for i in range(npooints)]
 
 
     def get_save_parameters(self):
@@ -136,9 +148,9 @@ class DataFit(object):
     def get_covariance(self):
         fitter = ROOT.TVirtualFitter.GetFitter()
         cov = fitter.GetCovarianceMatrix()
+        func = lambda i, j: fitter.GetCovarianceMatrixElement(i, j) 
 
-        covariance =  [ [0 for i in range(6)] for j in range(6)]
-        for i in range(6):
-            for j in range(6):
-                covariance[i][j] = fitter.GetCovarianceMatrixElement(i, j)
+        covariance = [[func(i, j) 
+            for i in range(self.cov_size)] for j in range(self.cov_size)]
+
         return covariance

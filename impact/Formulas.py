@@ -299,3 +299,6 @@ class GammaApproximation(object):
                                *A_i*(k_fm/B))
         result = extrapolation1 + gamma_data + extrapolation2
         return result
+
+    def __call__(self, b, p, new_sigma = 0):
+      return  self.gamma(b, p, new_sigma)
