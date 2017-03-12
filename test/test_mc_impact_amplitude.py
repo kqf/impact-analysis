@@ -15,7 +15,6 @@ class TestMCImpactAmplitude(Configurable):
 
 
 	def testValues(self):
-		# TODO: Try to add quiet/dead mode
 		c = ComputeGamma(self.infile, self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
 		result = c.generate_mc_gamma(100, 1, self.DSIGMA)
 

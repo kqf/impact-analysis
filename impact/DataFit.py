@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 import ROOT
-from Formulas import diff_cs, GammaApproximation
 import json
+from Formulas import diff_cs, GammaApproximation
 
 class DataFit(object):
     with open('config/datafit.json') as f:
@@ -111,6 +111,7 @@ class DataFit(object):
         pad.SetTicky()
         pad.SetGridy()
         pad.SetGridx()
+
 
     def fit(self):
         self.canvas.Divide(2, 1)

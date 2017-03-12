@@ -9,7 +9,6 @@ from ComputeGamma import *
 from Formulas import getRealGammaError, getRealGamma
 
 
-
 def getGraph(lst):
     graph = TGraphErrors()
     graph.SetName('graph')
@@ -23,7 +22,7 @@ class ImpactAnalysis(object):
     with open('config/impactanalysis.json') as f:
         conf = json.load(f)
 
-    def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, nmc):
+    def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, nmc, mode= 's'):
         super(ImpactAnalysis, self).__init__()
         self.process = ptype
         self.energy = energy
@@ -32,6 +31,7 @@ class ImpactAnalysis(object):
         self.dsigma = dsigma
         self.drho = drho
         self.nmc = nmc
+        self.mode = mode
 
         self.gausf = TF1('gaussFunction','gaus', 0, 1.4)
         self.gausf.SetParameter(0, 1)
@@ -74,7 +74,7 @@ class ImpactAnalysis(object):
 
     def run(self):
         # Calculate experimental values of gamma
-        self.gamma_estimator.performComputations()
+        self.gamma_estimator.compute()
 
         # Generate monte-carlo data
         mc = self.generate_mc_data()
@@ -118,7 +118,10 @@ class ImpactAnalysis(object):
         average_mc.Draw('same')
         canvas_point.Update()
         canvas_point.SaveAs(self.imgfile % (str(self.energy) + '-' + self.process))
-        raw_input('pease enter any key ...')
+
+        if not 's' in self.mode:
+            raw_input('pease enter any key ...')
+
         return gamma_vs_errors
 
 

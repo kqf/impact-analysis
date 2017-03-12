@@ -9,9 +9,8 @@ class TestImpactAmplitude(Configurable):
 
 
 	def testValues(self):
-		# TODO: Try to add quiet/dead mode
 		c = ComputeGamma(self.infile, self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
-		result = c.performComputations()
+		result = c.compute()
 
 		for a, b in zip(result, self.nominal_value):
 				self.assertAlmostEqual(a, b)
