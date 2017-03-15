@@ -50,39 +50,9 @@ def getReal(t, p):
     return amplitude([t], p).real
 
 def getRealError(t, p, covariance, dsigma, drho):
-    a1 = p[0]
-    a2 = p[1]
-    a4 = p[2]
-
-    b1 = p[3]
-    b2 = p[4]
-    b3 = p[5]
-    b4 = p[6]
-
-    a5 = p[7]
-    b5 = p[8]
-    b6 = p[9]
-    a_s = p[10]/(sqrt(pi)*4)
-    rho = p[11]
-
-    # errors
-#     a1e = pe[0]
-    # a2e = pe[1]
-    # a4e = pe[2]
-
-    # b1e = pe[3]
-    # b2e = pe[4]
-    # b3e = pe[5]
-    # b4e = pe[6]
-
-    # a5e = pe[7]
-    # b5e = pe[8]
-    # b6e = pe[9]
-    # a_se = pe[10]/(sqrt(pi)*4)
-    # rhoe = pe[11]
-
-#     print '\n'
-    # print 'a1 =', a1e, ';'
+    a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
+    a_s = a_s / (sqrt(pi) * 4)
+    
  
     d_a1 = (a4 + a_s)*(
                    rho*( Power(E,((-a4 - a_s)*b1*t)/2.)*Cos(((a4 + a_s)*b1*t*rho)/2.)
