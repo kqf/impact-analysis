@@ -18,21 +18,9 @@ import numpy as np
 def amplitude(t_, p):
     k_norm = 0.389379338
     t = t_[0]
-    a1 = p[0]
-    a2 = p[1]
-    a4 = p[2]
-
-    b1 = p[3]
-    b2 = p[4]
-    b3 = p[5]
-    b4 = p[6]
-
-    a5 = p[7]
-    b5 = p[8]
-    b6 = p[9]
-    a_s = p[10]/(sqrt(pi *  k_norm)*4)
-    rho = p[11]
-
+    a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
+    a_s = a_s/(sqrt(pi *  k_norm) * 4)
+    
     alpha = (1 - 1j*rho)*(a_s + a4)
 
 
@@ -198,7 +186,7 @@ class GammaApproximation(object):
     k_norm = 0.389379338
     
     def __init__(self, data):
-        self.__dataPoints = data
+        self.dataPoints = data
         # Parameters for extrapolation
 
     def getImAmplitudeExtrNearZero(self, t, p, new_sigma = 0):
@@ -214,8 +202,8 @@ class GammaApproximation(object):
             # print 'Using new sigma'
 
         self.__A_0 = sigma / (4 * sqrt(pi* self.k_norm) )
-        self.__A_1 = sqrt( self.__dataPoints[0].ds - getReal(self.__dataPoints[0].t, p)**2 )
-        self.__B_0 = ( 1./(self.__dataPoints[0].t) )*log(self.__A_0/self.__A_1)
+        self.__A_1 = sqrt( self.dataPoints[0].ds - getReal(self.dataPoints[0].t, p)**2 )
+        self.__B_0 = ( 1./(self.dataPoints[0].t) )*log(self.__A_0/self.__A_1)
 
         result = self.__A_0*exp(-1.*self.__B_0*t)
         return result 
@@ -229,7 +217,7 @@ class GammaApproximation(object):
 
         imA = lambda t: self.getImAmplitudeExtrNearZero(t, p, new_sigma)                       #just shortcut
         f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
-        result =  integrate.quad(f, 0, self.__dataPoints[0].lower**0.5)[0]  # integral from zero to lower bound
+        result =  integrate.quad(f, 0, self.dataPoints[0].lower**0.5)[0]  # integral from zero to lower bound
         return result
 
     def getGammaExtrapNearInf(self, b, p): # need to be checked !!!
@@ -241,7 +229,7 @@ class GammaApproximation(object):
         imA = lambda t: getImage(t, p)
         f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
         # f = lambda q :  q*j0(B*q/k_fm)*getImage(q**2, p)/sqrt(pi*k_norm)
-        result =  integrate.quad(f, self.__dataPoints[-1].upper**0.5, np.infty)[0]  # integral from zero to lower bound
+        result =  integrate.quad(f, self.dataPoints[-1].upper**0.5, np.infty)[0]  # integral from zero to lower bound
         return result
 
 
@@ -257,7 +245,7 @@ class GammaApproximation(object):
 
         k_norm = self.k_norm
         k_fm = self.k_fm
-        for i in self.__dataPoints:
+        for i in self.dataPoints:
             A_i = sqrt( fabs(i.ds - getReal(i.t, p)**2) )
             q1 = sqrt(i.lower)
             q2 = sqrt(i.upper)

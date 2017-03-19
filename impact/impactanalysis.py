@@ -81,8 +81,8 @@ class ImpactAnalysis(object):
         result = self.draw_results(mc_av_and_deviation)
 
         # Save the results at avery gamma point
-        self.save_result(results[0][0],
-                         results[0][1])
+        self.save_result(result[0][0],
+                         result[0][1])
 
         # Save the results only at zero but add more parameters
         self.save_points_vs_errors(mc_av_and_deviation, 'mc')
