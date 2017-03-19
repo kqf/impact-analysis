@@ -1,5 +1,5 @@
 {
-	"points_pref":  "results/points-",
+	"points_pref":  "results/points-%s-errors.dat",
 	"ofile":  "results/gamma-at-zero.dat",
 	"imgfile": "results/result-%s.eps"
 }

@@ -24,20 +24,18 @@ class ImpactAnalysis(object):
 
     def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, nmc, mode= 's'):
         super(ImpactAnalysis, self).__init__()
-        self.process = ptype
+        self.ofilename = ptype + '-' + str(energy)
         self.energy = energy
-        self.sigma = sigma
-        self.rho = rho  
         self.dsigma = dsigma
         self.drho = drho
         self.nmc = nmc
         self.mode = mode
+        self.gamma_estimator = ComputeGamma(infile, ptype, self.energy, sigma, rho)
 
         self.gausf = TF1('gaussFunction','gaus', 0, 1.4)
         self.gausf.SetParameter(0, 1)
         self.gausf.SetParameter(1, 0.1)
         self.gausf.SetParameter(2, 1)
-        self.gamma_estimator = ComputeGamma(infile, self.process, self.energy, self.sigma, self.rho)
 
         self.points_pref = self.conf['points_pref']
         self.ofile       = self.conf['ofile']
@@ -57,7 +55,6 @@ class ImpactAnalysis(object):
         bar = progressbar.ProgressBar()
         print 'Generating the sample of gamma points'
         mc = [self.gamma_estimator.generate_mc_gamma(100, i, self.dsigma) for i in bar(range(self.nmc))]
-        # os.remove(c.gamma_fitter.par_file_name)
         return mc
 
 
@@ -68,8 +65,9 @@ class ImpactAnalysis(object):
 
 
     def save_points_vs_errors(self, mc_av_and_deviation, pref):
-        f = open(self.points_pref + pref + self.process + '-' + str(self.energy) + '-errors.dat', 'w')
-        for i in mc_av_and_deviation: f.write('%f\t%f\n' % i)
+        with open(self.points_pref % (pref + '-' + self.ofilename), 'w') as f:
+            for i in mc_av_and_deviation:
+                f.write('%f\t%f\n' % i)
 
 
     def run(self):
@@ -83,7 +81,8 @@ class ImpactAnalysis(object):
         result = self.draw_results(mc_av_and_deviation)
 
         # Save the results at avery gamma point
-        self.save_result(mc_av_and_deviation)
+        self.save_result(results[0][0],
+                         results[0][1])
 
         # Save the results only at zero but add more parameters
         self.save_points_vs_errors(mc_av_and_deviation, 'mc')
@@ -117,7 +116,7 @@ class ImpactAnalysis(object):
         final_result.Draw('same')
         average_mc.Draw('same')
         canvas_point.Update()
-        canvas_point.SaveAs(self.imgfile % (str(self.energy) + '-' + self.process))
+        canvas_point.SaveAs(self.imgfile % self.ofilename)
 
         if not 's' in self.mode:
             raw_input('pease enter any key ...')
@@ -125,12 +124,12 @@ class ImpactAnalysis(object):
         return gamma_vs_errors
 
 
-    def save_result(self, result):
+    def save_result(self, gammazero, sigmazero):
         format = '%f\t%f\t%f\t%f\t%f\n'
         parameters = self.gamma_estimator.read_parameters()
         data = (
-                    result[0][0],
-                    result[0][1], 
+                    gammazero,
+                    sigmazero, 
                     getRealGamma([0], parameters),
                     getRealGammaError([0], parameters, self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho), 
                     self.energy
