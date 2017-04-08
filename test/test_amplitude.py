@@ -1,5 +1,5 @@
 import random
-from impact.Formulas import amplitude, getImage, getReal
+from impact.Formulas import amplitude
 from test.configurable import Configurable
 import numpy as np
 
@@ -17,26 +17,12 @@ class TestAmplitude(Configurable):
 
 
 	def testAmplitude(self):
-		data = [amplitude([t], self.parameters) for t in self.npoints()]
-
-		real, imag = [d.real for d in data], [d.imag for d in data]
+		data = [amplitude(t, self.parameters) for t in self.npoints()]
+		real, imag = zip(*[[d.real, d.imag] for d in data])
 
 		for a, b in zip(real, self.real):
 				self.assertAlmostEqual(a, b)
 
 		# Test errors
-		for a, b in zip(imag, self.imag):
-				self.assertAlmostEqual(a, b)
-
-	def testRealAmplitude(self):
-		real = [getReal(t, self.parameters) for t in self.npoints()]
-
-
-		for a, b in zip(real, self.real):
-				self.assertAlmostEqual(a, b)
-
-	def testImageAmplitude(self):
-		imag = [getImage(t, self.parameters) for t in self.npoints()]
-
 		for a, b in zip(imag, self.imag):
 				self.assertAlmostEqual(a, b)

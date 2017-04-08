@@ -130,8 +130,8 @@ class ImpactAnalysis(object):
         data = (
                     gammazero,
                     sigmazero, 
-                    getRealGamma([0], parameters),
-                    getRealGammaError([0], parameters, self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho), 
+                    getRealGamma(0, parameters),
+                    getRealGammaError(0, parameters, self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho), 
                     self.energy
                 )
 

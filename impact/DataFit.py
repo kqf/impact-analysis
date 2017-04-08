@@ -54,7 +54,7 @@ class DataFit(object):
 
     def differential_cs_approx(self):
         tmin, tmax = self.t_range
-        function = ROOT.TF1('function', diff_cs, tmin, tmax, self.nparameters)
+        function = ROOT.TF1('function', lambda x, p: diff_cs(x[0], p), tmin, tmax, self.nparameters)
         [function.SetParameter(i, par) for i, par in enumerate(self.parameters)]
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)

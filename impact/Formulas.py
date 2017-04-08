@@ -13,16 +13,17 @@ from math import cos as Cos
 from math import pow as Power
 from math import e as E
 
+# Normalization constants
+k_fm   = 0.1973269718
+k_norm = 0.389379338
+
 import numpy as np
 
-def amplitude(t_, p):
-    k_norm = 0.389379338
-    t = t_[0]
+def amplitude(t, p):
     a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
     a_s = a_s/(sqrt(pi *  k_norm) * 4)
     
     alpha = (1 - 1j*rho)*(a_s + a4)
-
 
     try:
         ampl= 1j*alpha*( a1*Exp(-0.5*alpha*b1*t) + (1 - a1)*Exp(-0.5*alpha*b2*t) ) - 1j*a4*Exp(-0.5*b4*t) - a4*rho/((1 + t/b5)**4)
@@ -30,12 +31,6 @@ def amplitude(t_, p):
         ampl = 0
 
     return ampl
-
-def getImage(t, p):
-    return amplitude([t], p).imag
-
-def getReal(t, p):
-    return amplitude([t], p).real
 
 def getRealError(t, p, covariance, dsigma, drho):
     a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
@@ -129,43 +124,34 @@ def getRealError(t, p, covariance, dsigma, drho):
 
     for i in range(len(A)):
         for j in range(len(A)):
-            error_squared += covariance[i][j]*A[i]*A[j]
+            error_squared += covariance[i][j] * A[i] * A[j]
 
     error_squared += (dsigma ** 2) * (d_as/(sqrt(pi)*4.))**2 + (drho ** 2) * (d_rho)**2
     error = sqrt(error_squared)
     return error
 
-def getRealGammaError(B, p, covariance, dsigma, drho):
-    b = B[0]
-    k_fm   = 0.1973269718
-    k_norm = 0.389379338
+# TODO: Rewrite Bessel transformation as a separate function
 
+def getRealGammaError(b, p, covariance, dsigma, drho):
     f = lambda q :  q*j0(b*q/k_fm)*getRealError(q*q, p, covariance, dsigma, drho)/sqrt(pi*k_norm)
     result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
 
     # imGamma = - \int reAmplitude
     return result
 
-def getRealGamma(B, p):
-    b = B[0]
-    k_fm   = 0.1973269718
-    k_norm = 0.389379338
-
-    f = lambda q :  q*j0(b*q/k_fm)*getReal(q*q, p)/sqrt(pi*k_norm)
+def getRealGamma(b, p):
+    f = lambda q :  q*j0(b*q/k_fm)* amplitude(q*q, p).real/sqrt(pi*k_norm)
     result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
     return -result
 
 def getImagGamma(B, p):
     b = B[0]
-    k_fm   = 0.1973269718
-    k_norm = 0.389379338
 
-    f = lambda q :  q*j0(b*q/k_fm)*getImage(q*q, p)/sqrt(pi*k_norm)
+    f = lambda q :  q*j0(b*q/k_fm) * amplitude(q*q, p).imag/sqrt(pi*k_norm)
     result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
     return result
 
 def diff_cs(t, p):
-    k_norm = 0.389379338
     A = amplitude(t,p)
     try:
         result =  ( (A.real)**2 + (A.imag)**2 ) # /(k_norm)
@@ -182,18 +168,14 @@ def ratio(t, p):
     return r_
 
 class GammaApproximation(object):
-    k_fm   = 0.1973269718
-    k_norm = 0.389379338
     
     def __init__(self, data):
         self.dataPoints = data
         # Parameters for extrapolation
 
-    def getImAmplitudeExtrNearZero(self, t, p, new_sigma = 0):
+    def im_amplitude_low_t(self, t, p, new_sigma = 0):
         """Calculates imaginary part of extrapolated amplitude"""
-        parameters = [ i for i in p]
-
-        # self.__A_0 = sqrt( diff_cs([0], p)  - getReal(0, p)**2 )
+        parameters = [i for i in p]
 
         sigma = parameters[-2]
 
@@ -201,34 +183,28 @@ class GammaApproximation(object):
             sigma = new_sigma
             # print 'Using new sigma'
 
-        self.__A_0 = sigma / (4 * sqrt(pi* self.k_norm) )
-        self.__A_1 = sqrt( self.dataPoints[0].ds - getReal(self.dataPoints[0].t, p)**2 )
-        self.__B_0 = ( 1./(self.dataPoints[0].t) )*log(self.__A_0/self.__A_1)
+        self.A0 = sigma / (4 * sqrt(pi * k_norm) )
+        self.A1 = sqrt(self.dataPoints[0].ds - amplitude(self.dataPoints[0].t, p).real ** 2)
+        self.B0 = (1./(self.dataPoints[0].t)) * log(self.A0 / self.A1)
 
-        result = self.__A_0*exp(-1.*self.__B_0*t)
+        result = self.A0 * exp( -1. * self.B0 * t)
         return result 
 
-    def getGammaExtrapNearZero(self, b, p, new_sigma = 0): # need to be checked !!!
+    def gamma_extrap_low_b(self, b, p, new_sigma = 0): 
         """Calculate extrapolation term near zero"""
         B = b[0]
 
-        k_norm = self.k_norm
-        k_fm = self.k_fm
-
-        imA = lambda t: self.getImAmplitudeExtrNearZero(t, p, new_sigma)                       #just shortcut
+        imA = lambda t: self.im_amplitude_low_t(t, p, new_sigma)                       #just shortcut
         f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
         result =  integrate.quad(f, 0, self.dataPoints[0].lower**0.5)[0]  # integral from zero to lower bound
         return result
 
-    def getGammaExtrapNearInf(self, b, p): # need to be checked !!!
+    def gamma_extrap_high_b(self, b, p): 
         """Calculate extrapolation term near zero"""
         B = b[0]
-        k_norm = self.k_norm
-        k_fm = self.k_fm
 
-        imA = lambda t: getImage(t, p)
+        imA = lambda t: amplitude(t, p).imag
         f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
-        # f = lambda q :  q*j0(B*q/k_fm)*getImage(q**2, p)/sqrt(pi*k_norm)
         result =  integrate.quad(f, self.dataPoints[-1].upper**0.5, np.infty)[0]  # integral from zero to lower bound
         return result
 
@@ -237,16 +213,14 @@ class GammaApproximation(object):
         """Gives gamma(b) from points"""
         B = b[0]
 
-        extrapolation1 = self.getGammaExtrapNearZero(b, p, new_sigma) # taking into account extrapolation near zero 
-        extrapolation2 = self.getGammaExtrapNearInf(b, p)
+        extrapolation1 = self.gamma_extrap_low_b(b, p, new_sigma) # taking into account extrapolation near zero 
+        extrapolation2 = self.gamma_extrap_high_b(b, p)
         gamma_data  = 0
 
         # if B <= 0.01 : print  'At b = ', B, 'ext',extrapolation2
 
-        k_norm = self.k_norm
-        k_fm = self.k_fm
         for i in self.dataPoints:
-            A_i = sqrt( fabs(i.ds - getReal(i.t, p)**2) )
+            A_i = sqrt( fabs(i.ds - amplitude(i.t, p).real ** 2) )
             q1 = sqrt(i.lower)
             q2 = sqrt(i.upper)
             gamma_data = gamma_data + ( (1/sqrt(pi*k_norm))

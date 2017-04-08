@@ -20,7 +20,7 @@ class TestRealErrors(Configurable):
 		cov = [[ 1./(i ** 2 + j + 1) 
             for i in range(self.cov_size)] for j in range(self.cov_size)]
 
-		data = [getRealGammaError([b], self.parameters, cov, *self.parameters[-2:]) for b in self.npoints()]
+		data = [getRealGammaError(b, self.parameters, cov, *self.parameters[-2:]) for b in self.npoints()]
 
 		for a, b in zip(data, self.real_impact):
 				self.assertAlmostEqual(a, b)

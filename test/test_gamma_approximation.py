@@ -17,7 +17,7 @@ class TestGammaApproximation(Configurable):
 		c = ComputeGamma(self.infile, self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
 		approximator = GammaApproximation(c.dataPoints)
 
-		values = [approximator.getImAmplitudeExtrNearZero(t, self.parameters) for t in np.linspace(0, 0.5, 100)]
+		values = [approximator.im_amplitude_low_t(t, self.parameters) for t in np.linspace(0, 0.5, 100)]
 
 		for a, b in zip(values, self.low_t_extrapolation):
 				self.assertAlmostEqual(a, b)
