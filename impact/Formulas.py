@@ -130,7 +130,6 @@ def getRealError(t, p, covariance, dsigma, drho):
     error = sqrt(error_squared)
     return error
 
-# TODO: Rewrite Bessel transformation as a separate function
 
 def getRealGammaError(b, p, covariance, dsigma, drho):
     f = lambda q :  q*j0(b*q/k_fm)*getRealError(q*q, p, covariance, dsigma, drho)/sqrt(pi*k_norm)
@@ -139,17 +138,25 @@ def getRealGammaError(b, p, covariance, dsigma, drho):
     # imGamma = - \int reAmplitude
     return result
 
+
+def hankel_transform(func):
+    def impact_version(b, p):
+        f = lambda q : q * j0(b * q / k_fm) *  func(q * q, p) / sqrt(pi * k_norm)
+        result = integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
+        return result
+
+    return impact_version
+  
+
 def getRealGamma(b, p):
     f = lambda q :  q*j0(b*q/k_fm)* amplitude(q*q, p).real/sqrt(pi*k_norm)
     result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
     return -result
 
-def getImagGamma(B, p):
-    b = B[0]
-
+def getImagGamma(b, p):
     f = lambda q :  q*j0(b*q/k_fm) * amplitude(q*q, p).imag/sqrt(pi*k_norm)
-    result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
-    return result
+    result = integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
+    return -result
 
 def diff_cs(t, p):
     A = amplitude(t,p)
