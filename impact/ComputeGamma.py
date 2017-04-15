@@ -2,7 +2,7 @@
 
 from DataPoint import DataPoint, DataReader
 from DataFit import DataFit
-from Formulas import GammaApproximation 
+from impact.model import GammaApproximation 
 import random as rnd
 
 class ComputeGamma(object):

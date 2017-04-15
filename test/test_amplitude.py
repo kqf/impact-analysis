@@ -1,5 +1,5 @@
 import random
-from impact.Formulas import amplitude
+from impact.model import amplitude
 from test.configurable import Configurable
 import numpy as np
 

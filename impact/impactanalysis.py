@@ -6,7 +6,8 @@ import json
 
 from ROOT import *
 from ComputeGamma import *
-from Formulas import getRealGammaError, real_gamma
+from impact.model import real_gamma
+from impact.errors import RealPartErrorEvaluator
 
 
 def getGraph(lst):
@@ -127,11 +128,12 @@ class ImpactAnalysis(object):
     def save_result(self, gammazero, sigmazero):
         format = '%f\t%f\t%f\t%f\t%f\n'
         parameters = self.gamma_estimator.read_parameters()
+        real_gamma_error = RealPartErrorEvaluator(self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho)
         data = (
                     gammazero,
                     sigmazero, 
                     real_gamma(0, parameters),
-                    getRealGammaError(0, parameters, self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho), 
+                    real_gamma_error.breal_error(0, parameters), 
                     self.energy
                 )
 

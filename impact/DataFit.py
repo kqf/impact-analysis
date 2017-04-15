@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 import ROOT
 import json
-from Formulas import diff_cs, ratio, GammaApproximation
+from impact.model import diff_cs, ratio, GammaApproximation
 
 class DataFit(object):
     with open('config/datafit.json') as f:
