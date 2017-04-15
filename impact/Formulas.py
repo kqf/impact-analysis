@@ -140,88 +140,74 @@ def getRealGammaError(b, p, covariance, dsigma, drho):
 
 
 def hankel_transform(func):
-    def impact_version(b, p):
+    def impact_version(b, p, limits = (0, np.infty)):
         f = lambda q : q * j0(b * q / k_fm) *  func(q * q, p) / sqrt(pi * k_norm)
-        result = integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
+        result = integrate.quad(f, *limits)[0]  # integral from zero to lower bound
         return result
 
     return impact_version
-  
 
-def getRealGamma(b, p):
-    f = lambda q :  q*j0(b*q/k_fm)* amplitude(q*q, p).real/sqrt(pi*k_norm)
-    result =  integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
-    return -result
 
-def getImagGamma(b, p):
-    f = lambda q :  q*j0(b*q/k_fm) * amplitude(q*q, p).imag/sqrt(pi*k_norm)
-    result = integrate.quad(f, 0, np.infty)[0]  # integral from zero to lower bound
-    return -result
+@hankel_transform
+def imag_gamma(x, p):
+	return amplitude(x, p).imag
+
+
+@hankel_transform
+def real_gamma(x, p):
+	return -amplitude(x, p).real
+
 
 def diff_cs(t, p):
-    A = amplitude(t,p)
-    try:
-        result =  ( (A.real)**2 + (A.imag)**2 ) # /(k_norm)
-    except OverflowError:
-        # print 'Real ', A.real, ' Imag ', A.imag
-        result = A.imag
-        # result =  round(  (A.real)**2 + (A.imag)**2  )
-    return result
+	"""
+		Differential cross-section formula:
+			$$\frac{d\sigma}{dt} = |Re A(s, t)^2 + Im A(s, t)^2|$$
+	"""
+	A = amplitude(t,p)
+	try:
+		result = abs(A) ** 2
+	except OverflowError:
+		result = A.imag
+	return result
 
 def ratio(t, p):
     A = amplitude(t,p)
-    # r_ = abs(A.real/A.imag )
-    r_ = A.imag
-    return r_
+    return A.real/A.imag
 
 class GammaApproximation(object):
     
-    def __init__(self, data):
+    def __init__(self, data, new_sigma = None):
         self.dataPoints = data
-        # Parameters for extrapolation
+        self.new_sigma = new_sigma 
 
-    def im_amplitude_low_t(self, t, p, new_sigma = 0):
+        # Define these functions in a very strange way to avoid code replication
+        @hankel_transform
+        def bspace_low_t(b, p):
+        	return self.im_amplitude_low_t(b, p)
+        self.bspace_low_t = bspace_low_t
+
+
+    def im_amplitude_low_t(self, t, p):
         """Calculates imaginary part of extrapolated amplitude"""
         parameters = [i for i in p]
 
-        sigma = parameters[-2]
+        sigma = self.new_sigma if self.new_sigma else parameters[-2] 
 
-        if int(new_sigma) != 0:
-            sigma = new_sigma
-            # print 'Using new sigma'
+        a0 = sigma / (4 * sqrt(pi * k_norm) )
+        a1 = sqrt(self.dataPoints[0].ds - amplitude(self.dataPoints[0].t, p).real ** 2)
+        b0 = (1./(self.dataPoints[0].t)) * log(a0 / a1)
 
-        self.A0 = sigma / (4 * sqrt(pi * k_norm) )
-        self.A1 = sqrt(self.dataPoints[0].ds - amplitude(self.dataPoints[0].t, p).real ** 2)
-        self.B0 = (1./(self.dataPoints[0].t)) * log(self.A0 / self.A1)
-
-        result = self.A0 * exp( -1. * self.B0 * t)
-        return result 
-
-    def gamma_extrap_low_b(self, b, p, new_sigma = 0): 
-        """Calculate extrapolation term near zero"""
-        B = b[0]
-
-        imA = lambda t: self.im_amplitude_low_t(t, p, new_sigma)                       #just shortcut
-        f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
-        result =  integrate.quad(f, 0, self.dataPoints[0].lower**0.5)[0]  # integral from zero to lower bound
+        result = a0 * exp(-1. * b0 * t)
         return result
 
-    def gamma_extrap_high_b(self, b, p): 
-        """Calculate extrapolation term near zero"""
-        B = b[0]
+    def __call__(self ,b, p):
+        """Calculates gamma(b) using data points"""
 
-        imA = lambda t: amplitude(t, p).imag
-        f = lambda q :  q*j0(B*q/k_fm)*imA(q*q)/sqrt(pi*k_norm)
-        result =  integrate.quad(f, self.dataPoints[-1].upper**0.5, np.infty)[0]  # integral from zero to lower bound
-        return result
+        # Taking into account low-t extrapolation
+        extrapolation1 = self.bspace_low_t(b, p, (0, self.dataPoints[0].lower ** 0.5))
 
-
-    def gamma(self ,b, p, new_sigma = 0):
-        """Gives gamma(b) from points"""
-        B = b[0]
-
-        extrapolation1 = self.gamma_extrap_low_b(b, p, new_sigma) # taking into account extrapolation near zero 
-        extrapolation2 = self.gamma_extrap_high_b(b, p)
+        # High t-contribution
+        extrapolation2 = imag_gamma(b, p, (self.dataPoints[-1].upper ** 0.5, np.infty))
         gamma_data  = 0
 
         # if B <= 0.01 : print  'At b = ', B, 'ext',extrapolation2
@@ -232,12 +218,9 @@ class GammaApproximation(object):
             q2 = sqrt(i.upper)
             gamma_data = gamma_data + ( (1/sqrt(pi*k_norm))
                                *(
-                                    q2*j1(B*q2/k_fm)
-                                 -  q1*j1(B*q1/k_fm)
+                                    q2*j1(b*q2/k_fm)
+                                 -  q1*j1(b*q1/k_fm)
                                 )
-                               *A_i*(k_fm/B))
+                               *A_i*(k_fm/b))
         result = extrapolation1 + gamma_data + extrapolation2
         return result
-
-    def __call__(self, b, p, new_sigma = 0):
-      return  self.gamma(b, p, new_sigma)

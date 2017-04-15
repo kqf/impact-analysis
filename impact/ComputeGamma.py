@@ -36,11 +36,11 @@ class ComputeGamma(object):
         parameters, mcPoints = self.read_parameters(), self.generate_mc()
 
         ## Get gamma approximator using data points, generate random cross section value
-        mc_gamma, new_sigma = GammaApproximation(mcPoints), rnd.gauss(self.sigma, dsigma)
-        gamma = lambda x: mc_gamma.gamma([x], parameters, new_sigma)
+        mc_gamma = GammaApproximation(mcPoints, rnd.gauss(self.sigma, dsigma))
+        gamma = lambda x: mc_gamma(x, parameters)
 
         ## Calculate values of Gamma function for the mc
-        return [gamma(value) for value in self.impact_range(npoints)] 
+        return map(gamma, self.impact_range(npoints))
 
 
     def impact_range(self, npoints):
@@ -50,8 +50,9 @@ class ComputeGamma(object):
 
     def get_gamma(self, x):
         parameters = self.read_parameters() 
-        computor = GammaApproximation(self.dataPoints)
-        return computor.gamma([x], parameters, self.sigma)
+        # TODO: Do we need to pass sigma here?
+        computor = GammaApproximation(self.dataPoints, self.sigma)
+        return computor(x, parameters)
 
 
 if __name__ == "__main__":

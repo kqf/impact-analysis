@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 import ROOT
 import json
-from Formulas import diff_cs, GammaApproximation
+from Formulas import diff_cs, ratio, GammaApproximation
 
 class DataFit(object):
     with open('config/datafit.json') as f:
@@ -84,7 +84,7 @@ class DataFit(object):
         """Creates \Gamma(b) functor uses data !"""
         g = GammaApproximation(self.data)
         bmin, bmax = self.b_range
-        gamma = ROOT.TF1('#Gamma(b)', g, bmin, bmax, self.nparameters)
+        gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g(x[0], parameters), bmin, bmax, self.nparameters)
         [gamma.SetParameter(i, p) for i, p in enumerate(parameters)]
 
         gamma.SetLineColor(46)

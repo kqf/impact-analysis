@@ -6,7 +6,7 @@ import json
 
 from ROOT import *
 from ComputeGamma import *
-from Formulas import getRealGammaError, getRealGamma
+from Formulas import getRealGammaError, real_gamma
 
 
 def getGraph(lst):
@@ -130,7 +130,7 @@ class ImpactAnalysis(object):
         data = (
                     gammazero,
                     sigmazero, 
-                    getRealGamma(0, parameters),
+                    real_gamma(0, parameters),
                     getRealGammaError(0, parameters, self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho), 
                     self.energy
                 )
