@@ -6,9 +6,6 @@ from scipy import integrate
 from scipy.special import j0, j1
 from impact.constants import k_fm, k_norm
 
-# TODO: replacefloat("inf") 
-# import numpy as np
-
 def amplitude(t, p):
     a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
     a_s = a_s/(sqrt(pi *  k_norm) * 4)

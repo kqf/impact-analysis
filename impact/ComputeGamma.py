@@ -50,8 +50,7 @@ class ComputeGamma(object):
 
     def get_gamma(self, x):
         parameters = self.read_parameters() 
-        # TODO: Do we need to pass sigma here?
-        computor = GammaApproximation(self.dataPoints, self.sigma)
+        computor = GammaApproximation(self.dataPoints)
         return computor(x, parameters)
 
 
