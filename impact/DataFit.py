@@ -135,8 +135,13 @@ class DataFit(object):
         self.gamma.Draw()
         self.canvas.Update()
 
-        step, npooints = self.step_nstep
-        return [self.gamma.Eval(self.zero * (i == 0) + i / step) for i in range(npooints)]
+        return map(self.gamma.Eval, self.impact_range())
+
+
+    def impact_range(self, npoints = None, step = None):
+        if not npoints:
+            step, npoints = self.step_nstep
+        return (self.zero * (i == 0) + i / step for i in range(npoints))
 
 
     def get_save_parameters(self):

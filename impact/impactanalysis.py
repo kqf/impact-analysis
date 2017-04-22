@@ -98,7 +98,7 @@ class ImpactAnalysis(object):
 
         # Rearrange all necessary quantities
         mu, sigma  = zip(*mc_av_and_deviation)
-        true_gamma = map(self.gamma_estimator.get_gamma, self.gamma_estimator.impact_range(self.nmc))
+        true_gamma = map(self.gamma_estimator.get_gamma, self.gamma_estimator.gamma_fitter.impact_range(self.nmc, self.nmc / 3.0))
         fake_sigma = [0 for i in mu]
 
         # Remove this

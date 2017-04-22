@@ -40,12 +40,7 @@ class ComputeGamma(object):
         gamma = lambda x: mc_gamma(x, parameters)
 
         ## Calculate values of Gamma function for the mc
-        return map(gamma, self.impact_range(npoints))
-
-
-    def impact_range(self, npoints):
-        # TODO: merge this method with similar one in DataFit
-        return (((1e-5) * (i == 0) + i * 3.0 / npoints) for i in range(101))
+        return map(gamma, self.gamma_fitter.impact_range(npoints, npoints/3.0))
 
 
     def get_gamma(self, x):

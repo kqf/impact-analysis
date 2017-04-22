@@ -26,7 +26,6 @@ class TestRealErrors(Configurable):
 
 	def testRealImpactError(self):
 		data = map(self.real_gamma_error, self.npoints())
-		print data
 
 		for a, b in zip(data, self.real_impact):
 				self.assertAlmostEqual(a, b)
