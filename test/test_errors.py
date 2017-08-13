@@ -60,16 +60,21 @@ class TestRealErrors(Configurable):
 		partial_derivative = self.analytic_amplitude.diff(b1)
 
 		# TODO: These functions give different results. Check the formula/values by hand
-		# 
+		#      
+		# TODO: Check extra k_norm factor
 
 		print self.parameters
 		for t in np.linspace(0.2, 10):
 			self.variables['t'] = t
-			# analytic = complex(partial_derivative.evalf(subs = self.variables))
-			# treuval = self.evaluator.d_a1(t, self.parameters)
+			# print t
+			analytic = complex(partial_derivative.evalf(subs = self.variables))
+			# print analytic
+			trueval = self.evaluator.d_a1(t, self.parameters)
+			# print trueval
 
-			# self.assertAlmostEqual(analytic.real , treuval.real)
-			# self.assertAlmostEqual(analytic.imag , treuval.imag)
+
+			self.assertAlmostEqual(analytic.real , trueval.real)
+			# self.assertAlmostEqual(analytic.imag , trueval.imag)
 
 
 
