@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      5644,        149]
-NotebookOptionsPosition[      5316,        132]
-NotebookOutlinePosition[      5673,        148]
-CellTagsIndexPosition[      5630,        145]
+NotebookDataLength[      6452,        165]
+NotebookOptionsPosition[      6122,        148]
+NotebookOutlinePosition[      6479,        164]
+CellTagsIndexPosition[      6436,        161]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -80,7 +80,7 @@ Cell[BoxData[{
            RowBox[{"(", 
             RowBox[{"1", "+", 
              RowBox[{"t", "/", "b5"}]}], ")"}], "4"], ")"}]}]}]}]}]}], 
-    "]"}]}], "\[IndentingNewLine]"}], "\n", 
+    "]"}]}], "\n"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
    RowBox[{"AmplP", "[", 
@@ -96,6 +96,15 @@ Cell[BoxData[{
        "b3", ",", "b4", ",", "a5", ",", "b5", ",", "b6", ",", "as", ",", 
        "rho", ",", " ", "knorm"}], "]"}], ",", " ", "x"}], "]"}]}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"TeXForm", "[", 
+   RowBox[{"Ampl", "[", 
+    RowBox[{
+    "t", ",", " ", "a1", ",", " ", "a2", ",", " ", "a4", ",", " ", "b1", ",", 
+     " ", "b2", ",", " ", "b3", ",", " ", "b4", ",", " ", "a5", ",", " ", 
+     "b5", ",", " ", "b6", ",", " ", "as", ",", " ", "rho", ",", " ", 
+     "knorm"}], "]"}], "]"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+
  RowBox[{
   RowBox[{"(*", "\[IndentingNewLine]", 
    RowBox[{"AmplP", "[", 
@@ -115,11 +124,18 @@ Cell[BoxData[{
   3.711641626458748*^9, 3.711641638707218*^9}, {3.7116419880028877`*^9, 
   3.711642045538701*^9}, {3.71164215920345*^9, 3.711642309245303*^9}, {
   3.711642354859971*^9, 3.711642405414431*^9}, {3.711642445005537*^9, 
-  3.711642496023458*^9}, {3.711642554615541*^9, 3.711642562671908*^9}}],
+  3.711642496023458*^9}, {3.711642554615541*^9, 3.711642562671908*^9}, {
+  3.711709920755858*^9, 3.711709970384685*^9}}],
 
-Cell[BoxData[
- RowBox[{"0.46515053461901396`", "\[VeryThinSpace]", "+", 
-  RowBox[{"4.976129161177938`", " ", "\[ImaginaryI]"}]}]], "Output",
+Cell["\<\
+i (1-i \\rho ) \\left(\\text{a4}+\\frac{\\text{as}}{4 \\pi  \
+\\text{knorm}}\\right) \\left(\\text{a1} e^{-0.5 \\text{b1} (1-i \\rho ) t
+   \\left(\\text{a4}+\\frac{\\text{as}}{4 \\pi  \
+\\text{knorm}}\\right)}+(1-\\text{a1}) e^{-0.5 \\text{b2} (1-i \\rho ) t \
+\\left(\\text{a4}+\\frac{\\text{as}}{4 \\pi 
+   \\text{knorm}}\\right)}\\right)-i \\text{a4} e^{-0.5 \\text{b4} t}-\\frac{\
+\\text{a4} \\rho }{\\left(\\frac{t}{\\text{b5}}+1\\right)^4}\
+\>", "Output",
  CellChangeTimes->{{3.708469919613385*^9, 3.7084699406538153`*^9}, 
    3.708470071566457*^9, 3.708470102962936*^9, 3.708470178999095*^9, 
    3.7116407077407618`*^9, 3.71164074147359*^9, 3.711641224845367*^9, {
@@ -127,7 +143,7 @@ Cell[BoxData[
    3.711641595810482*^9}, 3.711641640108059*^9, {3.711642281068474*^9, 
    3.7116423097876043`*^9}, 3.7116423563223543`*^9, {3.711642388203285*^9, 
    3.711642406072317*^9}, 3.7116424526070642`*^9, {3.711642490037887*^9, 
-   3.711642496754978*^9}}]
+   3.711642496754978*^9}, {3.711709937356943*^9, 3.711709971279111*^9}}]
 }, Open  ]]
 },
 WindowSize->{1333, 431},
@@ -148,8 +164,8 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[580, 22, 4043, 95, 256, "Input"],
-Cell[4626, 119, 674, 10, 28, "Output"]
+Cell[580, 22, 4472, 105, 290, "Input"],
+Cell[5055, 129, 1051, 16, 70, "Output"]
 }, Open  ]]
 }
 ]
