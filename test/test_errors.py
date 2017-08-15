@@ -60,7 +60,8 @@ class TestRealErrors(Configurable):
 	# TODO: Check extra k_norm factor
 	def testCheckExplicitFormula(self):
 		fvariables = 'a1', 'a4', 'b1', 'b2'
-		fmethods = self.evaluator.d_a1, self.evaluator.d_a4, self.evaluator.d_b1, self.evaluator.d_b2
+		ep = self.evaluator.partials
+		fmethods = ep.d_a1, ep.d_a4, ep.d_b1, ep.d_b2
 
 		for arg, method in zip(fvariables, fmethods):
 			fpar = next((i for i in self.analytic_amplitude.free_symbols if i.name == arg), None)
@@ -68,7 +69,7 @@ class TestRealErrors(Configurable):
 
 			mymsg = '\nThere is an error in formulas for partial derivative of A(s, t) over {0}'.format(arg)
 			for t in np.linspace(0.2, 10):
-				analytic = complex(partial_derivative(t + 0.1, self.parameters))
+				analytic = complex(partial_derivative(t, self.parameters))
 				trueval = method(t, self.parameters)
 
 				self.assertAlmostEqual(analytic.real , trueval, msg = mymsg)
