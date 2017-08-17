@@ -46,22 +46,22 @@ class TestRealErrors(Configurable):
 
 
 
-	@unittest.skip('This one should has the lowest priority,\
-		as there is an error in the formula, this error should be studied later')
+	# @unittest.skip('This one should has the lowest priority,\
+		# as there is an error in the formula, this error should be studied later')
 	def testRealImpactError(self):
 		rgamma_error = lambda x: self.evaluator.breal_error(x, self.parameters)
 		data = map(rgamma_error, np.linspace(1e-5, 3, 100))
 
-		mymsg = 'Actual values differ from nominal estimates.\n\nActual values: {}'.format(rgamma_error)
+		mymsg = 'Actual values differ from nominal estimates.\n\nActual values: {}'.format(data)
 		for a, b in zip(data, self.real_impact):
 				self.assertAlmostEqual(a, b, msg = mymsg)
 
 
 	# TODO: Check extra k_norm factor
 	def testCheckExplicitFormula(self):
-		fvariables = 'a1', 'a4', 'b1', 'b2'
+		fvariables = 'a1', 'a4', 'b1', 'b2', 'b5', 'rho'
 		ep = self.evaluator.partials
-		fmethods = ep.d_a1, ep.d_a4, ep.d_b1, ep.d_b2
+		fmethods = ep.d_a1, ep.d_a4, ep.d_b1, ep.d_b2, ep.d_b5, ep.d_rho
 
 		for arg, method in zip(fvariables, fmethods):
 			fpar = next((i for i in self.analytic_amplitude.free_symbols if i.name == arg), None)

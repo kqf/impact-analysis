@@ -6,6 +6,7 @@ from math import sqrt, pi
 from impact.constants import k_fm, k_norm
 from impact.model import hankel_transform
 from partial_derivatives_explicit import PartialExplicit
+from partial_derivatives_symbolic import PartialSymbolic
 
 
 class RealPartErrorEvaluator(object):
@@ -15,6 +16,7 @@ class RealPartErrorEvaluator(object):
 		self.dsigma = dsigma
 		self.drho = drho
 		self.partials = PartialExplicit()
+
 
 		@hankel_transform
 		def breal_error(x, p):

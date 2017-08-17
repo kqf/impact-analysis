@@ -44,6 +44,7 @@ class PartialExplicit(object):
 					  )
 				)
 
+	# TODO: Fix this contribution
 	def d_as(self, t, p):
 		a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
 		a_s = a_s / (sqrt(pi * k_norm) * 4)
