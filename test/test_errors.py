@@ -59,16 +59,19 @@ class TestRealErrors(Configurable):
 
 	# TODO: Check extra k_norm factor
 	def testCheckExplicitFormula(self):
-		fvariables = 'a1', 'a4', 'b1', 'b2', 'b5', 'rho'
+		# TODO: Check 'a_s' contribution. It differs from mathematica
+		fvariables = 'a1', 'a4', 'b1', 'b2', 'b5', 'rho', 'a_s'
 		ep = self.evaluator.partials
-		fmethods = ep.d_a1, ep.d_a4, ep.d_b1, ep.d_b2, ep.d_b5, ep.d_rho
+		fmethods = ep.d_a1, ep.d_a4, ep.d_b1, ep.d_b2, ep.d_b5, ep.d_rho, ep.d_as
 
 		for arg, method in zip(fvariables, fmethods):
 			fpar = next((i for i in self.analytic_amplitude.free_symbols if i.name == arg), None)
 			partial_derivative = smp.lambdify((self.t, self.variables), self.analytic_amplitude.diff(fpar), 'numpy')
 
-			mymsg = '\nThere is an error in formulas for partial derivative of A(s, t) over {0}'.format(arg)
-			for t in np.linspace(0.2, 10):
+			mymsg = '\nThere is an error in formulas for partial " + \
+				"derivative of A(s, t) over {0} \n{1}'.format(arg, self.parameters)
+
+			for t in np.linspace(0.1, 10):
 				analytic = complex(partial_derivative(t, self.parameters))
 				trueval = method(t, self.parameters)
 
