@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from impact.impactanalysis import ImpactAnalysis
+from impactanalysis import ImpactAnalysis
 import json
 import sys
 

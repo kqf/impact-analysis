@@ -6,8 +6,8 @@ import json
 
 from ROOT import *
 from ComputeGamma import *
-from impact.model import real_gamma
-from impact.errors import RealPartErrorEvaluator
+from model import real_gamma
+from errors import RealPartErrorEvaluator
 
 
 def getGraph(lst):

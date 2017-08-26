@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 import ROOT
 import json
-from impact.model import diff_cs, ratio, GammaApproximation
+from model import diff_cs, ratio, GammaApproximation
 
 class DataFit(object):
     with open('config/datafit.json') as f:
@@ -16,7 +16,7 @@ class DataFit(object):
         self.energy = energy
         self.sigma = sigma
         self.rho = rho  
-        self.par_file_name = 'parameters_' + self.title + str(self.energy) + '.dat'
+        self.par_file_name = 'output/parameters_' + self.title + str(self.energy) + '.dat'
 
         # Configure fit
         self.parameters = self.conf['initial_parameters'] + [self.sigma, self.rho]

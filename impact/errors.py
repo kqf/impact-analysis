@@ -3,8 +3,9 @@ from math import cos as Cos
 from math import pow as Power
 from math import e as E
 from math import sqrt, pi
-from impact.constants import k_fm, k_norm
-from impact.model import hankel_transform
+
+from constants import k_fm, k_norm
+from model import hankel_transform
 from partial_derivatives_explicit import PartialExplicit
 from partial_derivatives_symbolic import PartialSymbolic
 

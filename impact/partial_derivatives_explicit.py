@@ -3,10 +3,9 @@ from math import cos as Cos
 from math import pow as Power
 from math import e as E
 from math import sqrt, pi
-from impact.constants import k_norm
-
 from cmath import exp as Exp
 
+from constants import k_norm
 
 class PartialExplicit(object):
 

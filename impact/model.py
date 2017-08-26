@@ -4,7 +4,7 @@ from cmath import exp as Exp
 from math  import exp, pi, fabs, sqrt, log
 from scipy import integrate
 from scipy.special import j0, j1
-from impact.constants import k_fm, k_norm
+from constants import k_fm, k_norm
 
 # The parametrization used in here
 # $$A(s, t) = i (1-i \rho ) \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right) \left(a_{1} e^{-0.5 b_{1} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right)}+(1-a_{1}) e^{-0.5 b_{2} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi k_{norm}}\right)}\right)-i a_{4} e^{-0.5 b_{4} t}-\frac{a_{4} \rho }{\left(\frac{t}{b_{5}}+1\right)^4}$$
