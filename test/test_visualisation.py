@@ -1,6 +1,7 @@
-from impact.ComputeGamma import ComputeGamma
-from impact.DataFit import DataFit
 from test.configurable import Configurable
+
+from impact.datafit import DataFit
+from impact.gammacomputor import ComputeGamma
 
 class TestVisualRepresentation(Configurable):
 

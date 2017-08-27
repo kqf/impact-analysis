@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 
-from DataPoint import DataPoint, DataReader
-from DataFit import DataFit
+from datapoint import DataPoint, DataReader
+from datafit import DataFit
 from model import GammaApproximation 
 import random as rnd
 

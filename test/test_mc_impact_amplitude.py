@@ -1,5 +1,5 @@
 from test.configurable import Configurable
-from impact.ComputeGamma import ComputeGamma
+from impact.gammacomputor import ComputeGamma
 import random
 
 class TestMCImpactAmplitude(Configurable):

@@ -5,9 +5,9 @@ import progressbar
 import json
 
 from ROOT import *
-from ComputeGamma import *
 from model import real_gamma
 from errors import RealPartErrorEvaluator
+from gammacomputor import ComputeGamma
 
 
 def getGraph(lst):

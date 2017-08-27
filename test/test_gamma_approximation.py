@@ -1,6 +1,6 @@
 from test.configurable import Configurable
-from impact.ComputeGamma import ComputeGamma
 from impact.model import GammaApproximation
+from impact.gammacomputor import ComputeGamma
 
 # TODO: try to avoid numpy ?!
 import numpy as np
