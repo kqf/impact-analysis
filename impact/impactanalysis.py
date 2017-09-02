@@ -8,7 +8,8 @@ from ROOT import *
 from model import real_gamma
 from errors import RealPartErrorEvaluator
 from errors_image import ImageError
-from gammacomputor import ComputeGamma
+from datapoint import DataPoint, DataReader
+from datafit import DataFit
 
 
 def getGraph(lst):
@@ -26,7 +27,6 @@ class ImpactAnalysis(object):
 
     def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, nmc, mode= 's'):
         super(ImpactAnalysis, self).__init__()
-        
         # TODO: Read the data here
         self.ofilename = ptype + '-' + str(energy)
         self.energy = energy
@@ -36,12 +36,13 @@ class ImpactAnalysis(object):
         # TODO: Why does this parameter is not important
         self.nmc = nmc
         self.mode = mode
-        self.gamma_estimator = ComputeGamma(infile, ptype, self.energy, sigma, rho)
-        self.imag_errors = ImageError(self.gamma_estimator, nmc, dsigma)
-
         self.points_pref = self.conf['points_pref']
         self.ofile       = self.conf['ofile']
         self.imgfile     = self.conf['imgfile']
+
+        self.data = DataReader(energy, ptype).read(infile)
+        self.gamma_fitter = DataFit(self.data, ptype + str(energy), ptype, energy, sigma, rho)
+        self.imag_errors = ImageError(self.data, nmc, sigma, dsigma)
 
 
     def save_points_vs_errors(self, mc_av_and_deviation, pref):
@@ -52,18 +53,17 @@ class ImpactAnalysis(object):
 
     def run(self):
         # Calculate experimental values of gamma
-        self.gamma_estimator.compute()
+        _, parameters = self.gamma_fitter.fit()
 
         # Generate monte-carlo data
-        mc_av_and_deviation = self.imag_errors.evaluate()
+        mc_av_and_deviation = self.imag_errors.evaluate(parameters)
 
-        result = self.gamma_estimator.\
-            gamma_fitter.draw_results(mc_av_and_deviation, self.gamma_estimator,
+        # TODO: Remove parameters from here!
+        result = self.gamma_fitter.draw_results(mc_av_and_deviation, parameters,
             self.nmc,self.imgfile % self.ofile, self.mode)
 
         # Save the results at avery gamma point
-        self.save_result(result[0][0],
-                         result[0][1])
+        self.save_result(parameters, result[0][0], result[0][1])
 
         # Save the results only at zero but add more parameters
         self.save_points_vs_errors(mc_av_and_deviation, 'mc')
@@ -74,10 +74,9 @@ class ImpactAnalysis(object):
 
 
 
-    def save_result(self, gammazero, sigmazero):
+    def save_result(self, parameters, gammazero, sigmazero):
         format = '%f\t%f\t%f\t%f\t%f\n'
-        parameters = self.gamma_estimator.read_parameters()
-        real_gamma_error = RealPartErrorEvaluator(self.gamma_estimator.gamma_fitter.covariance, self.dsigma, self.drho)
+        real_gamma_error = RealPartErrorEvaluator(self.gamma_fitter.covariance, self.dsigma, self.drho)
         data = (
                     gammazero,
                     sigmazero, 

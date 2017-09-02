@@ -22,11 +22,12 @@ class DataPoint(object):
 
 
 class DataReader(object):
+    observable = {'pp': 310, 'p#bar{p}': 311}
     def __init__(self, energy, ptype):
         super(DataReader, self).__init__()
         self.energy = energy
-        self.ptype = ptype
-
+        self.ptype = self.observable[ptype]
+        
     def read_raw(self, filename):
         toint1 = lambda x: int( 1000 * float(x) )
         toint2 = lambda x: int( float(x) )

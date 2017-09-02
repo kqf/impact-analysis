@@ -60,6 +60,9 @@ def real_gamma(x, p):
 	return -amplitude(x, p).real
 
 
+def impact_range(npoints = 30, step = 10.0, zero = 1e-5):
+    return (zero * (i == 0) + i / step for i in range(npoints))
+
 
 class GammaApproximation(object):
     
@@ -109,3 +112,8 @@ class GammaApproximation(object):
         # All contributions
         result = extrapolation1 + extrapolation2 + (gamma_data * k_fm / sqrt(pi * k_norm) / b)
         return result
+
+    @classmethod
+    def function_for_parameters(klass, data, parameters):
+        self = klass(data)
+        return lambda b: self(b, parameters)

@@ -1,6 +1,8 @@
 #!/usr/bin/python2
 import ROOT
 import json
+
+import model
 from model import diff_cs, ratio, GammaApproximation
 
 def getGraph(lst):
@@ -67,8 +69,8 @@ class DataFit(object):
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
 
-        map(lambda x :function.FixParameter(*x), self.par_fixed)
-        map(lambda x :function.SetParLimits(*x), self.par_limits)
+        map(lambda x: function.FixParameter(*x), self.par_fixed)
+        map(lambda x: function.SetParLimits(*x), self.par_limits)
         # function.FixParameter(8, 0.078)
 
         function.SetLineColor(38)
@@ -138,19 +140,14 @@ class DataFit(object):
         self.legend = self.get_legend(self.graph, cs_function)
         self.legend.Draw()
 
-        self.gamma = self.gamma_function([cs_function.GetParameter(i) for i in range(self.nparameters)])
+
+        out_parameters = [cs_function.GetParameter(i) for i in range(self.nparameters)]
+        self.gamma = self.gamma_function(out_parameters)
         self.decorate_pad(self.canvas.cd(2))
         self.gamma.Draw()
         self.canvas.Update()
 
-        return map(self.gamma.Eval, self.impact_range())
-
-
-    def impact_range(self, npoints = None, step = None):
-        if not npoints:
-            step, npoints = self.step_nstep
-        return (self.zero * (i == 0) + i / step for i in range(npoints))
-
+        return map(self.gamma.Eval, model.impact_range()), out_parameters
 
     def get_save_parameters(self):
         with open(self.par_file_name, 'w') as f:
@@ -168,14 +165,14 @@ class DataFit(object):
 
         return covariance
 
-    def draw_results(self, mc_av_and_deviation, gamma_estimator, nmc, ofilename, mode):
-        canvas_point = gamma_estimator.gamma_fitter.canvas
-        canvas_point.cd(2)
+    def draw_results(self, mc_av_and_deviation, parameters, nmc, ofilename, mode):
+        self.canvas.cd(2)
 
         # Rearrange all necessary quantities
         mu, sigma  = zip(*mc_av_and_deviation)
-        # TODO: Remove gamma estimator from here
-        true_gamma = map(gamma_estimator.get_gamma, gamma_estimator.gamma_fitter.impact_range(nmc, nmc / 3.0))
+
+        gamma_lambda = GammaApproximation.function_for_parameters(self.data, parameters)
+        true_gamma = map(gamma_lambda, model.impact_range(nmc, nmc / 3.0))
         fake_sigma = [0 for i in mu]
 
         # Remove this
@@ -193,8 +190,8 @@ class DataFit(object):
 
         final_result.Draw('same')
         average_mc.Draw('same')
-        canvas_point.Update()
-        canvas_point.SaveAs(ofilename)
+        self.canvas.Update()
+        self.canvas.SaveAs(ofilename)
 
         if 's' not in mode:
             raw_input('pease enter any key ...')
