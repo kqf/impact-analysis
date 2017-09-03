@@ -24,7 +24,7 @@ class TestMCImpactAmplitude(Configurable):
 
         _, parameters = gamma_fitter.fit()
 
-        result = imag_errors.generate_mc_gamma(nmc, parameters, self.DSIGMA)
+        result = imag_errors.generate_mc_gamma(nmc, parameters)
 
         for a, b in zip(result, self.nominal_value):
                 self.assertAlmostEqual(a, b)

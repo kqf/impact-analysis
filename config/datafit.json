@@ -7,7 +7,6 @@
 	"cov_size": 6,
 	"legend": [0.3, 0.7, 0.7, 0.8],
 	"t_range": [0, 10],
-	"b_range": [0, 3]
-
-
+	"b_range": [0, 3],
+	"imgfile": "output/result-%s.eps"
 }

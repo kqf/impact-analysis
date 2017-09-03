@@ -6,19 +6,13 @@ import json
 
 from ROOT import *
 from model import real_gamma
+
+# TODO: Move errors to the separate namespace
 from errors import RealPartErrorEvaluator
 from errors_image import ImageError
 from datapoint import DataPoint, DataReader
 from datafit import DataFit
-
-
-def getGraph(lst):
-    graph = TGraphErrors()
-    graph.SetName('graph')
-    graph.SetTitle('graph')
-    [graph.SetPoint(i, i * 3./100, p[0]) for i, p in enumerate(lst)]
-    [graph.SetPointError(i, 0, p[1]) for i, p in enumerate(lst)]
-    return graph
+import model 
 
 
 class ImpactAnalysis(object):
@@ -27,27 +21,25 @@ class ImpactAnalysis(object):
 
     def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, nmc, mode= 's'):
         super(ImpactAnalysis, self).__init__()
-        # TODO: Read the data here
-        self.ofilename = ptype + '-' + str(energy)
+
+        self.name = ptype + '-' + str(energy)
         self.energy = energy
         self.dsigma = dsigma
         self.drho = drho
 
-        # TODO: Why does this parameter is not important
         self.nmc = nmc
         self.mode = mode
         self.points_pref = self.conf['points_pref']
-        self.ofile       = self.conf['ofile']
-        self.imgfile     = self.conf['imgfile']
+        self.ofile = self.conf['ofile']
 
-        self.data = DataReader(energy, ptype).read(infile)
-        self.gamma_fitter = DataFit(self.data, ptype + str(energy), ptype, energy, sigma, rho)
-        self.imag_errors = ImageError(self.data, nmc, sigma, dsigma)
+        self.data         = DataReader(energy, ptype).read(infile)
+        self.gamma_fitter = DataFit(self.data, self.name, ptype, energy, sigma, rho, mode)
+        self.imag_errors  = ImageError(self.data, nmc, sigma, dsigma)
 
 
-    def save_points_vs_errors(self, mc_av_and_deviation, pref):
-        with open(self.points_pref % (pref + '-' + self.ofilename), 'w') as f:
-            for i in mc_av_and_deviation:
+    def save_points_vs_errors(self, gamma, gamma_error, pref):
+        with open(self.points_pref % (pref + '-' + self.name), 'w') as f:
+            for i in zip(gamma, gamma_error):
                 f.write('%f\t%f\n' % i)
 
 
@@ -55,21 +47,23 @@ class ImpactAnalysis(object):
         # Calculate experimental values of gamma
         _, parameters = self.gamma_fitter.fit()
 
-        # Generate monte-carlo data
-        mc_av_and_deviation = self.imag_errors.evaluate(parameters)
+        # Estimate average values and  errors from monte-carlo data
+        average, sigma = self.imag_errors.evaluate(parameters)
 
-        # TODO: Remove parameters from here!
-        result = self.gamma_fitter.draw_results(mc_av_and_deviation, parameters,
-            self.nmc,self.imgfile % self.ofile, self.mode)
+        # TODO: Clean the names of the variables
+        # TODO: remove self.nmc
+        gamma_lambda = model.GammaApproximation.function_for_parameters(self.data, parameters)
+        gamma = map(gamma_lambda, model.impact_range(self.nmc, self.nmc / 3.0))
 
-        # Save the results at avery gamma point
-        self.save_result(parameters, result[0][0], result[0][1])
+        self.gamma_fitter.draw_results(average, sigma, gamma)
 
-        # Save the results only at zero but add more parameters
-        self.save_points_vs_errors(mc_av_and_deviation, 'mc')
-        self.save_points_vs_errors(result, 'result')
+        # Save gamma at zero
+        self.save_result(parameters, gamma[0], sigma[0])
 
-        return zip(*mc_av_and_deviation)
+        # Save the results not only at zero but add more parameters
+        self.save_points_vs_errors(average, sigma, 'mc')
+        self.save_points_vs_errors(gamma, sigma,'result')
+        return gamma, sigma
 
 
 

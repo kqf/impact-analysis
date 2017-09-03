@@ -17,7 +17,7 @@ class DataFit(object):
     with open('config/datafit.json') as f:
         conf = json.load(f)
 
-    def __init__(self, data, name, title, energy, sigma , rho):
+    def __init__(self, data, name, title, energy, sigma , rho, mode = 's'):
         super(DataFit, self).__init__()
         self.canvas = ROOT.TCanvas('c1', 'Impact Analysis', 800, 600)
         self.data = data
@@ -26,6 +26,7 @@ class DataFit(object):
         self.energy = energy
         self.sigma = sigma
         self.rho = rho  
+        self.mode = mode
         self.par_file_name = 'output/parameters_' + self.title + str(self.energy) + '.dat'
 
         # Configure fit
@@ -38,6 +39,10 @@ class DataFit(object):
         self.legend     = self.conf['legend']
         self.t_range    = self.conf['t_range']
         self.b_range    = self.conf['b_range']
+        imgfile         = self.conf['imgfile']
+        self.ofilename = imgfile % name
+
+
         self.nparameters = len(self.parameters)
 
         # Don't initialize these two without purpose
@@ -162,38 +167,25 @@ class DataFit(object):
 
         covariance = [[func(i, j) 
             for i in range(self.cov_size)] for j in range(self.cov_size)]
-
         return covariance
 
-    def draw_results(self, mc_av_and_deviation, parameters, nmc, ofilename, mode):
+    def draw_results(self, mu, sigma, true_gamma):
         self.canvas.cd(2)
 
-        # Rearrange all necessary quantities
-        mu, sigma  = zip(*mc_av_and_deviation)
-
-        gamma_lambda = GammaApproximation.function_for_parameters(self.data, parameters)
-        true_gamma = map(gamma_lambda, model.impact_range(nmc, nmc / 3.0))
-        fake_sigma = [0 for i in mu]
-
-        # Remove this
-        gamma_vs_errors = zip(true_gamma, sigma)
-        average_vs_zero = zip(mu, fake_sigma)
-
-
-        final_result = getGraph(gamma_vs_errors)
+        gamma_with_error = zip(true_gamma, sigma)
+        final_result = getGraph(gamma_with_error)
         final_result.SetLineColor(37)
         final_result.SetMarkerColor(37)
 
-        average_mc = getGraph(average_vs_zero)
+        mc_average = zip(mu, [0 for i in mu])
+        average_mc = getGraph(mc_average)
         average_mc.SetLineColor(46)
         average_mc.SetMarkerColor(46)
 
         final_result.Draw('same')
         average_mc.Draw('same')
         self.canvas.Update()
-        self.canvas.SaveAs(ofilename)
+        self.canvas.SaveAs(self.ofilename)
 
-        if 's' not in mode:
+        if 's' not in self.mode:
             raw_input('pease enter any key ...')
-
-        return gamma_vs_errors
