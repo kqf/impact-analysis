@@ -1,8 +1,8 @@
 import random
 
 from test.configurable import Configurable
-from impact.errors import RealPartErrorEvaluator
 from impact.constants import k_fm, k_norm
+import impact.errors.real as err_real
 
 import numpy as np
 import cmath
@@ -32,7 +32,7 @@ class TestRealErrors(Configurable):
 		cov = [[ 1./(i ** 2 + j + 1) 
 			for i in range(cov_size)] for j in range(cov_size)]
 
-		self.evaluator = RealPartErrorEvaluator(cov, *uncertanities)
+		self.evaluator = err_real.Error(cov, *uncertanities)
 		self.analytic_amplitude = self.analytic_formula()
 
 
@@ -49,7 +49,7 @@ class TestRealErrors(Configurable):
 	# @unittest.skip('This one should has the lowest priority,\
 		# as there is an error in the formula, this error should be studied later')
 	def testRealImpactError(self):
-		rgamma_error = lambda x: self.evaluator.breal_error(x, self.parameters)
+		rgamma_error = lambda x: self.evaluator.evaluate(x, self.parameters)
 		data = map(rgamma_error, np.linspace(1e-5, 3, 100))
 
 		mymsg = 'Actual values differ from nominal estimates.\n\nActual values: {}'.format(data)

@@ -5,7 +5,7 @@ from math import e as E
 from math import sqrt, pi
 from cmath import exp as Exp
 
-from constants import k_norm
+from impact.constants import k_norm
 
 class PartialExplicit(object):
 

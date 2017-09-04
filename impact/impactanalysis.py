@@ -7,10 +7,10 @@ import json
 from ROOT import *
 from model import real_gamma
 
-# TODO: Move errors to the separate namespace
-from errors import RealPartErrorEvaluator
-from errors_image import ImageError
-from datapoint import DataPoint, DataReader
+import errors.real as err_real 
+import errors.imag as err_imag
+
+from datapoint import DataReader
 from datafit import DataFit
 import model 
 
@@ -32,9 +32,9 @@ class ImpactAnalysis(object):
         self.points_pref = self.conf['points_pref']
         self.ofile = self.conf['ofile']
 
-        self.data         = DataReader(energy, ptype).read(infile)
+        self.data = DataReader(energy, ptype).read(infile)
         self.gamma_fitter = DataFit(self.data, self.name, ptype, energy, sigma, rho, mode)
-        self.imag_errors  = ImageError(self.data, nmc, sigma, dsigma)
+        self.imag_gamma_error = err_imag.Error(self.data, nmc, sigma, dsigma)
 
 
     def save_points_vs_errors(self, gamma, gamma_error, pref):
@@ -48,7 +48,7 @@ class ImpactAnalysis(object):
         _, parameters = self.gamma_fitter.fit()
 
         # Estimate average values and  errors from monte-carlo data
-        average, sigma = self.imag_errors.evaluate(parameters)
+        average, sigma = self.imag_gamma_error.evaluate(parameters)
 
         # TODO: Clean the names of the variables
         # TODO: remove self.nmc
@@ -70,12 +70,12 @@ class ImpactAnalysis(object):
 
     def save_result(self, parameters, gammazero, sigmazero):
         format = '%f\t%f\t%f\t%f\t%f\n'
-        real_gamma_error = RealPartErrorEvaluator(self.gamma_fitter.covariance, self.dsigma, self.drho)
+        real_gamma_error = err_real.Error(self.gamma_fitter.covariance, self.dsigma, self.drho)
         data = (
                     gammazero,
                     sigmazero, 
                     real_gamma(0, parameters),
-                    real_gamma_error.breal_error(0, parameters), 
+                    real_gamma_error.evaluate(0, parameters), 
                     self.energy
                 )
 

@@ -2,14 +2,14 @@
 import ROOT
 import progressbar
 import random as rnd
-from datapoint import DataPoint
-import model
-from model import GammaApproximation 
+
+import impact.model as model
+from impact.datapoint import DataPoint
 
 
-class ImageError(object):
+class Error(object):
     def __init__(self, data, nmc, sigma, dsigma):
-        super(ImageError, self).__init__()
+        super(Error, self).__init__()
         self.data = data
         self.nmc = nmc 
         self.sigma = sigma
@@ -47,7 +47,7 @@ class ImageError(object):
         mcPoints = self.generate_mc_points()
 
         ## Get gamma approximator using data points, generate random cross section value
-        mc_gamma = GammaApproximation(mcPoints, rnd.gauss(self.sigma, self.dsigma))
+        mc_gamma = model.GammaApproximation(mcPoints, rnd.gauss(self.sigma, self.dsigma))
         gamma = lambda x: mc_gamma(x, parameters)
 
         ## Calculate values of Gamma function for the mc

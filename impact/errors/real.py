@@ -4,15 +4,14 @@ from math import pow as Power
 from math import e as E
 from math import sqrt, pi
 
-from constants import k_fm, k_norm
-from model import hankel_transform
+from impact.constants import k_fm, k_norm
+from impact.model import hankel_transform
 from partial_derivatives_explicit import PartialExplicit
 from partial_derivatives_symbolic import PartialSymbolic
 
-
-class RealPartErrorEvaluator(object):
+class Error(object):
 	def __init__(self, covariance, dsigma, drho):
-		super(RealPartErrorEvaluator, self).__init__()
+		super(Error, self).__init__()
 		self.covariance = covariance
 		self.dsigma = dsigma
 		self.drho = drho
@@ -20,10 +19,10 @@ class RealPartErrorEvaluator(object):
 
 
 		@hankel_transform
-		def breal_error(x, p):
+		def evaluate(x, p):
 			return self.treal_error(x, p)
 
-		self.breal_error = breal_error
+		self.evaluate = evaluate
 
 
 	def treal_error(self, t, p):

@@ -5,7 +5,7 @@ from math import e as E
 from math import sqrt, pi
 import sympy as smp
 
-from constants import k_norm
+from impact.constants import k_norm
 
 class PartialSymbolic(object):
 
