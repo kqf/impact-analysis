@@ -8,12 +8,13 @@ from impact.datapoint import DataPoint
 
 
 class Error(object):
-    def __init__(self, data, nmc, sigma, dsigma):
+    def __init__(self, data, sigma, dsigma):
         super(Error, self).__init__()
         self.data = data
-        self.nmc = nmc 
         self.sigma = sigma
         self.dsigma = dsigma
+        # This is value should be fixed
+        self.mcsize = 100
 
         self.gausf = ROOT.TF1('gaussFunction','gaus', 0, 1.4)
         self.gausf.SetParameter(0, 1)
@@ -41,8 +42,8 @@ class Error(object):
 
 
     # TODO: Nb introduce additional parameter for nsample points
-    def generate_mc_gamma(self, npoints, parameters):
-        """Writes points from b = 0 to b = 3 to file"""
+    def generate_mc_gamma(self, parameters):
+        """Calculates points from b = 0 to b = 3"""
         ## Read parameters for real data approximation
         mcPoints = self.generate_mc_points()
 
@@ -51,14 +52,14 @@ class Error(object):
         gamma = lambda x: mc_gamma(x, parameters)
 
         ## Calculate values of Gamma function for the mc
-        return map(gamma, model.impact_range(npoints, npoints/3.0))
+        return map(gamma, model.impact_range())
 
 
     def generate_mc_data(self, parameters):
         bar = progressbar.ProgressBar()
         print 'Generating the sample of gamma points'
         # NB: First parameter in this list may differ from range
-        mc = [self.generate_mc_gamma(self.nmc, parameters) for i in bar(range(self.nmc))]
+        mc = [self.generate_mc_gamma(parameters) for i in bar(range(self.mcsize))]
         return mc
 
 

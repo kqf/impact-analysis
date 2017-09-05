@@ -10,7 +10,8 @@ def main():
 
 	infile = data['infile']
 	for p in data['data']:
-		analysis = ImpactAnalysis(infile, p["PROCESS"], p["ENERGY"], p["SIGMA"], p["RHO"], p["DSIGMA"], p["DRHO"], 100)
+		# TODO: Wrap this up in options
+		analysis = ImpactAnalysis(infile, p["PROCESS"], p["ENERGY"], p["SIGMA"], p["RHO"], p["DSIGMA"], p["DRHO"])
 		values, errors = analysis.run()
 
 if __name__ == '__main__':

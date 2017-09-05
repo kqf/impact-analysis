@@ -19,7 +19,7 @@ class ImpactAnalysis(object):
     with open('config/impactanalysis.json') as f:
         conf = json.load(f)
 
-    def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, nmc, mode= 's'):
+    def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, mode= 's'):
         super(ImpactAnalysis, self).__init__()
 
         self.name = ptype + '-' + str(energy)
@@ -27,14 +27,13 @@ class ImpactAnalysis(object):
         self.dsigma = dsigma
         self.drho = drho
 
-        self.nmc = nmc
         self.mode = mode
         self.points_pref = self.conf['points_pref']
         self.ofile = self.conf['ofile']
 
         self.data = DataReader(energy, ptype).read(infile)
         self.gamma_fitter = DataFit(self.data, self.name, ptype, energy, sigma, rho, mode)
-        self.imag_gamma_error = err_imag.Error(self.data, nmc, sigma, dsigma)
+        self.imag_gamma_error = err_imag.Error(self.data, sigma, dsigma)
 
 
     def save_points_vs_errors(self, gamma, gamma_error, pref):
@@ -51,9 +50,8 @@ class ImpactAnalysis(object):
         average, sigma = self.imag_gamma_error.evaluate(parameters)
 
         # TODO: Clean the names of the variables
-        # TODO: remove self.nmc
         gamma_lambda = model.GammaApproximation.function_for_parameters(self.data, parameters)
-        gamma = map(gamma_lambda, model.impact_range(self.nmc, self.nmc / 3.0))
+        gamma = map(gamma_lambda, model.impact_range())
 
         self.gamma_fitter.draw_results(average, sigma, gamma)
 
