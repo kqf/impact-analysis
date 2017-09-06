@@ -10,7 +10,7 @@ from model import real_gamma
 import errors.real as err_real 
 import errors.imag as err_imag
 
-from datapoint import DataReader
+from datapoint import DataPoint
 from datafit import DataFit
 import model 
 
@@ -31,7 +31,8 @@ class ImpactAnalysis(object):
         self.points_pref = self.conf['points_pref']
         self.ofile = self.conf['ofile']
 
-        self.data = DataReader(energy, ptype).read(infile)
+        # TODO: Move the real gamma error here
+        self.data = DataPoint.read(energy, ptype, infile)
         self.gamma_fitter = DataFit(self.data, self.name, ptype, energy, sigma, rho, mode)
         self.imag_gamma_error = err_imag.Error(self.data, sigma, dsigma)
 

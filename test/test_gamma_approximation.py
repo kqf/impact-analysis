@@ -1,6 +1,6 @@
 from test.configurable import Configurable
 from impact.model import GammaApproximation
-from impact.datapoint import DataReader
+from impact.datapoint import DataPoint
 
 # TODO: try to avoid numpy ?!
 import numpy as np
@@ -14,7 +14,7 @@ class TestGammaApproximation(Configurable):
 
 
     def testLowTExrapolation(self):
-        data = DataReader(self.ENERGY, self.PROCESS).read(self.infile)
+        data = DataPoint.read(self.ENERGY, self.PROCESS, self.infile)
         approximator = GammaApproximation(data)
 
         values = [approximator.im_amplitude_low_t(t, self.parameters) for t in np.linspace(0, 0.5, 100)]
