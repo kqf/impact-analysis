@@ -1,9 +1,7 @@
 #!/usr/bin/python2
 import ROOT
 import json
-
 import model
-from model import diff_cs, ratio, GammaApproximation
 
 def getGraph(lst):
     graph = ROOT.TGraphErrors()
@@ -30,7 +28,7 @@ class DataFit(object):
         self.par_file_name = 'output/parameters_' + self.title + str(self.energy) + '.dat'
 
         # Configure fit
-        self.parameters = self.conf['initial_parameters'] + [self.sigma, self.rho]
+        self.inpar      = self.conf['initial_parameters'] + [self.sigma, self.rho]
         self.par_fixed  = self.conf['par_fixed']
         self.par_limits = self.conf['par_limits']
         self.step_nstep = self.conf['step_nstep']
@@ -42,11 +40,9 @@ class DataFit(object):
         imgfile         = self.conf['imgfile']
         self.ofilename = imgfile % name
 
-
-        self.nparameters = len(self.parameters)
-
-        # Don't initialize these two without purpose
-        self.graph, self.gamma = None, None
+        # NB: Keep all objects that you want to reuse 
+        #     othervise those objects will be delted
+        self.cache = []
 
 
     def differential_cs(self):
@@ -57,8 +53,9 @@ class DataFit(object):
         graph.SetName(self.name)
         graph.SetTitle(self.title)
 
-        [graph.SetPoint(i, p.t, p.ds) for i, p in enumerate(self.data)]
-        [graph.SetPointError(i, 0, p.err) for i, p in enumerate(self.data)]
+        for i, p in enumerate(self.data):
+            graph.SetPoint(i, p.t, p.ds)
+            graph.SetPointError(i, 0, p.err)
 
         graph.GetXaxis().SetTitle('-t, GeV/c')
         graph.GetYaxis().SetTitle('#frac{d#sigma}{dt}, mb/GeV^{2}')
@@ -69,8 +66,12 @@ class DataFit(object):
 
     def differential_cs_approx(self):
         tmin, tmax = self.t_range
-        function = ROOT.TF1('function', lambda x, p: diff_cs(x[0], p), tmin, tmax, self.nparameters)
-        [function.SetParameter(i, par) for i, par in enumerate(self.parameters)]
+        function = ROOT.TF1('function', lambda x, p: model.diff_cs(x[0], p), 
+            tmin, tmax, len(self.inpar))
+
+        for i, par in enumerate(self.inpar):
+            function.SetParameter(i, par)
+
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
 
@@ -84,28 +85,18 @@ class DataFit(object):
 
     def ratio(self, parameters):
         tmin, tmax = self.t_range
-        function = ROOT.TF1('ratio', ratio, tmin, tmax, self.nparameters)
+        function = ROOT.TF1('ratio', model.ratio, tmin, tmax, len(self.inpar))
         # ratio.GetXaxis().SetRange(0, 2)
-        [function.SetParameter(i, par) for i, par in enumerate(parameters)]
+
+        for i, par in enumerate(parameters):
+            function.SetParameter(i, par)
+
         function.FixParameter(10, self.sigma)
         function.FixParameter(11, self.rho)
         print 'Ratio at zero is : ', ratio([0], parameters)
 
         function.SetLineColor(38)
         return function
-
-
-    def gamma_function(self, parameters):
-        """Creates \Gamma(b) functor uses data !"""
-        g = GammaApproximation(self.data)
-        bmin, bmax = self.b_range
-        gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g(x[0], parameters), bmin, bmax, self.nparameters)
-        [gamma.SetParameter(i, p) for i, p in enumerate(parameters)]
-
-        gamma.SetLineColor(46)
-        gamma.GetXaxis().SetTitle('b\t,fm')
-        gamma.GetYaxis().SetTitle('#Gamma')
-        return gamma 
 
 
     def get_legend(self, graph, function):
@@ -132,32 +123,32 @@ class DataFit(object):
         self.canvas.Divide(2, 1)
         self.decorate_pad(self.canvas.cd(1))
 
-        self.graph = self.differential_cs()
-        self.graph.Draw('AP')
+        cs_data, cs_func = self.differential_cs(), self.differential_cs_approx()
+        cs_data.Draw('AP')
+        cs_data.Fit(cs_func,'rE')
+        cs_func.Draw('same')
 
-        cs_function = self.differential_cs_approx()
-        self.graph.Fit(cs_function,'rE')
-        self.covariance = self.get_covariance()
-
-        self.parameters = [cs_function.GetParameter(i) for i in range(self.nparameters)]
-        cs_function.Draw('same')
-
-        self.legend = self.get_legend(self.graph, cs_function)
+        self.legend = self.get_legend(cs_data, cs_func)
         self.legend.Draw()
 
+        self.covariance = self.get_covariance()
 
-        out_parameters = [cs_function.GetParameter(i) for i in range(self.nparameters)]
-        self.gamma = self.gamma_function(out_parameters)
+        # TODO: replace self.inpar and out_parameters
+        out_parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
+        gamma = model.approx.tf1(self.data, out_parameters, *self.b_range)
+
         self.decorate_pad(self.canvas.cd(2))
-        self.gamma.Draw()
+        gamma.Draw()
         self.canvas.Update()
 
-        return map(self.gamma.Eval, model.impact_range()), out_parameters
+        self.cache.append([cs_data, cs_func, gamma])
+        return map(gamma.Eval, model.impact_range()), out_parameters
 
+    # TODO: Do we need this function
     def get_save_parameters(self):
         with open(self.par_file_name, 'w') as f:
-            [f.write(str(i) + ' ') for i in self.parameters]
-        return self.parameters
+            [f.write(str(i) + ' ') for i in self.inpar]
+        return self.inpar
 
 
     def get_covariance(self):

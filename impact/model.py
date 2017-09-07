@@ -6,6 +6,8 @@ from scipy import integrate
 from scipy.special import j0, j1
 from constants import k_fm, k_norm
 
+import ROOT
+
 # The parametrization used in here
 # $$A(s, t) = i (1-i \rho ) \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right) \left(a_{1} e^{-0.5 b_{1} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right)}+(1-a_{1}) e^{-0.5 b_{2} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi k_{norm}}\right)}\right)-i a_{4} e^{-0.5 b_{4} t}-\frac{a_{4} \rho }{\left(\frac{t}{b_{5}}+1\right)^4}$$
 
@@ -64,7 +66,7 @@ def impact_range(npoints = 30, step = 10.0, zero = 1e-5):
     return (zero * (i == 0) + i / step for i in range(npoints))
 
 
-class GammaApproximation(object):
+class approx(object):
     
     def __init__(self, data, new_sigma = None):
         self.dataPoints = data
@@ -113,7 +115,26 @@ class GammaApproximation(object):
         result = extrapolation1 + extrapolation2 + (gamma_data * k_fm / sqrt(pi * k_norm) / b)
         return result
 
+
     @classmethod
-    def function_for_parameters(klass, data, parameters):
-        self = klass(data)
+    def func(klass, data, parameters, new_sigma = None):
+        self = klass(data, new_sigma)
         return lambda b: self(b, parameters)
+
+
+    @classmethod
+    def tf1(klass, data, parameters, bmin, bmax):
+        """Creates \Gamma(b) functor uses data !"""
+        g = klass(data)
+        gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g(x[0], parameters), bmin, bmax, len(parameters))
+
+        for i, p in enumerate(parameters):
+            gamma.SetParameter(i, p)
+
+        gamma.SetLineColor(46)
+        gamma.GetXaxis().SetTitle('b\t,fm')
+        gamma.GetYaxis().SetTitle('#Gamma')
+        return gamma 
+
+
+

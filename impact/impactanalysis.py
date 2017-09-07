@@ -51,7 +51,8 @@ class ImpactAnalysis(object):
         average, sigma = self.imag_gamma_error.evaluate(parameters)
 
         # TODO: Clean the names of the variables
-        gamma_lambda = model.GammaApproximation.function_for_parameters(self.data, parameters)
+        # TODO: Replace gamma_lambda + map by a single function
+        gamma_lambda = model.approx.func(self.data, parameters)
         gamma = map(gamma_lambda, model.impact_range())
 
         self.gamma_fitter.draw_results(average, sigma, gamma)

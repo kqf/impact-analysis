@@ -48,8 +48,8 @@ class Error(object):
         mcPoints = self.generate_mc_points()
 
         ## Get gamma approximator using data points, generate random cross section value
-        mc_gamma = model.GammaApproximation(mcPoints, rnd.gauss(self.sigma, self.dsigma))
-        gamma = lambda x: mc_gamma(x, parameters)
+        new_sigma = rnd.gauss(self.sigma, self.dsigma)
+        gamma = model.approx.func(mcPoints, parameters, new_sigma)
 
         ## Calculate values of Gamma function for the mc
         return map(gamma, model.impact_range())
