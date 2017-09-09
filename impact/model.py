@@ -117,7 +117,7 @@ class approx(object):
 
 
     @classmethod
-    def func(klass, data, parameters, new_sigma = None):
+    def _func(klass, data, parameters, new_sigma = None):
         self = klass(data, new_sigma)
         return lambda b: self(b, parameters)
 
@@ -135,6 +135,12 @@ class approx(object):
         gamma.GetXaxis().SetTitle('b\t,fm')
         gamma.GetYaxis().SetTitle('#Gamma')
         return gamma 
+
+    @classmethod
+    def values(klass, data, parameters, new_sigma = None):
+        gamma_lambda = klass._func(data, parameters, new_sigma)
+        gamma = map(gamma_lambda, impact_range())
+        return gamma
 
 
 

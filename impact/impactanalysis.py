@@ -45,20 +45,16 @@ class ImpactAnalysis(object):
 
     def run(self):
         # Calculate experimental values of gamma
-        _, parameters = self.gamma_fitter.fit()
+        parameters, covariance = self.gamma_fitter.fit()
 
         # Estimate average values and  errors from monte-carlo data
         average, sigma = self.imag_gamma_error.evaluate(parameters)
 
-        # TODO: Clean the names of the variables
-        # TODO: Replace gamma_lambda + map by a single function
-        gamma_lambda = model.approx.func(self.data, parameters)
-        gamma = map(gamma_lambda, model.impact_range())
-
-        self.gamma_fitter.draw_results(average, sigma, gamma)
+        # Compare mc value with real and return the real values
+        gamma = self.gamma_fitter.compare_results(average, sigma, parameters)
 
         # Save gamma at zero
-        self.save_result(parameters, gamma[0], sigma[0])
+        self.save_result(parameters, covariance, gamma[0], sigma[0])
 
         # Save the results not only at zero but add more parameters
         self.save_points_vs_errors(average, sigma, 'mc')
@@ -68,9 +64,11 @@ class ImpactAnalysis(object):
 
 
 
-    def save_result(self, parameters, gammazero, sigmazero):
+    def save_result(self, parameters, covariance, gammazero, sigmazero):
         format = '%f\t%f\t%f\t%f\t%f\n'
-        real_gamma_error = err_real.Error(self.gamma_fitter.covariance, self.dsigma, self.drho)
+        # TODO: move covariance and parameters to the same place in 
+        #       in the error estimation
+        real_gamma_error = err_real.Error(covariance, self.dsigma, self.drho)
         data = (
                     gammazero,
                     sigmazero, 

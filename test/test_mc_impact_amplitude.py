@@ -23,7 +23,7 @@ class TestMCImpactAmplitude(Configurable):
         gamma_fitter = DataFit(data, self.PROCESS + str(self.ENERGY), self.PROCESS, self.ENERGY, self.SIGMA, self.RHO)
         imag_errors = err_imag.Error(data, self.SIGMA, self.DSIGMA)
 
-        _, parameters = gamma_fitter.fit()
+        parameters, covariance = gamma_fitter.fit()
 
         result = imag_errors.generate_mc_gamma(parameters)
 

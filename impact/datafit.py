@@ -130,19 +130,17 @@ class DataFit(object):
 
         self.legend = self.get_legend(cs_data, cs_func)
         self.legend.Draw()
-
         self.covariance = self.get_covariance()
 
         # TODO: replace self.inpar and out_parameters
         out_parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
         gamma = model.approx.tf1(self.data, out_parameters, *self.b_range)
+        gamma.Draw()
 
         self.decorate_pad(self.canvas.cd(2))
-        gamma.Draw()
         self.canvas.Update()
-
         self.cache.append([cs_data, cs_func, gamma])
-        return map(gamma.Eval, model.impact_range()), out_parameters
+        return out_parameters, self.covariance
 
     # TODO: Do we need this function
     def get_save_parameters(self):
@@ -160,10 +158,12 @@ class DataFit(object):
             for i in range(self.cov_size)] for j in range(self.cov_size)]
         return covariance
 
-    def draw_results(self, mu, sigma, true_gamma):
+    def compare_results(self, mu, sigma, parameters):
         self.canvas.cd(2)
 
+        true_gamma = model.approx.values(self.data, parameters)
         gamma_with_error = zip(true_gamma, sigma)
+
         final_result = getGraph(gamma_with_error)
         final_result.SetLineColor(37)
         final_result.SetMarkerColor(37)
@@ -180,3 +180,5 @@ class DataFit(object):
 
         if 's' not in self.mode:
             raw_input('pease enter any key ...')
+            
+        return true_gamma
