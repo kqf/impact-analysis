@@ -130,7 +130,6 @@ class DataFit(object):
 
         self.legend = self.get_legend(cs_data, cs_func)
         self.legend.Draw()
-        self.covariance = self.get_covariance()
 
         # TODO: replace self.inpar and out_parameters
         out_parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
@@ -140,14 +139,9 @@ class DataFit(object):
         self.decorate_pad(self.canvas.cd(2))
         self.canvas.Update()
         self.cache.append([cs_data, cs_func, gamma])
-        return out_parameters, self.covariance
+        return out_parameters, self.get_covariance()
 
-    # TODO: Do we need this function
-    def get_save_parameters(self):
-        with open(self.par_file_name, 'w') as f:
-            [f.write(str(i) + ' ') for i in self.inpar]
-        return self.inpar
-
+    # TODO: How do we read and store parameters
 
     def get_covariance(self):
         fitter = ROOT.TVirtualFitter.GetFitter()
