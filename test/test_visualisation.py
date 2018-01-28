@@ -9,3 +9,4 @@ class TestVisualRepresentation(Configurable):
         data = DataPoint.read(self.ENERGY, self.PROCESS, self.infile)
         df = DataFit(data, 'a', 'a', self.ENERGY, self.SIGMA, self.RHO)
         df.fit()
+        raw_input('')
