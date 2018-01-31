@@ -15,6 +15,6 @@ class AnalyzeSingleDataset(unittest.TestCase):
         infile = data['infile']
         
         p = data['data'][-1]
-        analysis = ImpactAnalysis(infile, p["PROCESS"], p["ENERGY"], p["SIGMA"], p["RHO"], p["DSIGMA"], p["DRHO"])
+        analysis = ImpactAnalysis(infile, p, mode='v')
         values, errors = analysis.run()
 

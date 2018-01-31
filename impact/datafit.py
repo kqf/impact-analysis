@@ -2,6 +2,7 @@
 import ROOT
 import json
 import model
+import utils as ut
 
 def getGraph(lst):
     graph = ROOT.TGraphErrors()
@@ -17,7 +18,6 @@ class DataFit(object):
 
     def __init__(self, data, name, title, energy, sigma , rho, mode = 's'):
         super(DataFit, self).__init__()
-        self.canvas = ROOT.TCanvas('c1', 'Impact Analysis', 800, 600)
         self.data = data
         self.name = name
         self.title = title
@@ -111,17 +111,11 @@ class DataFit(object):
         return legend
 
 
-    def decorate_pad(self, pad):
-        pad.SetLogy()
-        pad.SetTickx()
-        pad.SetTicky()
-        pad.SetGridy()
-        pad.SetGridx()
 
 
     def fit(self):
-        self.canvas.Divide(2, 1)
-        self.decorate_pad(self.canvas.cd(1))
+        canvas = ut.canvas("data")
+        # self.decorate_pad(canvas.cd(1))
 
         cs_data, cs_func = self.differential_cs(), self.differential_cs_approx()
         cs_data.Draw('AP')
@@ -136,13 +130,16 @@ class DataFit(object):
         gamma = model.approx.tf1(self.data, out_parameters, *self.b_range)
         gamma.Draw()
 
-        self.decorate_pad(self.canvas.cd(2))
-        self.canvas.Update()
+        # self.decorate_pad(canvas.cd(2))
+        canvas.Update()
+
+        if 's' not in self.mode:
+            raw_input('pease enter any key ...')
+           
         self.cache.append([cs_data, cs_func, gamma])
         return out_parameters, self.get_covariance()
 
     # TODO: How do we read and store parameters
-
     def get_covariance(self):
         fitter = ROOT.TVirtualFitter.GetFitter()
         cov = fitter.GetCovarianceMatrix()
@@ -153,7 +150,8 @@ class DataFit(object):
         return covariance
 
     def compare_results(self, mu, sigma, parameters):
-        self.canvas.cd(2)
+        canvas = ut.canvas("gamma")
+        ut.decorate_pad(canvas)
 
         true_gamma = model.approx.values(self.data, parameters)
         gamma_with_error = zip(true_gamma, sigma)
@@ -167,10 +165,10 @@ class DataFit(object):
         average_mc.SetLineColor(46)
         average_mc.SetMarkerColor(46)
 
-        final_result.Draw('same')
+        final_result.Draw()
         average_mc.Draw('same')
-        self.canvas.Update()
-        self.canvas.SaveAs(self.ofilename)
+        canvas.Update()
+        canvas.SaveAs(self.ofilename)
 
         if 's' not in self.mode:
             raw_input('pease enter any key ...')

@@ -6,7 +6,12 @@ from impact.datapoint import DataPoint
 class TestVisualRepresentation(Configurable):
 
     def testValues(self):
-        data = DataPoint.read(self.ENERGY, self.PROCESS, self.infile)
+        data = DataPoint.read(
+        	self.ENERGY,
+        	self.PROCESS,
+	        self.infile
+	    )
+	    
         df = DataFit(data, 'a', 'a', self.ENERGY, self.SIGMA, self.RHO)
         df.fit()
         raw_input('')

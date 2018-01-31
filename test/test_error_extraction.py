@@ -13,7 +13,7 @@ class TestFinalResult(Configurable):
 
 
 	def testValues(self):
-		analysis = ImpactAnalysis(self.infile, self.PROCESS, self.ENERGY, self.SIGMA, self.RHO, self.DSIGMA, self.DRHO)
+		analysis = ImpactAnalysis(self.infile, self.data)
 		values, errors = analysis.run()
 
 		# Test values

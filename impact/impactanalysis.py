@@ -19,22 +19,33 @@ class ImpactAnalysis(object):
     with open('config/impactanalysis.json') as f:
         conf = json.load(f)
 
-    def __init__(self, infile, ptype, energy, sigma, rho, dsigma, drho, mode= 's'):
+    def __init__(self, infile, hyperparameters, mode= 's'):
         super(ImpactAnalysis, self).__init__()
 
-        self.name = ptype + '-' + str(energy)
-        self.energy = energy
-        self.dsigma = dsigma
-        self.drho = drho
+        self.ptype = hyperparameters["PROCESS"]
+        self.energy = hyperparameters["ENERGY"]
+        self.dsigma =  hyperparameters["DSIGMA"]
+        self.sigma = hyperparameters["SIGMA"]
+        self.drho = hyperparameters["DRHO"]
+        self.rho =  hyperparameters["RHO"]
 
+        self.name = self.ptype + '-' + str(self.energy)
         self.mode = mode
         self.points_pref = self.conf['points_pref']
         self.ofile = self.conf['ofile']
 
         # TODO: Move the real gamma error here
-        self.data = DataPoint.read(energy, ptype, infile)
-        self.gamma_fitter = DataFit(self.data, self.name, ptype, energy, sigma, rho, mode)
-        self.imag_gamma_error = err_imag.Error(self.data, sigma, dsigma)
+        self.data = DataPoint.read(self.energy, self.ptype, infile)
+        self.gamma_fitter = DataFit(
+            self.data,
+            self.name,
+            self.ptype,
+            self.energy,
+            self.sigma,
+            self.rho,
+            self.mode
+        )
+        self.imag_gamma_error = err_imag.Error(self.data, self.sigma, self.dsigma)
 
 
     def save_points_vs_errors(self, gamma, gamma_error, pref):
