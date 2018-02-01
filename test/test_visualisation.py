@@ -12,6 +12,6 @@ class TestVisualRepresentation(Configurable):
 	        self.infile
 	    )
 	    
-        df = DataFit(data, 'a', 'a', self.ENERGY, self.SIGMA, self.RHO)
-        df.fit()
+        df = DataFit('a', 'a', self.ENERGY, self.SIGMA, self.RHO)
+        df.fit(data)
         raw_input('')

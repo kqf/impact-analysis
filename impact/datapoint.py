@@ -1,5 +1,16 @@
 #!/usr/bin/python2
 
+
+class DataSet(object):
+    def __init__(self, infile, parameters):
+        super(DataSet, self).__init__()
+        self.ptype = hyperparameters["PROCESS"]
+        self.energy = hyperparameters["ENERGY"]
+        self.dsigma =  hyperparameters["DSIGMA"]
+        self.sigma = hyperparameters["SIGMA"]
+        self.drho = hyperparameters["DRHO"]
+        self.rho =  hyperparameters["RHO"]
+
 class DataPoint(object):
     observable = {'pp': 310, 'p#bar{p}': 311}
     def __init__(self, t, ds, err, l = 0, u = 0):

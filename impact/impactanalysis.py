@@ -37,7 +37,6 @@ class ImpactAnalysis(object):
         # TODO: Move the real gamma error here
         self.data = DataPoint.read(self.energy, self.ptype, infile)
         self.gamma_fitter = DataFit(
-            self.data,
             self.name,
             self.ptype,
             self.energy,
@@ -56,13 +55,13 @@ class ImpactAnalysis(object):
 
     def run(self):
         # Calculate experimental values of gamma
-        parameters, covariance = self.gamma_fitter.fit()
+        parameters, covariance = self.gamma_fitter.fit(self.data)
 
         # Estimate average values and  errors from monte-carlo data
         average, sigma = self.imag_gamma_error.evaluate(parameters)
 
         # Compare mc value with real and return the real values
-        gamma = self.gamma_fitter.compare_results(average, sigma, parameters)
+        gamma = self.gamma_fitter.compare_results(self.data, average, sigma, parameters)
 
         # Save gamma at zero
         self.save_result(parameters, covariance, gamma[0], sigma[0])

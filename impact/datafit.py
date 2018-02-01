@@ -16,9 +16,8 @@ class DataFit(object):
     with open('config/datafit.json') as f:
         conf = json.load(f)
 
-    def __init__(self, data, name, title, energy, sigma , rho, mode = 's'):
+    def __init__(self, name, title, energy, sigma , rho, mode = 's'):
         super(DataFit, self).__init__()
-        self.data = data
         self.name = name
         self.title = title
         self.energy = energy
@@ -45,15 +44,15 @@ class DataFit(object):
         self.cache = []
 
 
-    def differential_cs(self):
+    def differential_cs(self, data):
         """
             Creates TGraphErrors, with differential cross section data
         """
-        graph = ROOT.TGraphErrors( len(self.data) )
+        graph = ROOT.TGraphErrors(len(data))
         graph.SetName(self.name)
         graph.SetTitle(self.title)
 
-        for i, p in enumerate(self.data):
+        for i, p in enumerate(data):
             graph.SetPoint(i, p.t, p.ds)
             graph.SetPointError(i, 0, p.err)
 
@@ -113,11 +112,11 @@ class DataFit(object):
 
 
 
-    def fit(self):
+    def fit(self, data):
         canvas = ut.canvas("data")
         # self.decorate_pad(canvas.cd(1))
 
-        cs_data, cs_func = self.differential_cs(), self.differential_cs_approx()
+        cs_data, cs_func = self.differential_cs(data), self.differential_cs_approx()
         cs_data.Draw('AP')
         cs_data.Fit(cs_func,'rE')
         cs_func.Draw('same')
@@ -127,7 +126,7 @@ class DataFit(object):
 
         # TODO: replace self.inpar and out_parameters
         out_parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
-        gamma = model.approx.tf1(self.data, out_parameters, *self.b_range)
+        gamma = model.approx.tf1(data, out_parameters, *self.b_range)
         gamma.Draw()
 
         # self.decorate_pad(canvas.cd(2))
@@ -149,11 +148,11 @@ class DataFit(object):
             for i in range(self.cov_size)] for j in range(self.cov_size)]
         return covariance
 
-    def compare_results(self, mu, sigma, parameters):
+    def compare_results(self, data, mu, sigma, parameters):
         canvas = ut.canvas("gamma")
         ut.decorate_pad(canvas)
 
-        true_gamma = model.approx.values(self.data, parameters)
+        true_gamma = model.approx.values(data, parameters)
         gamma_with_error = zip(true_gamma, sigma)
 
         final_result = getGraph(gamma_with_error)

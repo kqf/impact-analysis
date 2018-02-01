@@ -11,8 +11,8 @@ class TestImpactAmplitude(Configurable):
 
     def testValues(self):
         data = DataPoint.read(self.ENERGY, self.PROCESS, self.infile)
-        gamma_fitter = DataFit(data, self.PROCESS + str(self.ENERGY), self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
-        parameters, covariance = gamma_fitter.fit()
+        gamma_fitter = DataFit(self.PROCESS + str(self.ENERGY), self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
+        parameters, covariance = gamma_fitter.fit(data)
 
         result = model.approx.values(data, parameters)
         for a, b in zip(result, self.nominal_value):
