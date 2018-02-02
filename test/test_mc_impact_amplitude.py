@@ -1,6 +1,6 @@
 from test.configurable import Configurable
 import impact.errors.imag as err_imag
-from impact.datapoint import DataPoint
+from impact.datapoint import DataSet
 from impact.datafit import DataFit
 import random
 
@@ -19,7 +19,7 @@ class TestMCImpactAmplitude(Configurable):
 
     def testValues(self):
         nmc = 100
-        data = DataPoint.read(self.ENERGY, self.PROCESS, self.infile)
+        data = DataSet(self.infile, self.data).data
         gamma_fitter = DataFit(self.PROCESS + str(self.ENERGY), self.PROCESS, self.ENERGY, self.SIGMA, self.RHO)
         imag_errors = err_imag.Error(data, self.SIGMA, self.DSIGMA)
 

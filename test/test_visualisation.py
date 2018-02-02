@@ -1,16 +1,12 @@
 from test.configurable import Configurable
 
 from impact.datafit import DataFit
-from impact.datapoint import DataPoint
+from impact.datapoint import DataSet
 
 class TestVisualRepresentation(Configurable):
 
     def testValues(self):
-        data = DataPoint.read(
-        	self.ENERGY,
-        	self.PROCESS,
-	        self.infile
-	    )
+        data = DataSet(self.infile, self.data).data
 	    
         df = DataFit('a', 'a', self.ENERGY, self.SIGMA, self.RHO)
         df.fit(data)

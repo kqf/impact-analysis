@@ -1,5 +1,5 @@
 from test.configurable import Configurable
-from impact.datapoint import DataPoint
+from impact.datapoint import DataSet
 from impact.datafit import DataFit
 import impact.model as model
 
@@ -10,7 +10,7 @@ class TestImpactAmplitude(Configurable):
         self.nominal_value = self.data['impact_amplitude']
 
     def testValues(self):
-        data = DataPoint.read(self.ENERGY, self.PROCESS, self.infile)
+        data = DataSet(self.infile, self.data).data
         gamma_fitter = DataFit(self.PROCESS + str(self.ENERGY), self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
         parameters, covariance = gamma_fitter.fit(data)
 
