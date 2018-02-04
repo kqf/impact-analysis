@@ -17,7 +17,6 @@ class PartialSymbolic(object):
 		self.amplitude = self.analytic_formula()
 
 		useful_pars = 'a1 a4 b1 b2 b4 b5 a_s rho'.split()
-		# TODO: Should I take only real parts
 		self.d_a1, self.d_a4, self.d_b1, self.d_b2, self.d_b4, self.d_b5, self.d_as, self.d_rho = \
 			map(self._partial, useful_pars)
 
@@ -32,7 +31,13 @@ class PartialSymbolic(object):
 
 	def _partial(self, arg):
 		fpar = next((i for i in self.amplitude.free_symbols if i.name == arg), None)
-		partial_derivative = smp.lambdify((self.t, self.variables), self.amplitude.diff(fpar), 'numpy')
+
+		partial_derivative = smp.lambdify(
+			(self.t, self.variables), 
+			smp.re(self.amplitude.diff(fpar)), 
+			'numpy'
+		)
+
 		return partial_derivative
 
  	 
