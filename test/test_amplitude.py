@@ -1,5 +1,5 @@
 import random
-from impact.model import amplitude
+from impact.model import Model
 from test.configurable import Configurable
 import numpy as np
 
@@ -10,14 +10,14 @@ class TestAmplitude(Configurable):
 		random.seed(1234)
 		self.parameters = self.data['initial_parameters'] + [self.data['SIGMA'], self.data['RHO']]
 		self.real, self.imag = self.data['real_amplitude'], self.data['imag_amplitude']
-		# self.nom_values, self.nom_errors = zip(*self.data['amplitude'])
+		# self.nom_values, self.nom_errors = zip(*self.data['Model.amplitude'])
 
 	def npoints(self):
 		return np.linspace(1e-5, 3, 100)
 
 
 	def testAmplitude(self):
-		data = [amplitude(t, self.parameters) for t in self.npoints()]
+		data = [Model.amplitude(t, self.parameters) for t in self.npoints()]
 		real, imag = zip(*[[d.real, d.imag] for d in data])
 
 		for a, b in zip(real, self.real):
