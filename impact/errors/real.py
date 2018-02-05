@@ -6,8 +6,9 @@ from math import sqrt, pi
 
 from impact.constants import k_fm, k_norm
 from impact.model import hankel_transform
-from partial_derivatives_explicit import PartialExplicit
-from partial_derivatives_symbolic import PartialSymbolic
+
+from impact.parametrization.numeric import Numeric
+from impact.parametrization.symbolic import Symbolic
 
 class Error(object):
 	def __init__(self, covariance, dsigma, drho):
@@ -15,7 +16,7 @@ class Error(object):
 		self.covariance = covariance
 		self.dsigma = dsigma
 		self.drho = drho
-		self.partials = PartialExplicit()
+		self.partials = Numeric()
 
 
 		@hankel_transform

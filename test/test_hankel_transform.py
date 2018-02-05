@@ -1,6 +1,6 @@
 import unittest
 from test.configurable import Configurable
-from impact.model import Model, hankel_transform, real_gamma
+from impact.model import MODEL, hankel_transform, real_gamma
 import numpy as np
 
 class TestHankelTransformation(Configurable):
@@ -22,7 +22,7 @@ class TestHankelTransformation(Configurable):
 		from impact.constants import k_fm, k_norm
 
 		def real_gamma_explicit_form(b, p):
-		    f = lambda q :  q * j0(b * q / k_fm) * Model.amplitude(q * q, p).real / sqrt(pi * k_norm)
+		    f = lambda q :  q * j0(b * q / k_fm) * MODEL.amplitude(q * q, p).real / sqrt(pi * k_norm)
 		    result = integrate.quad(f, 0, np.infty)[0]
 		    return -result
 

@@ -7,7 +7,7 @@ from cmath import exp as Exp
 
 from impact.constants import k_norm
 
-class PartialExplicit(object):
+class Numeric(object):
 
     def d_a1(self, t, p):
         a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
@@ -104,3 +104,15 @@ class PartialExplicit(object):
                                 )
                 )
 
+        
+    def amplitude(self, t, p):
+        a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho = p
+        a_s = a_s/(sqrt(pi *  k_norm) * 4)
+        
+        alpha = (1 - 1j*rho)*(a_s + a4)
+
+        try:
+            ampl= 1j*alpha*( a1*Exp(-0.5*alpha*b1*t) + (1 - a1)*Exp(-0.5*alpha*b2*t) ) - 1j*a4*Exp(-0.5*b4*t) - a4*rho/((1 + t/b5)**4)
+        except OverflowError:
+            ampl = 0
+        return ampl 
