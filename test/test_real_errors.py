@@ -1,8 +1,12 @@
 import random
 
-from test.configurable import Configurable
 from impact.constants import k_fm, k_norm
+from test.configurable import Configurable
 import impact.errors.real as err_real
+
+from impact.parametrization.numeric import Numeric
+from impact.parametrization.symbolic import Symbolic
+
 
 import numpy as np
 import cmath
@@ -16,68 +20,46 @@ class TestRealErrors(Configurable):
 	def setUp(self):
 		super(TestRealErrors, self).setUp()
 		self.parameters = self.data['initial_parameters'] + [self.data['SIGMA'], self.data['RHO']]
-		uncertanities = self.data['DSIGMA'], self.data['DRHO']
-
-		self.real_impact = self.data['real_impact_amplitude_error']
-		cov_size = self.data['pdimension']
-
-		self.variable_names = 'a1 a2 a4 b1 b2 b3 b4 a5 b5 b6 a_s rho'.split()
-		self.variables = smp.symbols(self.variable_names)
-		self.t = smp.Symbol('t')
-		self.longMessage = True
-
-		# self.variables = {v: p for v, p in zip(self.variable_names, self.parameters)}
-
-		# Create some fake covariance matrix
-		cov = [[ 1./(i ** 2 + j + 1) 
-			for i in range(cov_size)] for j in range(cov_size)]
-
-		self.evaluator = err_real.Error(cov, *uncertanities)
-		self.analytic_amplitude = self.analytic_formula()
-
-
-
-	def analytic_formula(self):
-		a1, a2, a4, b1, b2, b3, b4, a5, b5, b6, a_s, rho =  self.variables
-		t = self.t
-		a_s = a_s / (smp.sqrt(smp.pi *  k_norm) * 4)
-		alpha = (1 - 1j*rho)*(a_s + a4)
-		return 1j*alpha*( a1*smp.exp(-0.5*alpha*b1*t) + (1 - a1)*smp.exp(-0.5*alpha*b2*t) ) - 1j*a4*smp.exp(-0.5*b4*t) - a4*rho/((1 + t/b5)**4)
-
 
 
 	# @unittest.skip('This one should has the lowest priority,\
 		# as there is an error in the formula, this error should be studied later')
 	def testRealImpactError(self):
-		rgamma_error = lambda x: self.evaluator.evaluate(x, self.parameters)
-		data = map(rgamma_error, np.linspace(1e-5, 3, 100))
+		# Create some fake covariance matrix
+		cov_size = self.data['pdimension']
+		cov = [[ 1./(i ** 2 + j + 1) 
+			for i in range(cov_size)] for j in range(cov_size)]
+		uncertanities = self.data['DSIGMA'], self.data['DRHO']
 
+		evaluator = err_real.Error(cov, *uncertanities)
+		data = map(
+			lambda x: evaluator.evaluate(x, self.parameters), 
+			np.linspace(1e-5, 3, 100)
+		)
+
+		nominal_real_impact_amplitude_error = self.data['real_impact_amplitude_error']
 		mymsg = 'Actual values differ from nominal estimates.\n\nActual values: {}'.format(data)
-		for a, b in zip(data, self.real_impact):
+		for a, b in zip(data, nominal_real_impact_amplitude_error):
 				self.assertAlmostEqual(a, b, msg = mymsg)
 
 
-	# TODO: Check extra k_norm factor
+
+class TestNumericSymbolicConsistency(Configurable):
+
+	def setUp(self):
+		super(TestNumericSymbolicConsistency, self).setUp()
+		self.parameters = self.data['initial_parameters'] + [self.data['SIGMA'], self.data['RHO']]
+
+
+		# TODO: Check extra k_norm factor
 	def test_sympy_calculates_partial_derivatives(self):
-		# TODO: Check 'a_s' contribution. It differs from mathematica
-		fvariables = 'a1', 'a4', 'b1', 'b2', 'b5', 'rho', 'a_s'
-		ep = self.evaluator.partials
-		fmethods = ep.d_a1, ep.d_a4, ep.d_b1, ep.d_b2, ep.d_b5, ep.d_rho, ep.d_as
+		es, ep = Symbolic(), Numeric()
+		numeric  = ep.d_a1, ep.d_a2, ep.d_b1, ep.d_b2, ep.d_b4, ep.d_as, ep.d_rho
+		symbolic = es.d_a1, es.d_a2, es.d_b1, es.d_b2, es.d_b4, es.d_as, es.d_rho # Why there is no b3?
 
-		for arg, method in zip(fvariables, fmethods):
-			fpar = next((i for i in self.analytic_amplitude.free_symbols if i.name == arg), None)
-			partial_derivative = smp.lambdify((self.t, self.variables), self.analytic_amplitude.diff(fpar), 'numpy')
-
-			print 'Checking {0} derivative'.format(arg)
-
-			mymsg = '\nThere is an error in formulas for partial " + \
-				"derivative of A(s, t) over {0} \n{1}'.format(arg, self.parameters)
+		for symbolic, numeric in zip(symbolic, numeric):
 
 			for t in np.linspace(0.1, 10):
-				analytic = complex(partial_derivative(t, self.parameters))
-				trueval = method(t, self.parameters)
-
-				self.assertAlmostEqual(analytic.real , trueval, msg = mymsg)
-
-
-
+				symval = symbolic(t, self.parameters)
+				trueval = numeric(t, self.parameters)
+				self.assertAlmostEqual(symval, trueval)	

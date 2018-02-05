@@ -27,9 +27,11 @@ class DataFit(object):
         self.par_file_name = 'output/parameters_' + self.title + str(self.energy) + '.dat'
 
         # Configure fit
+        #
         self.inpar      = self.conf['initial_parameters'] + [self.sigma, self.rho]
         self.par_fixed  = self.conf['par_fixed']
         self.par_limits = self.conf['par_limits']
+        self.par_names  = self.conf['par_names']
         self.step_nstep = self.conf['step_nstep']
         self.zero       = self.conf['zero']
         self.cov_size   = self.conf['cov_size']
@@ -71,8 +73,9 @@ class DataFit(object):
         for i, par in enumerate(self.inpar):
             function.SetParameter(i, par)
 
-        function.FixParameter(10, self.sigma)
-        function.FixParameter(11, self.rho)
+        function.FixParameter(len(self.inpar) - 2, self.sigma)
+        function.FixParameter(len(self.inpar) - 1, self.rho)
+        function.SetParNames(*self.par_names)
 
         map(lambda x: function.FixParameter(*x), self.par_fixed)
         map(lambda x: function.SetParLimits(*x), self.par_limits)
