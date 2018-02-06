@@ -10,7 +10,7 @@ class TestGammaApproximation(Configurable):
     def setUp(self):
         super(TestGammaApproximation, self).setUp()
         self.low_t_extrapolation = self.data['low_t_extrapolation']
-        self.parameters = self.data['initial_parameters'] + [self.SIGMA, self.RHO]
+        self.parameters = self.data['initial_parameters'] + [self.dataset.sigma, self.dataset.rho]
 
 
     def testLowTExrapolation(self):

@@ -13,7 +13,6 @@ class Configurable(unittest.TestCase):
 
         p = lambda x: self.data[x]
         self.infile = p('infile')
-        self.PROCESS, self.ENERGY, self.SIGMA, self.RHO, self.DSIGMA, self.DRHO = map(p, ["PROCESS", "ENERGY", "SIGMA", "RHO", "DSIGMA", "DRHO"])
         self.dataset = DataSet(self.infile, self.data)
 
         hsum = self.data['hsum256']

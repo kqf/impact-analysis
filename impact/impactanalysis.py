@@ -21,30 +21,19 @@ class ImpactAnalysis(object):
 
     def __init__(self, infile, hyperparameters, mode= 's'):
         super(ImpactAnalysis, self).__init__()
-
-        self.ptype = hyperparameters["PROCESS"]
-        self.energy = hyperparameters["ENERGY"]
-        self.dsigma =  hyperparameters["DSIGMA"]
-        self.sigma = hyperparameters["SIGMA"]
-        self.drho = hyperparameters["DRHO"]
-        self.rho =  hyperparameters["RHO"]
-
-        self.name = self.ptype + '-' + str(self.energy)
-        self.mode = mode
-        self.points_pref = self.conf['points_pref']
         self.ofile = self.conf['ofile']
+        self.points_pref = self.conf['points_pref']
 
-        # TODO: Move the real gamma error here
+        # TODO: Move all calculations to run
+        #       remove hyperparameters from here
+        #       
         self.dataset = DataSet(infile, hyperparameters)
-        self.gamma_fitter = DataFit(
-            self.name,
-            self.mode
-        )
+        self.gamma_fitter = DataFit(mode)
         self.imag_gamma_error = err_imag.Error(self.dataset)
 
 
-    def save_points_vs_errors(self, gamma, gamma_error, pref):
-        with open(self.points_pref % (pref + '-' + self.name), 'w') as f:
+    def save_points_vs_errors(self, dataset, gamma, gamma_error, pref):
+        with open(self.points_pref % (pref + '-' + dataset.ptype + '-' + str(dataset.energy)), 'w') as f:
             for i in zip(gamma, gamma_error):
                 f.write('%f\t%f\n' % i)
 
@@ -60,27 +49,27 @@ class ImpactAnalysis(object):
         gamma = self.gamma_fitter.compare_results(self.dataset, average, sigma, parameters)
 
         # Save gamma at zero
-        self.save_result(parameters, covariance, gamma[0], sigma[0])
+        self.save_result(self.dataset, parameters, covariance, gamma[0], sigma[0])
 
         # Save the results not only at zero but add more parameters
-        self.save_points_vs_errors(average, sigma, 'mc')
-        self.save_points_vs_errors(gamma, sigma,'result')
+        self.save_points_vs_errors(self.dataset, average, sigma, 'mc')
+        self.save_points_vs_errors(self.dataset, gamma, sigma,'result')
         return gamma, sigma
 
 
 
 
-    def save_result(self, parameters, covariance, gammazero, sigmazero):
+    def save_result(self, dataset, parameters, covariance, gammazero, sigmazero):
         format = '%f\t%f\t%f\t%f\t%f\n'
         # TODO: move covariance and parameters to the same place in 
         #       in the error estimation
-        real_gamma_error = err_real.Error(covariance, self.dsigma, self.drho)
+        real_gamma_error = err_real.Error(covariance, dataset.dsigma, dataset.drho)
         data = (
                     gammazero,
                     sigmazero, 
                     real_gamma(0, parameters),
                     real_gamma_error.evaluate(0, parameters), 
-                    self.energy
+                    dataset.energy
                 )
 
         with open(self.ofile, 'a') as ofile:

@@ -33,8 +33,7 @@ class DataFit(object):
         self.legend     = self.conf['legend']
         self.t_range    = self.conf['t_range']
         self.b_range    = self.conf['b_range']
-        imgfile         = self.conf['imgfile']
-        self.ofilename = imgfile % name
+        self.imgfile    = self.conf['imgfile']
 
         # NB: Keep all objects that you want to reuse 
         #     othervise those objects will be delted
@@ -167,7 +166,9 @@ class DataFit(object):
         final_result.Draw()
         average_mc.Draw('same')
         canvas.Update()
-        canvas.SaveAs(self.ofilename)
+        canvas.SaveAs(
+            self.imgfile % (dataset.ptype + '-' + str(dataset.energy))
+        )
 
         if 's' not in self.mode:
             raw_input('pease enter any key ...')
