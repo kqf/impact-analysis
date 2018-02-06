@@ -10,10 +10,9 @@ class TestImpactAmplitude(Configurable):
         self.nominal_value = self.data['impact_amplitude']
 
     def testValues(self):
-        data = DataSet(self.infile, self.data).data
-        gamma_fitter = DataFit(self.PROCESS + str(self.ENERGY), self.PROCESS, self.ENERGY, self.SIGMA, self.RHO) 
-        parameters, covariance = gamma_fitter.fit(data)
+        gamma_fitter = DataFit("") 
+        parameters, covariance = gamma_fitter.fit(self.dataset)
 
-        result = model.approx.values(data, parameters)
+        result = model.approx.values(self.dataset.data, parameters)
         for a, b in zip(result, self.nominal_value):
                 self.assertAlmostEqual(a, b)

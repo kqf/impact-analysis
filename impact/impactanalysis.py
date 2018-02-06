@@ -35,16 +35,12 @@ class ImpactAnalysis(object):
         self.ofile = self.conf['ofile']
 
         # TODO: Move the real gamma error here
-        self.data = DataSet(infile, hyperparameters).data
+        self.dataset = DataSet(infile, hyperparameters)
         self.gamma_fitter = DataFit(
             self.name,
-            self.ptype,
-            self.energy,
-            self.sigma,
-            self.rho,
             self.mode
         )
-        self.imag_gamma_error = err_imag.Error(self.data, self.sigma, self.dsigma)
+        self.imag_gamma_error = err_imag.Error(self.dataset)
 
 
     def save_points_vs_errors(self, gamma, gamma_error, pref):
@@ -55,13 +51,13 @@ class ImpactAnalysis(object):
 
     def run(self):
         # Calculate experimental values of gamma
-        parameters, covariance = self.gamma_fitter.fit(self.data)
+        parameters, covariance = self.gamma_fitter.fit(self.dataset)
 
         # Estimate average values and  errors from monte-carlo data
         average, sigma = self.imag_gamma_error.evaluate(parameters)
 
         # Compare mc value with real and return the real values
-        gamma = self.gamma_fitter.compare_results(self.data, average, sigma, parameters)
+        gamma = self.gamma_fitter.compare_results(self.dataset, average, sigma, parameters)
 
         # Save gamma at zero
         self.save_result(parameters, covariance, gamma[0], sigma[0])

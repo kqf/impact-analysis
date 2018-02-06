@@ -16,19 +16,14 @@ class DataFit(object):
     with open('config/datafit.json') as f:
         conf = json.load(f)
 
-    def __init__(self, name, title, energy, sigma , rho, mode = 's'):
+    def __init__(self, name, mode = 's'):
         super(DataFit, self).__init__()
         self.name = name
-        self.title = title
-        self.energy = energy
-        self.sigma = sigma
-        self.rho = rho  
         self.mode = mode
-        self.par_file_name = 'output/parameters_' + self.title + str(self.energy) + '.dat'
 
         # Configure fit
         #
-        self.inpar      = self.conf['initial_parameters'] + [self.sigma, self.rho]
+        self.inpar      = self.conf['initial_parameters'] 
         self.par_fixed  = self.conf['par_fixed']
         self.par_limits = self.conf['par_limits']
         self.par_names  = self.conf['par_names']
@@ -46,15 +41,15 @@ class DataFit(object):
         self.cache = []
 
 
-    def differential_cs(self, data):
+    def differential_cs(self, dataset):
         """
-            Creates TGraphErrors, with differential cross section data
+            Creates TGraphErrors, with differential cross section dataset
         """
-        graph = ROOT.TGraphErrors(len(data))
+        graph = ROOT.TGraphErrors(len(dataset.data))
         graph.SetName(self.name)
-        graph.SetTitle(self.title)
+        # graph.SetTitle(dataset.title)
 
-        for i, p in enumerate(data):
+        for i, p in enumerate(dataset.data):
             graph.SetPoint(i, p.t, p.ds)
             graph.SetPointError(i, 0, p.err)
 
@@ -65,7 +60,7 @@ class DataFit(object):
         return graph
 
 
-    def differential_cs_approx(self):
+    def differential_cs_approx(self, dataset):
         tmin, tmax = self.t_range
         function = ROOT.TF1('function', lambda x, p: model.diff_cs(x[0], p), 
             tmin, tmax, len(self.inpar))
@@ -73,8 +68,8 @@ class DataFit(object):
         for i, par in enumerate(self.inpar):
             function.SetParameter(i, par)
 
-        function.FixParameter(len(self.inpar) - 2, self.sigma)
-        function.FixParameter(len(self.inpar) - 1, self.rho)
+        function.FixParameter(len(self.inpar) - 2, dataset.sigma)
+        function.FixParameter(len(self.inpar) - 1, dataset.rho)
         function.SetParNames(*self.par_names)
 
         map(lambda x: function.FixParameter(*x), self.par_fixed)
@@ -85,7 +80,7 @@ class DataFit(object):
         return function
 
 
-    def ratio(self, parameters):
+    def ratio(self, dataset, parameters):
         tmin, tmax = self.t_range
         function = ROOT.TF1('ratio', model.ratio, tmin, tmax, len(self.inpar))
         # ratio.GetXaxis().SetRange(0, 2)
@@ -93,19 +88,19 @@ class DataFit(object):
         for i, par in enumerate(parameters):
             function.SetParameter(i, par)
 
-        function.FixParameter(10, self.sigma)
-        function.FixParameter(11, self.rho)
+        function.FixParameter(10, dataset.sigma)
+        function.FixParameter(11, dataset.rho)
         print 'Ratio at zero is : ', ratio([0], parameters)
 
         function.SetLineColor(38)
         return function
 
 
-    def get_legend(self, graph, function):
+    def get_legend(self, dataset, graph, function):
         legend = ROOT.TLegend(*self.legend)
         chi2 = function.GetChisquare() / (function.GetNDF() + 1 * (function.GetNDF() == 0))
-        legend.AddEntry(graph , '#sqrt{s} = ' + str(self.energy) + ' GeV')
-        legend.AddEntry(0, '#sigma_{tot} = ' + str(self.sigma) + 'mb #rho = ' + str(self.rho), '')
+        legend.AddEntry(graph , '#sqrt{s} = ' + str(dataset.energy) + ' GeV')
+        legend.AddEntry(0, '#sigma_{tot} = ' + str(dataset.sigma) + 'mb #rho = ' + str(dataset.rho), '')
         legend.AddEntry(function , '#chi^{2}/ndf = ' + str(chi2))
         legend.SetBorderSize(0)
         legend.SetFillStyle(0)
@@ -115,21 +110,23 @@ class DataFit(object):
 
 
 
-    def fit(self, data):
+    def fit(self, dataset):
+        self.inpar = self.conf['initial_parameters'] + [dataset.sigma, dataset.rho]
+
         canvas = ut.canvas("data")
         # self.decorate_pad(canvas.cd(1))
 
-        cs_data, cs_func = self.differential_cs(data), self.differential_cs_approx()
+        cs_data, cs_func = self.differential_cs(dataset), self.differential_cs_approx(dataset)
         cs_data.Draw('AP')
         cs_data.Fit(cs_func,'rE')
         cs_func.Draw('same')
 
-        self.legend = self.get_legend(cs_data, cs_func)
+        self.legend = self.get_legend(dataset, cs_data, cs_func)
         self.legend.Draw()
 
         # TODO: replace self.inpar and out_parameters
         out_parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
-        gamma = model.approx.tf1(data, out_parameters, *self.b_range)
+        gamma = model.approx.tf1(dataset.data, out_parameters, *self.b_range)
         gamma.Draw()
 
         # self.decorate_pad(canvas.cd(2))
@@ -151,11 +148,11 @@ class DataFit(object):
             for i in range(self.cov_size)] for j in range(self.cov_size)]
         return covariance
 
-    def compare_results(self, data, mu, sigma, parameters):
+    def compare_results(self, dataset, mu, sigma, parameters):
         canvas = ut.canvas("gamma")
         ut.decorate_pad(canvas)
 
-        true_gamma = model.approx.values(data, parameters)
+        true_gamma = model.approx.values(dataset.data, parameters)
         gamma_with_error = zip(true_gamma, sigma)
 
         final_result = getGraph(gamma_with_error)

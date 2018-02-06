@@ -8,11 +8,11 @@ from impact.datapoint import DataPoint
 
 
 class Error(object):
-    def __init__(self, data, sigma, dsigma):
+    def __init__(self, dataset):
         super(Error, self).__init__()
-        self.data = data
-        self.sigma = sigma
-        self.dsigma = dsigma
+        self.data = dataset.data
+        self.sigma = dataset.sigma
+        self.dsigma = dataset.dsigma
         # This is value should be fixed
         self.mcsize = 100
 

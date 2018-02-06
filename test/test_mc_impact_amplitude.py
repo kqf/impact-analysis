@@ -19,11 +19,9 @@ class TestMCImpactAmplitude(Configurable):
 
     def testValues(self):
         nmc = 100
-        data = DataSet(self.infile, self.data).data
-        gamma_fitter = DataFit(self.PROCESS + str(self.ENERGY), self.PROCESS, self.ENERGY, self.SIGMA, self.RHO)
-        imag_errors = err_imag.Error(data, self.SIGMA, self.DSIGMA)
-
-        parameters, covariance = gamma_fitter.fit(data)
+        gamma_fitter = DataFit("")
+        imag_errors = err_imag.Error(self.dataset)
+        parameters, covariance = gamma_fitter.fit(self.dataset)
 
         result = imag_errors.generate_mc_gamma(parameters)
 
