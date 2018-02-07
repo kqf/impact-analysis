@@ -8,7 +8,7 @@ class TestAmplitude(Configurable):
 	def setUp(self):
 		super(TestAmplitude, self).setUp()
 		random.seed(1234)
-		self.parameters = self.data['initial_parameters'] + [self.data['SIGMA'], self.data['RHO']]
+		self.parameters = self.data['initial_parameters'] + [self.dataset.sigma, self.dataset.rho]
 		self.real, self.imag = self.data['real_amplitude'], self.data['imag_amplitude']
 		# self.nom_values, self.nom_errors = zip(*self.data[' MODEL.amplitude'])
 

@@ -13,9 +13,8 @@ class TestGammaApproximation(Configurable):
         self.parameters = self.data['initial_parameters'] + [self.dataset.sigma, self.dataset.rho]
 
 
-    def testLowTExrapolation(self):
-        data = DataSet(self.infile, self.data).data
-        approximator = model.approx(data)
+    def test_extrapolates_low_t_correctly(self):
+        approximator = model.approx(self.dataset.data)
 
         values = [approximator.im_amplitude_low_t(t, self.parameters) for t in np.linspace(0, 0.5, 100)]
 

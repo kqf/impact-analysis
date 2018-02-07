@@ -13,6 +13,6 @@ class TestImpactAmplitude(Configurable):
         gamma_fitter = DataFit("") 
         parameters, covariance = gamma_fitter.fit(self.dataset)
 
-        result = model.approx.values(self.dataset.data, parameters)
+        result = model.approx.values(self.dataset.data, self.dataset.parameters, model.impact_range())
         for a, b in zip(result, self.nominal_value):
                 self.assertAlmostEqual(a, b)

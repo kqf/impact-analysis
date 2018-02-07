@@ -2,3 +2,4 @@ progressbar
 scipy
 sympy
 numpy
+pandas

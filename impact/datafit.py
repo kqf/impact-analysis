@@ -79,17 +79,17 @@ class DataFit(object):
         return function
 
 
-    def ratio(self, dataset, parameters):
+    def ratio(self, dataset):
         tmin, tmax = self.t_range
         function = ROOT.TF1('ratio', model.ratio, tmin, tmax, len(self.inpar))
         # ratio.GetXaxis().SetRange(0, 2)
 
-        for i, par in enumerate(parameters):
+        for i, par in enumerate(dataset.parameters):
             function.SetParameter(i, par)
 
         function.FixParameter(10, dataset.sigma)
         function.FixParameter(11, dataset.rho)
-        print 'Ratio at zero is : ', ratio([0], parameters)
+        print 'Ratio at zero is : ', ratio([0], dataset.parameters)
 
         function.SetLineColor(38)
         return function
@@ -135,7 +135,9 @@ class DataFit(object):
             raw_input('pease enter any key ...')
            
         self.cache.append([cs_data, cs_func, gamma])
-        return out_parameters, self.get_covariance()
+        dataset.parameters = out_parameters
+        dataset.covariance = self.get_covariance()
+        return out_parameters, dataset.covariance
 
     # TODO: How do we read and store parameters
     def get_covariance(self):
@@ -147,11 +149,11 @@ class DataFit(object):
             for i in range(self.cov_size)] for j in range(self.cov_size)]
         return covariance
 
-    def compare_results(self, dataset, mu, sigma, parameters):
+    def compare_results(self, dataset, mu, sigma, output):
         canvas = ut.canvas("gamma")
         ut.decorate_pad(canvas)
 
-        true_gamma = model.approx.values(dataset.data, parameters)
+        true_gamma = model.approx.values(dataset.data, dataset.parameters, output.index)
         gamma_with_error = zip(true_gamma, sigma)
 
         final_result = getGraph(gamma_with_error)

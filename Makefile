@@ -1,10 +1,10 @@
 .PHONY: test all clean
 
 all:
-	$(ROOT_PYTHON) impact config/input.json
+	python impact config/input.json
 
 test:
-	$(ROOT_PYTHON) -m unittest discover 	
+	python -m unittest discover 	
 
 
 clean:

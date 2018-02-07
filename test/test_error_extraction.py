@@ -13,8 +13,8 @@ class TestFinalResult(Configurable):
 
 
 	def testValues(self):
-		analysis = ImpactAnalysis(self.infile, self.data)
-		values, errors = analysis.run()
+		analysis = ImpactAnalysis()
+		values, errors = analysis.run(self.dataset)
 
 		# Test values
 		msg = 'Actual values:\n {}'.format(values)

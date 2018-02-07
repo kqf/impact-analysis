@@ -1,8 +1,9 @@
 {    
-    "infile": "input/alldata_v1_4_with_13TeV.dat",
     "data":
     [
         {
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 23.506,
             "RHO"    : 0.022   ,
             "SIGMA"  : 39.5  ,
@@ -12,6 +13,9 @@
         },
 
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 30.700,
             "RHO"    : 0.036  ,
             "SIGMA"  : 40.1   ,
@@ -21,6 +25,9 @@
         },
 
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 44.699,
             "RHO"    : 0.062  ,
             "SIGMA"  : 41.9   ,
@@ -30,6 +37,9 @@
         },
 
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 52.818,
             "RHO"    : 0.077,
             "SIGMA"  : 42.75,
@@ -40,6 +50,9 @@
 
 
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 53.018,
             "RHO"    : 0.077,
             "SIGMA"  : 42.75,
@@ -50,6 +63,9 @@
 
 
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 62.500,
             "RHO"    :  0.095,
             "SIGMA"  : 44.0,
@@ -60,6 +76,9 @@
 
 
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 53,
             "RHO"    : 0.106,
             "SIGMA"  : 44.71,
@@ -70,6 +89,9 @@
 
 
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 546,
             "RHO"    : 0.135,
             "SIGMA"  : 61.9,
@@ -78,9 +100,10 @@
             "DRHO" : 0.0149
         },
 
-
-
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 1800,
             "RHO"    : 0.14,
             "SIGMA"  : 75.0,
@@ -89,6 +112,9 @@
             "DRHO" : 0.069
         },
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 7000,
             "RHO"    : 0.14,
             "SIGMA"  : 98.3,
@@ -97,6 +123,9 @@
             "DRHO" : 0.007
         },
         {
+
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 13000,
             "RHO"    : 0.1,
             "SIGMA"  : 0.11060e+03,

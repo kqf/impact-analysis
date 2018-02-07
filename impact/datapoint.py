@@ -1,10 +1,18 @@
 #!/usr/bin/python2
 
+import hashlib
+
+
+class NotFittedError(IOError):
+    pass
 
 class DataSet(object):
-    def __init__(self, infile, parameters):
+    def __init__(self, parameters):
         super(DataSet, self).__init__()
-        self.filename = infile
+        # Instead of copy constructor
+        self._hyperparameters = parameters
+        self._hsum = parameters["hsum256"]
+        self.filename = parameters["infile"]
         self.ptype = parameters["PROCESS"]
         self.energy = parameters["ENERGY"]
         self.dsigma = parameters["DSIGMA"]
@@ -12,6 +20,30 @@ class DataSet(object):
         self.drho = parameters["DRHO"]
         self.rho =  parameters["RHO"]
         self._data = None
+        self._parameters = None
+        self._covariance = None
+
+        self._validate_dataset()
+
+    def copy(self, data, new_sigma):
+        new_set = DataSet(self._hyperparameters)
+        new_set._data = data
+        new_set.sigma = new_sigma
+        new_set._parameters = self._parameters
+        new_set._covariance = self._covariance
+        return new_set
+
+    def _validate_dataset(self):
+        hashsum = hashlib.sha256()
+        with open(self.filename, 'rb') as f:
+                data = f.read()
+        hashsum.update(data)
+
+        msg = "You are using a wrong file to test your data. Your hash sums don't coincide."\
+              "\n\nActual:  {}\nNominal: {}".format(hashsum.hexdigest(), self._hsum)
+
+        assert hashsum.hexdigest() == self._hsum, msg
+
 
     def _read_raw(self, ptype):
         toint1 = lambda x: int( 1000 * float(x) )
@@ -47,7 +79,27 @@ class DataSet(object):
             self._data = self.read()
         return self._data
 
+    @property
+    def parameters(self):
+        if not self._parameters:
+            raise NotFittedError("Trying to use **parameters** without fitting")
+        return self._parameters
 
+    @parameters.setter
+    def parameters(self, parameters):
+        self._parameters = parameters 
+
+
+    @property
+    def covariance(self):
+        if not self._covariance:
+            raise NotFittedError("Trying to use **covariance** without fitting")
+        return self._covariance
+    
+    @covariance.setter
+    def covariance(self, covariance):
+        self._covariance = covariance
+  
 
 class DataPoint(object):
     observable = {'pp': 310, 'p#bar{p}': 311}

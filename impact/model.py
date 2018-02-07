@@ -49,6 +49,25 @@ def imag_gamma(x, p):
 def real_gamma(x, p):
 	return -MODEL.amplitude(x, p).real
 
+class RealGammaEstimator(object):
+
+    def __init__(self, outname="real_gamma"):
+        self.outname = outname
+
+    def evaluate(self, dataset, output):
+        output[self.outname] = map(lambda x: real_gamma(x, dataset.parameters), output.index)
+        return output[self.outname].values
+
+
+class ImageGammaEstimator(object):
+
+    def __init__(self, outname="image_gamma"):
+        self.outname = outname
+
+    def evaluate(self, dataset, output):
+        output[self.outname] = approx.values(dataset.data, dataset.parameters, output.index)
+        return output[self.outname].values
+
 
 def impact_range(npoints = 30, step = 10.0, zero = 1e-5):
     return (zero * (i == 0) + i / step for i in range(npoints))
@@ -63,7 +82,7 @@ class approx(object):
         # Define these functions in a very strange way to avoid code replication
         @hankel_transform
         def bspace_low_t(b, p):
-        	return self.im_amplitude_low_t(b, p)
+            return self.im_amplitude_low_t(b, p)
         self.bspace_low_t = bspace_low_t
 
 
@@ -125,10 +144,7 @@ class approx(object):
         return gamma 
 
     @classmethod
-    def values(klass, data, parameters, new_sigma = None):
+    def values(klass, data, parameters, index, new_sigma = None):
         gamma_lambda = klass._func(data, parameters, new_sigma)
-        gamma = map(gamma_lambda, impact_range())
+        gamma = map(gamma_lambda, index)
         return gamma
-
-
-

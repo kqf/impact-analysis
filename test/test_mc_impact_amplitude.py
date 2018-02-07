@@ -2,7 +2,9 @@ from test.configurable import Configurable
 import impact.errors.imag as err_imag
 from impact.datapoint import DataSet
 from impact.datafit import DataFit
+import impact.model as model
 import random
+import pandas as pd
 
 class TestMCImpactAmplitude(Configurable):
     """
@@ -20,10 +22,11 @@ class TestMCImpactAmplitude(Configurable):
     def testValues(self):
         nmc = 100
         gamma_fitter = DataFit("")
-        imag_errors = err_imag.Error(self.dataset)
+        imag_errors = err_imag.Error()
         parameters, covariance = gamma_fitter.fit(self.dataset)
 
-        result = imag_errors.generate_mc_gamma(parameters)
+        output = pd.DataFrame(index=model.impact_range())
+        result = imag_errors.generate_mc_gamma(self.dataset, output.index)
 
         msg = "Computed values are:\n{0}".format(result)
         for a, b in zip(result, self.nominal_value):
