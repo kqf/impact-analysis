@@ -5,7 +5,8 @@ import progressbar
 import json
 
 from ROOT import *
-from model import RealGammaEstimator, impact_range, ImageGammaEstimator
+from model import RealGammaEstimator, ImageGammaEstimator
+from utils import impact_range
 
 import errors.real as err_real 
 import errors.imag as err_imag
@@ -30,8 +31,8 @@ class ImpactAnalysis(object):
 
 
     def run(self, dataset):
+       # Calculate experimental values of gamma
         gamma_fitter = DataFit("analysis", self.model, self.mode)
-        # Calculate experimental values of gamma
 
         # Setup the parameters and covariance
         gamma_fitter.fit(dataset)
@@ -39,12 +40,11 @@ class ImpactAnalysis(object):
             RealGammaEstimator(self.model),
             ImageGammaEstimator(self.model),
             err_imag.Error(self.model),
-            err_real.Error()
+            err_real.Error(self.model)
         ]
 
         output = pd.DataFrame(index=impact_range())
         for estimator in pipeline:
             estimator.evaluate(dataset, output)
 
-        print output[:20]
         return output['image_gamma'].values, output['image_error'] 

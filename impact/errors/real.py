@@ -5,16 +5,16 @@ from math import e as E
 from math import sqrt, pi
 
 from impact.constants import k_fm, k_norm
-from impact.model import hankel_transform
+from impact.utils import hankel_transform
 
 from impact.parametrization.numeric import Numeric
 from impact.parametrization.symbolic import Symbolic
 
 class Error(object):
-    def __init__(self, outname='real_gamma_error'):
+    def __init__(self, model, outname='real_gamma_error'):
         super(Error, self).__init__()
         self.outname = outname
-        self.partials = Numeric()
+        self.model = model
 
         @hankel_transform
         def evaluate_(x, dataset):
@@ -29,14 +29,14 @@ class Error(object):
         a_s = a_s / (sqrt(pi * k_norm) * 4)
 
         A = [
-                self.partials.d_a1(t, p), 
-                self.partials.d_a2(t, p), 
-                self.partials.d_b1(t, p), 
-                self.partials.d_b2(t, p), 
+                self.model.d_a1(t, p), 
+                self.model.d_a2(t, p), 
+                self.model.d_b1(t, p), 
+                self.model.d_b2(t, p), 
                 0, #b3
-                self.partials.d_b4(t, p), 
-                # self.partials.d_as(t, p), 
-                # self.partials.d_rho(t, p) 
+                self.model.d_b4(t, p), 
+                # self.model.d_as(t, p), 
+                # self.model.d_rho(t, p) 
             ]
 
         error_squared = 0
@@ -46,7 +46,7 @@ class Error(object):
             for j in range(len(A)):
                 error_squared += dataset.covariance[i][j] * A[i] * A[j]
 
-        error_squared += (dataset.dsigma ** 2) * (self.partials.d_as(t, p)/(sqrt(pi)*4.)) ** 2 + (dataset.drho ** 2) * (self.partials.d_rho(t, p)) ** 2
+        error_squared += (dataset.dsigma ** 2) * (self.model.d_as(t, p)/(sqrt(pi)*4.)) ** 2 + (dataset.drho ** 2) * (self.model.d_rho(t, p)) ** 2
         error = sqrt(error_squared)
         return error    
 

@@ -6,6 +6,7 @@ import impact.model as model
 import random
 import pandas as pd
 from impact.parametrization.numeric import Numeric
+from impact.utils import impact_range
 
 class TestMCImpactAmplitude(Configurable):
     """
@@ -27,7 +28,7 @@ class TestMCImpactAmplitude(Configurable):
         imag_errors = err_imag.Error(themodel)
         parameters, covariance = gamma_fitter.fit(self.dataset)
 
-        output = pd.DataFrame(index=model.impact_range())
+        output = pd.DataFrame(index=impact_range())
         result = imag_errors.generate_mc_gamma(self.dataset, output.index)
 
         msg = "Computed values are:\n{0}".format(result)

@@ -3,7 +3,6 @@ import ROOT
 import json
 import utils as ut
 
-
 from impact.model import Approx
 
 def getGraph(lst):

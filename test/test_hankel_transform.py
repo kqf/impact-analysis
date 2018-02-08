@@ -1,6 +1,6 @@
 import unittest
 from test.configurable import Configurable
-from impact.amplitude import hankel_transform
+from impact.utils import hankel_transform
 from impact.parametrization.numeric import Numeric
 import numpy as np
 

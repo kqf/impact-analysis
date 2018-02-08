@@ -8,16 +8,7 @@ from parametrization.symbolic import Symbolic, SymbolicUpdated
 
 import ROOT
 
-# The parametrization used in here
-# $$A(s, t) = i (1-i \rho ) \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right) \left(a_{1} e^{-0.5 b_{1} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right)}+(1-a_{1}) e^{-0.5 b_{2} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi k_{norm}}\right)}\right)-i a_{4} e^{-0.5 b_{4} t}-\frac{a_{4} \rho }{\left(\frac{t}{b_{5}}+1\right)^4}$$
-
-def hankel_transform(func):
-    def impact_version(b, p, limits = (0, float("inf"))):
-        f = lambda q : q * j0(b * q / k_fm) *  func(q * q, p) / sqrt(pi * k_norm)
-        result = integrate.quad(f, *limits)[0]  # integral from zero to lower bound
-        return result
-
-    return impact_version
+from impact.utils import hankel_transform, impact_range
 
 
 class RealGammaEstimator(object):
@@ -40,10 +31,6 @@ class ImageGammaEstimator(object):
     def evaluate(self, dataset, output):
         output[self.outname] = Approx.values(self.model, dataset.data, dataset.parameters, output.index)
         return output[self.outname].values
-
-
-def impact_range(npoints = 30, step = 10.0, zero = 1e-5):
-    return (zero * (i == 0) + i / step for i in range(npoints))
 
 
 class Approx(object):

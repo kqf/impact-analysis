@@ -35,7 +35,7 @@ class TestRealErrors(Configurable):
     # @unittest.skip('This one should has the lowest priority,\
         # as there is an error in the formula, this error should be studied later')
     def test_real_part_of_impact_amplitude_error(self):
-        evaluator = err_real.Error()
+        evaluator = err_real.Error(Numeric())
         data = map(
             lambda x: evaluator.evaluate_(x, self.dataset), 
             np.linspace(1e-5, 3, 100)
