@@ -5,6 +5,7 @@ from impact.datafit import DataFit
 import impact.model as model
 import random
 import pandas as pd
+from impact.parametrization.numeric import Numeric
 
 class TestMCImpactAmplitude(Configurable):
     """
@@ -21,8 +22,9 @@ class TestMCImpactAmplitude(Configurable):
 
     def testValues(self):
         nmc = 100
-        gamma_fitter = DataFit("")
-        imag_errors = err_imag.Error()
+        themodel = Numeric()
+        gamma_fitter = DataFit("", themodel)
+        imag_errors = err_imag.Error(themodel)
         parameters, covariance = gamma_fitter.fit(self.dataset)
 
         output = pd.DataFrame(index=model.impact_range())

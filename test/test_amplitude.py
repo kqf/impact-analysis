@@ -1,5 +1,5 @@
 import random
-from impact.model import MODEL 
+from impact.parametrization.numeric import Numeric
 from test.configurable import Configurable
 import numpy as np
 
@@ -17,7 +17,8 @@ class TestAmplitude(Configurable):
 
 
 	def testAmplitude(self):
-		data = [ MODEL.amplitude(t, self.parameters) for t in self.npoints()]
+		model = Numeric()
+		data = [model.amplitude(t, self.parameters) for t in self.npoints()]
 		real, imag = zip(*[[d.real, d.imag] for d in data])
 
 		for a, b in zip(real, self.real):

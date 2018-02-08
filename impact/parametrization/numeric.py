@@ -6,8 +6,9 @@ from math import sqrt, pi
 from cmath import exp as Exp
 
 from impact.constants import k_norm
+from impact.amplitude import Amplitude
 
-class Numeric(object):
+class Numeric(Amplitude):
 
     def d_a1(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p

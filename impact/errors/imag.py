@@ -3,14 +3,15 @@ import ROOT
 import progressbar
 import random as rnd
 
-import impact.model as model
+from impact.model import Approx
 from impact.datapoint import DataPoint, DataSet
 
 
 class Error(object):
-    def __init__(self, outname="image_error", outaverage="average_impact_amplitude"):
+    def __init__(self, model, outname="image_error", outaverage="average_impact_amplitude"):
         super(Error, self).__init__()
         # This is value should be fixed
+        self.model = model
         self.mcsize = 100
         self.outname = outname
         self.outaverage = outaverage
@@ -51,7 +52,7 @@ class Error(object):
 
         ## Calculate values of Gamma function for the mc
         ## Index should be applied here
-        return model.approx.values(mcPoints, dataset.parameters, index, new_sigma)
+        return Approx.values(self.model, mcPoints, dataset.parameters, index, new_sigma)
 
 
     def generate_mc_data(self, dataset, index):

@@ -1,8 +1,10 @@
 #!/usr/bin/python2
 import ROOT
 import json
-import model
 import utils as ut
+
+
+from impact.model import Approx
 
 def getGraph(lst):
     graph = ROOT.TGraphErrors()
@@ -16,9 +18,10 @@ class DataFit(object):
     with open('config/datafit.json') as f:
         conf = json.load(f)
 
-    def __init__(self, name, mode = 's'):
+    def __init__(self, name, model, mode = 's'):
         super(DataFit, self).__init__()
         self.name = name
+        self.model = model
         self.mode = mode
 
         # Configure fit
@@ -61,7 +64,7 @@ class DataFit(object):
 
     def differential_cs_approx(self, dataset):
         tmin, tmax = self.t_range
-        function = ROOT.TF1('function', lambda x, p: model.diff_cs(x[0], p), 
+        function = ROOT.TF1('function', lambda x, p: self.model.diff_cs(x[0], p), 
             tmin, tmax, len(self.inpar))
 
         for i, par in enumerate(self.inpar):
@@ -81,7 +84,7 @@ class DataFit(object):
 
     def ratio(self, dataset):
         tmin, tmax = self.t_range
-        function = ROOT.TF1('ratio', model.ratio, tmin, tmax, len(self.inpar))
+        function = ROOT.TF1('ratio', self.model.ratio, tmin, tmax, len(self.inpar))
         # ratio.GetXaxis().SetRange(0, 2)
 
         for i, par in enumerate(dataset.parameters):
@@ -125,7 +128,7 @@ class DataFit(object):
 
         # TODO: replace self.inpar and out_parameters
         out_parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
-        gamma = model.approx.tf1(dataset.data, out_parameters, *self.b_range)
+        gamma = Approx.tf1(self.model, dataset.data, out_parameters, *self.b_range)
         gamma.Draw()
 
         # self.decorate_pad(canvas.cd(2))
@@ -153,7 +156,7 @@ class DataFit(object):
         canvas = ut.canvas("gamma")
         ut.decorate_pad(canvas)
 
-        true_gamma = model.approx.values(dataset.data, dataset.parameters, output.index)
+        true_gamma = self.model.approx.values(dataset.data, dataset.parameters, output.index)
         gamma_with_error = zip(true_gamma, sigma)
 
         final_result = getGraph(gamma_with_error)

@@ -12,31 +12,33 @@ import errors.imag as err_imag
 
 from datapoint import DataSet
 from datafit import DataFit
-import model 
 import pandas as pd
+
+from impact.parametrization.symbolic import Symbolic
 
 
 class ImpactAnalysis(object):
     with open('config/impactanalysis.json') as f:
         conf = json.load(f)
 
-    def __init__(self, mode= 's'):
+    def __init__(self, model=Symbolic(), mode= 's'):
         super(ImpactAnalysis, self).__init__()
+        self.model = model
         self.ofile = self.conf['ofile']
         self.points_pref = self.conf['points_pref']
         self.mode = mode
 
 
     def run(self, dataset):
-        gamma_fitter = DataFit(self.mode)
+        gamma_fitter = DataFit("analysis", self.model, self.mode)
         # Calculate experimental values of gamma
 
         # Setup the parameters and covariance
         gamma_fitter.fit(dataset)
         pipeline = [
-            RealGammaEstimator(),
-            ImageGammaEstimator(),
-            err_imag.Error(),
+            RealGammaEstimator(self.model),
+            ImageGammaEstimator(self.model),
+            err_imag.Error(self.model),
             err_real.Error()
         ]
 

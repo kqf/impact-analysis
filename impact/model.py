@@ -11,26 +11,6 @@ import ROOT
 # The parametrization used in here
 # $$A(s, t) = i (1-i \rho ) \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right) \left(a_{1} e^{-0.5 b_{1} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi  k_{norm}}\right)}+(1-a_{1}) e^{-0.5 b_{2} (1-i \rho ) t \left(a_{4}+\frac{a_{s}}{4 \pi k_{norm}}\right)}\right)-i a_{4} e^{-0.5 b_{4} t}-\frac{a_{4} \rho }{\left(\frac{t}{b_{5}}+1\right)^4}$$
 
-MODEL = Symbolic()
-
-def diff_cs(t, p):
-	"""
-		Differential cross-section formula:
-			$$\frac{d\sigma}{dt} = |Re A(s, t)^2 + Im A(s, t)^2|$$
-	"""
-	A = MODEL.amplitude(t,p)
-	try:
-		result = abs(A) ** 2
-	except OverflowError:
-		result = A.imag
-	return result
-
-	
-def ratio(t, p):
-    A = MODEL.amplitude(t,p)
-    return A.real / A.imag
-
-
 def hankel_transform(func):
     def impact_version(b, p, limits = (0, float("inf"))):
         f = lambda q : q * j0(b * q / k_fm) *  func(q * q, p) / sqrt(pi * k_norm)
@@ -40,32 +20,25 @@ def hankel_transform(func):
     return impact_version
 
 
-@hankel_transform
-def imag_gamma(x, p):
-	return MODEL.amplitude(x, p).imag
-
-
-@hankel_transform
-def real_gamma(x, p):
-	return -MODEL.amplitude(x, p).real
-
 class RealGammaEstimator(object):
 
-    def __init__(self, outname="real_gamma"):
+    def __init__(self, model, outname="real_gamma"):
+        self.model = model
         self.outname = outname
 
     def evaluate(self, dataset, output):
-        output[self.outname] = map(lambda x: real_gamma(x, dataset.parameters), output.index)
+        output[self.outname] = map(lambda x: self.model.real_gamma(x, dataset.parameters), output.index)
         return output[self.outname].values
 
 
 class ImageGammaEstimator(object):
 
-    def __init__(self, outname="image_gamma"):
+    def __init__(self, model, outname="image_gamma"):
+        self.model = model
         self.outname = outname
 
     def evaluate(self, dataset, output):
-        output[self.outname] = approx.values(dataset.data, dataset.parameters, output.index)
+        output[self.outname] = Approx.values(self.model, dataset.data, dataset.parameters, output.index)
         return output[self.outname].values
 
 
@@ -73,9 +46,10 @@ def impact_range(npoints = 30, step = 10.0, zero = 1e-5):
     return (zero * (i == 0) + i / step for i in range(npoints))
 
 
-class approx(object):
+class Approx(object):
     
-    def __init__(self, data, new_sigma = None):
+    def __init__(self, model, data, new_sigma = None):
+        self.model = model
         self.dataPoints = data
         self.new_sigma = new_sigma 
 
@@ -93,7 +67,7 @@ class approx(object):
         sigma = self.new_sigma if self.new_sigma else parameters[-2] 
 
         a0 = sigma / (4 * sqrt(pi * k_norm) )
-        a1 = sqrt(self.dataPoints[0].ds - MODEL.amplitude(self.dataPoints[0].t, p).real ** 2)
+        a1 = sqrt(self.dataPoints[0].ds - self.model.amplitude(self.dataPoints[0].t, p).real ** 2)
         b0 = (1./(self.dataPoints[0].t)) * log(a0 / a1)
 
         result = a0 * exp(-1. * b0 * t)
@@ -101,7 +75,7 @@ class approx(object):
 
     def integral(self, b, p, i):
         q1, q2 = sqrt(i.lower), sqrt(i.upper)
-        return sqrt(fabs(i.ds - MODEL.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) -  q1 * j1(b * q1 / k_fm))
+        return sqrt(fabs(i.ds - self.model.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) -  q1 * j1(b * q1 / k_fm))
 
 
     def __call__(self ,b, p):
@@ -112,7 +86,7 @@ class approx(object):
 
 
         # High t-contribution
-        extrapolation2 = imag_gamma(b, p, (self.dataPoints[-1].upper ** 0.5, float("inf")))
+        extrapolation2 = self.model.imag_gamma(b, p, (self.dataPoints[-1].upper ** 0.5, float("inf")))
 
 
         # Integrated values from data
@@ -124,15 +98,15 @@ class approx(object):
 
 
     @classmethod
-    def _func(klass, data, parameters, new_sigma = None):
-        self = klass(data, new_sigma)
+    def _func(klass, model, data, parameters, new_sigma = None):
+        self = klass(model, data, new_sigma)
         return lambda b: self(b, parameters)
 
 
     @classmethod
-    def tf1(klass, data, parameters, bmin, bmax):
+    def tf1(klass, model, data, parameters, bmin, bmax):
         """Creates \Gamma(b) functor uses data !"""
-        g = klass(data)
+        g = klass(model, data)
         gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g(x[0], parameters), bmin, bmax, len(parameters))
 
         for i, p in enumerate(parameters):
@@ -144,7 +118,7 @@ class approx(object):
         return gamma 
 
     @classmethod
-    def values(klass, data, parameters, index, new_sigma = None):
-        gamma_lambda = klass._func(data, parameters, new_sigma)
+    def values(klass, model, data, parameters, index, new_sigma = None):
+        gamma_lambda = klass._func(model, data, parameters, new_sigma)
         gamma = map(gamma_lambda, index)
         return gamma

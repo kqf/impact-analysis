@@ -7,8 +7,9 @@ import sympy as smp
 from cmath import exp as Exp
 
 from impact.constants import k_norm
+from impact.amplitude import Amplitude
 
-class Symbolic(object):
+class Symbolic(Amplitude):
 
     def __init__(self):
         super(Symbolic, self).__init__()
@@ -31,7 +32,7 @@ class Symbolic(object):
 
 
     def analytic_formula(self):
-        a1, a2, b1, b2, b3, b4, a_s, rho =  self.variables
+        a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
         t = self.t
         a_s = a_s / (smp.sqrt(smp.pi *  k_norm) * 4)
         alpha = (1 - 1j*rho)*(a_s + a2)
