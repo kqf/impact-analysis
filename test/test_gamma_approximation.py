@@ -16,7 +16,7 @@ class TestGammaApproximation(Configurable):
 
 
     def test_extrapolates_low_t_correctly(self):
-        approximator = Approx(Numeric(), self.dataset.data)
+        approximator = Approx(Numeric(), self.dataset)
 
         values = [approximator.im_amplitude_low_t(t, self.parameters) for t in np.linspace(0, 0.5, 100)]
 

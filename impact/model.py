@@ -29,16 +29,15 @@ class ImageGammaEstimator(object):
         self.outname = outname
 
     def evaluate(self, dataset, output):
-        output[self.outname] = Approx.values(self.model, dataset.data, dataset.parameters, output.index)
+        output[self.outname] = Approx.values(self.model, dataset, output.index)
         return output[self.outname].values
 
 
 class Approx(object):
     
-    def __init__(self, model, data, new_sigma = None):
+    def __init__(self, model, dataset):
         self.model = model
-        self.dataPoints = data
-        self.new_sigma = new_sigma 
+        self.dataset = dataset
 
         # Define these functions in a very strange way to avoid code replication
         @hankel_transform
@@ -49,13 +48,12 @@ class Approx(object):
 
     def im_amplitude_low_t(self, t, p):
         """Calculates imaginary part of extrapolated amplitude"""
+        data = self.dataset.data
+        sigma = self.dataset.sigma
         parameters = [i for i in p]
-
-        sigma = self.new_sigma if self.new_sigma else parameters[-2] 
-
         a0 = sigma / (4 * sqrt(pi * k_norm) )
-        a1 = sqrt(self.dataPoints[0].ds - self.model.amplitude(self.dataPoints[0].t, p).real ** 2)
-        b0 = (1./(self.dataPoints[0].t)) * log(a0 / a1)
+        a1 = sqrt(data[0].ds - self.model.amplitude(data[0].t, p).real ** 2)
+        b0 = (1./(data[0].t)) * log(a0 / a1)
 
         result = a0 * exp(-1. * b0 * t)
         return result
@@ -67,17 +65,18 @@ class Approx(object):
 
     def __call__(self ,b, p):
         """Calculates gamma(b) using data points"""
+        data = self.dataset.data
 
         # Taking into account low-t extrapolation
-        extrapolation1 = self.bspace_low_t(b, p, (0, self.dataPoints[0].lower ** 0.5))
+        extrapolation1 = self.bspace_low_t(b, p, (0, data[0].lower ** 0.5))
 
 
         # High t-contribution
-        extrapolation2 = self.model.imag_gamma(b, p, (self.dataPoints[-1].upper ** 0.5, float("inf")))
+        extrapolation2 = self.model.imag_gamma(b, p, (data[-1].upper ** 0.5, float("inf")))
 
 
         # Integrated values from data
-        gamma_data = sum(self.integral(b, p, i) for i in self.dataPoints) 
+        gamma_data = sum(self.integral(b, p, i) for i in data) 
 
         # All contributions
         result = extrapolation1 + extrapolation2 + (gamma_data * k_fm / sqrt(pi * k_norm) / b)
@@ -85,18 +84,18 @@ class Approx(object):
 
 
     @classmethod
-    def _func(klass, model, data, parameters, new_sigma = None):
-        self = klass(model, data, new_sigma)
-        return lambda b: self(b, parameters)
+    def _func(klass, model, dataset):
+        self = klass(model, dataset)
+        return lambda b: self(b, dataset.parameters)
 
 
     @classmethod
-    def tf1(klass, model, data, parameters, bmin, bmax):
+    def tf1(klass, model, dataset, bmin, bmax):
         """Creates \Gamma(b) functor uses data !"""
-        g = klass(model, data)
-        gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g(x[0], parameters), bmin, bmax, len(parameters))
+        g = klass(model, dataset)
+        gamma = ROOT.TF1('#Gamma(b)', lambda x, p: g(x[0], dataset.parameters), bmin, bmax, len(dataset.parameters))
 
-        for i, p in enumerate(parameters):
+        for i, p in enumerate(dataset.parameters):
             gamma.SetParameter(i, p)
 
         gamma.SetLineColor(46)
@@ -105,7 +104,7 @@ class Approx(object):
         return gamma 
 
     @classmethod
-    def values(klass, model, data, parameters, index, new_sigma = None):
-        gamma_lambda = klass._func(model, data, parameters, new_sigma)
+    def values(klass, model, dataset, index):
+        gamma_lambda = klass._func(model, dataset)
         gamma = map(gamma_lambda, index)
         return gamma

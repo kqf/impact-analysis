@@ -5,6 +5,7 @@ import random as rnd
 
 from impact.model import Approx
 from impact.datapoint import DataPoint, DataSet
+import copy
 
 
 class Error(object):
@@ -50,9 +51,18 @@ class Error(object):
         ## Get gamma approximator using data points, generate random cross section value
         new_sigma = rnd.gauss(dataset.sigma, dataset.dsigma)
 
+        generated_dataset = copy.deepcopy(dataset)
+        generated_dataset.sigma = new_sigma
+        generated_dataset._data = mcPoints
+
+
         ## Calculate values of Gamma function for the mc
         ## Index should be applied here
-        return Approx.values(self.model, mcPoints, dataset.parameters, index, new_sigma)
+        return Approx.values(
+            self.model,
+            generated_dataset,
+            index
+        )
 
 
     def generate_mc_data(self, dataset, index):

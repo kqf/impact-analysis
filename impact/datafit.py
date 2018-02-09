@@ -119,15 +119,18 @@ class DataFit(object):
 
         cs_data, cs_func = self.differential_cs(dataset), self.differential_cs_approx(dataset)
         cs_data.Draw('AP')
+
+        # Fit and update the dataset
         cs_data.Fit(cs_func,'rE')
+        dataset.parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
+        dataset.covariance = self.get_covariance()
         cs_func.Draw('same')
 
         self.legend = self.get_legend(dataset, cs_data, cs_func)
         self.legend.Draw()
 
         # TODO: replace self.inpar and out_parameters
-        out_parameters = [cs_func.GetParameter(i) for i in range(len(self.inpar))]
-        gamma = Approx.tf1(self.model, dataset.data, out_parameters, *self.b_range)
+        gamma = Approx.tf1(self.model, dataset, *self.b_range)
         gamma.Draw()
 
         # self.decorate_pad(canvas.cd(2))
@@ -137,9 +140,7 @@ class DataFit(object):
             raw_input('pease enter any key ...')
            
         self.cache.append([cs_data, cs_func, gamma])
-        dataset.parameters = out_parameters
-        dataset.covariance = self.get_covariance()
-        return out_parameters, dataset.covariance
+        return dataset.parameters, dataset.covariance
 
     # TODO: How do we read and store parameters
     def get_covariance(self):
@@ -155,7 +156,7 @@ class DataFit(object):
         canvas = ut.canvas("gamma")
         ut.decorate_pad(canvas)
 
-        true_gamma = self.model.approx.values(dataset.data, dataset.parameters, output.index)
+        true_gamma = self.model.approx.values(dataset, output.index)
         gamma_with_error = zip(true_gamma, sigma)
 
         final_result = getGraph(gamma_with_error)

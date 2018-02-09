@@ -28,6 +28,7 @@ class TestMCImpactAmplitude(Configurable):
         imag_errors = err_imag.Error(themodel)
         parameters, covariance = gamma_fitter.fit(self.dataset)
 
+        print "Fitted the model"
         output = pd.DataFrame(index=impact_range())
         result = imag_errors.generate_mc_gamma(self.dataset, output.index)
 
