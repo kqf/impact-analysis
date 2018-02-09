@@ -33,4 +33,4 @@ class TestHankelTransformation(Configurable):
 		f2 = lambda x: real_gamma_explicit_form(x, self.parameters)
 
 		for b in self.npoints():
-				self.assertAlmostEqual(f1(b), f2(b))
+				self.assertEqual(f1(b), f2(b))

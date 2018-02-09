@@ -44,7 +44,9 @@ class ImpactAnalysis(object):
         ]
 
         output = pd.DataFrame(index=impact_range())
+        output.index.name = 'b'
+
         for estimator in pipeline:
             estimator.evaluate(dataset, output)
-
-        return output['image_gamma'].values, output['image_error'] 
+            
+        return output
