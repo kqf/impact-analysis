@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 
 import hashlib
+import ROOT
 
 
 class NotFittedError(IOError):
@@ -43,6 +44,21 @@ class DataSet(object):
               "\n\nActual:  {}\nNominal: {}".format(hashsum.hexdigest(), self._hsum)
 
         assert hashsum.hexdigest() == self._hsum, msg
+
+
+    def differential_cs(self):
+        graph = ROOT.TGraphErrors(len(self.data))
+        graph.SetTitle("Differential cross section at {0} TeV".format(self.energy))
+
+        for i, p in enumerate(self.data):
+            graph.SetPoint(i, p.t, p.ds)
+            graph.SetPointError(i, 0, p.err)
+
+        graph.GetXaxis().SetTitle('-t, GeV/c')
+        graph.GetYaxis().SetTitle('#frac{d#sigma}{dt}, mb/GeV^{2}')
+        graph.SetMarkerStyle(20)
+        graph.SetMarkerColor(46)
+        return graph
 
 
     def _read_raw(self, ptype):

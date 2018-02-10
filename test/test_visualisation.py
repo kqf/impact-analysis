@@ -1,11 +1,11 @@
-from test.configurable import Configurable
+import unittest
 
-from impact.datafit import DataFit
-from impact.datapoint import DataSet
+from test.configurable import Configurable
 from impact.parametrization.numeric import Numeric
+from impact.vis import Plots
 
 class TestVisualRepresentation(Configurable):
 
     def testValues(self):
-        df = DataFit('a', Numeric())
-        df.fit(self.dataset)
+    	visualisator = Plots()
+    	visualisator.fit(Numeric(), self.dataset)	

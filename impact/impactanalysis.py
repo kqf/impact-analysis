@@ -11,7 +11,6 @@ from utils import impact_range
 import errors.real as err_real 
 import errors.imag as err_imag
 
-from datapoint import DataSet
 from datafit import DataFit
 import pandas as pd
 
@@ -22,17 +21,16 @@ class ImpactAnalysis(object):
     with open('config/impactanalysis.json') as f:
         conf = json.load(f)
 
-    def __init__(self, model=Symbolic(), mode= 's'):
+    def __init__(self, model=Symbolic()):
         super(ImpactAnalysis, self).__init__()
         self.model = model
         self.ofile = self.conf['ofile']
         self.points_pref = self.conf['points_pref']
-        self.mode = mode
 
 
     def run(self, dataset):
        # Calculate experimental values of gamma
-        gamma_fitter = DataFit("analysis", self.model, self.mode)
+        gamma_fitter = DataFit(self.model)
 
         # Setup the parameters and covariance
         gamma_fitter.fit(dataset)
