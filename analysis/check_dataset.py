@@ -14,7 +14,7 @@ class AnalyzeSingleDataset(unittest.TestCase):
             data = json.load(f)
 
         p = data['data'][-1]
-        analysis = ImpactAnalysis(mode='v')
+        analysis = ImpactAnalysis()
         dataset = DataSet(p)
-        values, errors = analysis.run(dataset)
+        analysis.run(dataset)
 

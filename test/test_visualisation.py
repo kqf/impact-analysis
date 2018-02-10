@@ -7,5 +7,5 @@ from impact.vis import Plots
 class TestVisualRepresentation(Configurable):
 
     def testValues(self):
-    	visualisator = Plots()
-    	visualisator.fit(Numeric(), self.dataset)	
+        visualisator = Plots()
+        visualisator.fit(Numeric(), self.dataset)   
