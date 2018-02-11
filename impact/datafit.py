@@ -14,7 +14,7 @@ class DataFit(object):
 
 
     def configure(self, conffile):
-        with open('config/datafit.json') as f:
+        with open(conffile) as f:
             self.conf = json.load(f)
         # Configure fit
         #

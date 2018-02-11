@@ -13,7 +13,7 @@ def decorate_pad(pad):
     pad.SetGridx()
     return pad
 
-def canvas(name='name', x=6, y=6, scale=0.5):
+def canvas(name='name', x=5, y=5, scale=1.0):
     canvas = ROOT.TCanvas(name, 'Canvas', int(128 * x * scale) , int(96 * y * scale))
     return decorate_pad(canvas)
     # return adjust_canvas(canvas)

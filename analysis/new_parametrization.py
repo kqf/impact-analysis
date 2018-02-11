@@ -23,4 +23,4 @@ class ValidateNewSolution(unittest.TestCase):
         totem7tev = DataSet(data['data'][-2])
 
         visualisator = Plots()
-        visualisator.fit(model, totem7tev)   
+        visualisator.fit(model, totem7tev, 'config/triple-exponent.json')   

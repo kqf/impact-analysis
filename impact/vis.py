@@ -16,7 +16,7 @@ class Plots(object):
     	approximation = fitter.fitfunction(dataset.parameters)
 
     	canvas = ut.canvas("testfit")
-    	data.Draw()
+    	data.Draw("AP")
     	approximation.Draw("same")
 
     	canvas.Update()

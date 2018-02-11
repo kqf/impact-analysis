@@ -72,7 +72,6 @@ class SymbolicUpdated(Symbolic):
         super(SymbolicUpdated, self).__init__()
 
     def analytic_formula(self):
-        # TODO: Change parameter names
         a1, a2, b1, b2, b3, b4, a_s, rho =  self.variables
         a_s = a_s / (smp.sqrt(smp.pi *  k_norm) * 4)
 
@@ -80,21 +79,32 @@ class SymbolicUpdated(Symbolic):
         a4 = rho * (a1 + a2 + a3)
 
         amplitude = (
-            1j * (a1 * smp.exp(b1 * self.t)  + a2 * smp.exp(b2 * self.t) + a3 * smp.exp(b3 * self.t))
+              a1 * smp.exp(b1 * self.t) * 1j
+            + a2 * smp.exp(b2 * self.t) * 1j
+            + a3 * smp.exp(b3 * self.t) * 1j
             + a4 * smp.exp(b4 * self.t)
         )
         return amplitude
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        # a_s = a_s / (sqrt(pi * k_norm) * 4)
         
         a3 = -a1 - a2 + 0.5 * a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
 
         from math import exp
-        amplitude = (
-            1j * (a1 * exp(b1 * t)  + a2 * exp(b2 * t) + a3 * exp(b3 * t))
-            + a4 * exp(b4 * t)
+        amplitude = lambda tt: (
+              a1 * exp(b1 * tt) * 1j
+            + a2 * exp(b2 * tt) * 1j
+            + a3 * exp(b3 * tt) * 1j
+            + a4 * exp(b4 * tt)
         )
-        return amplitude
+
+        try:
+            ampl = amplitude(t)
+        except OverflowError:
+            ampl = 0
+
+        # print '>>> ', abs(ampl) ** 2
+        return ampl / 1e9
