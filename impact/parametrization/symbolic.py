@@ -42,6 +42,7 @@ class Symbolic(Amplitude):
     def _partial(self, arg):
         fpar = next((i for i in self.symbol_amplitude.free_symbols if i.name == arg), None)
 
+
         partial_derivative = smp.lambdify(
             (self.t, self.variables), 
             smp.re(self.symbol_amplitude.diff(fpar)), 
@@ -73,28 +74,27 @@ class SymbolicUpdated(Symbolic):
     def analytic_formula(self):
         # TODO: Change parameter names
         a1, a2, b1, b2, b3, b4, a_s, rho =  self.variables
-        t = self.t
         a_s = a_s / (smp.sqrt(smp.pi *  k_norm) * 4)
 
         a3 = -a1 - a2 + 0.5 * a_s / k_norm
-        a2 = rho * (a1 + a2 + a3)
+        a4 = rho * (a1 + a2 + a3)
 
         amplitude = (
             1j * (a1 * smp.exp(b1 * self.t)  + a2 * smp.exp(b2 * self.t) + a3 * smp.exp(b3 * self.t))
-            + a2 * smp.exp(b3 * self.t)
+            + a4 * smp.exp(b4 * self.t)
         )
         return amplitude
 
     def amplitude(self, t, p):
-        a1, a2, b1, b2, b3, a_s, rho = p
+        a1, a2, b1, b2, b3, b4, a_s, rho = p
         a_s = a_s / (sqrt(pi * k_norm) * 4)
         
         a3 = -a1 - a2 + 0.5 * a_s / k_norm
-        a2 = rho * (a1 + a2 + a3)
+        a4 = rho * (a1 + a2 + a3)
 
         from math import exp
         amplitude = (
-            1j * (a1 * exp(b1 * t)  + a2 * exp(b2 * t) + a3 * exp(_ * t))
-            + a2 * exp(b3 * t)
+            1j * (a1 * exp(b1 * t)  + a2 * exp(b2 * t) + a3 * exp(b3 * t))
+            + a4 * exp(b4 * t)
         )
         return amplitude

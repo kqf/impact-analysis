@@ -15,13 +15,14 @@ from datafit import DataFit
 import pandas as pd
 
 from impact.parametrization.symbolic import Symbolic
+from impact.parametrization.numeric import Numeric
 
 
 class ImpactAnalysis(object):
     with open('config/impactanalysis.json') as f:
         conf = json.load(f)
 
-    def __init__(self, model=Symbolic()):
+    def __init__(self, model=Numeric()):
         super(ImpactAnalysis, self).__init__()
         self.model = model
         self.ofile = self.conf['ofile']
