@@ -33,9 +33,11 @@ class DataFit(object):
             for i in range(self.cov_size)] for j in range(self.cov_size)]
         return covariance
 
-    def fitfunction(self, parameters):
+    def fitfunction(self, parameters, ftype='crossection'):
         npar = len(parameters)
-        function = ROOT.TF1('function', lambda x, p: self.model.diff_cs(x[0], p), 0, 10, npar)
+
+        quantity = self.model.diff_cs if ftype == 'crossection' else self.model.ratio
+        function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 10, npar)
 
         for i, par in enumerate(self.inpar):
             function.SetParameter(i, par)

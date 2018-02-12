@@ -14,15 +14,28 @@ class Plots(object):
         fitter.fit(dataset)
 
         data = dataset.differential_cs()
-        approximation = fitter.fitfunction(dataset.parameters)
+        crossection = fitter.fitfunction(dataset.parameters)
 
         canvas = ut.canvas("testfit")
         data.Draw("AP")
-        approximation.Draw("same")
+        crossection.Draw("same")
+        crossection.SetLineColor(3)
 
-        canvas.Update()
+        ratio = fitter.fitfunction(dataset.parameters, 'ratio')
+        ratio.SetLineColor(2)
+        ratio.Draw("same")
+
+        legend = ROOT.TLegend(0.7, 0.6, 0.9, 0.9);
+        legend.SetBorderSize(0)
+        legend.SetFillStyle(0)
+        legend.AddEntry(crossection,"d#sigma/dt param","l");
+        legend.AddEntry(ratio, "#rho(t) with the same parameters","l");
+        legend.Draw("same")
+
         print 'Fitted parameters:'
         print dataset.parameters[0:-2]
+
+        canvas.Update()
         raw_input()
 
     def draw_results(self, model, dataset, conffile='config/datafit.json' ):

@@ -21,10 +21,11 @@ class ValidateNewSolution(unittest.TestCase):
 
         model = SymbolicUpdated()
 
-        totem7tev = DataSet(data['data'][-2])
+        totem7tev = DataSet(data['data'][0])
 
         visualisator = Plots()
         visualisator.fit(model, totem7tev, 'config/triple-exponent.json')   
+        # visualisator.draw_results(model, totem7tev, 'config/datafit.json')    
 
     def test_the_results(self):
         with open('config/input.json') as f:
@@ -32,7 +33,7 @@ class ValidateNewSolution(unittest.TestCase):
 
         model = Symbolic()
 
-        totem7tev = DataSet(data['data'][-2])
+        totem7tev = DataSet(data['data'][0])
 
         visualisator = Plots()
         # visualisator.draw_results(model, totem7tev, 'config/triple-exponent.json')   
