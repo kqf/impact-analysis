@@ -107,4 +107,8 @@ class SymbolicUpdated(Symbolic):
             ampl = 0
 
         # print '>>> ', abs(ampl) ** 2
-        return ampl / 1e9
+        return ampl
+
+    def diff_cs(self, t, p):
+        cs = super(SymbolicUpdated, self).diff_cs(t, p)
+        return k_norm * cs / 4. / pi

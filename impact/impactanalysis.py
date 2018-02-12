@@ -19,19 +19,16 @@ from impact.parametrization.numeric import Numeric
 
 
 class ImpactAnalysis(object):
-    with open('config/impactanalysis.json') as f:
-        conf = json.load(f)
 
-    def __init__(self, model=Numeric()):
+    def __init__(self, model=Numeric(), conffile='config/datafit.json'):
         super(ImpactAnalysis, self).__init__()
         self.model = model
-        self.ofile = self.conf['ofile']
-        self.points_pref = self.conf['points_pref']
+        self.conffile = conffile
 
 
     def run(self, dataset):
        # Calculate experimental values of gamma
-        gamma_fitter = DataFit(self.model)
+        gamma_fitter = DataFit(self.model, self.conffile)
 
         # Setup the parameters and covariance
         gamma_fitter.fit(dataset)
