@@ -22,6 +22,7 @@ class Error(object):
         self.gausf.SetParameter(1, 0.1)
         self.gausf.SetParameter(2, 1)       
 
+        
     def average_and_deviation(self, data):
         pivot = data[0]  # chosing some random pivot
         hist = ROOT.TH1F('hist', 'gamma distribution', 100, pivot - 0.2, pivot - 0.2)
@@ -37,9 +38,23 @@ class Error(object):
         return [self.average_and_deviation(p) for p in bar(zip(*mc))]
 
 
+    def generrate_diff_cs(self, p, dataset):
+        cs, re2 = -1, self.model.amplitude(p.t, dataset.parameters).real ** 2
+        while (cs - re2) < 0: # Generate only positive cs
+            cs = rnd.gauss(p.ds, p.err)
+        return cs
+
+
     def generate_mc_points(self, dataset):
-        """Generates MC data"""
-        return [DataPoint(p.t, rnd.gauss(p.ds, p.err), p.err, p.lower, p.upper) for p in dataset.data]
+        return [
+            DataPoint(
+                p.t,
+                self.generrate_diff_cs(p, dataset),
+                p.err,
+                p.lower,
+                p.upper
+            ) 
+        for p in dataset.data]
 
 
     # TODO: Nb introduce additional parameter for nsample points
@@ -80,6 +95,9 @@ class Error(object):
 
         output[self.outaverage] = average
         output[self.outname] = deviation
+
+        # output[self.outaverage] = output.index * 0
+        # output[self.outname] = output.index * 0
         return average, deviation
 
 

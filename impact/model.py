@@ -60,7 +60,7 @@ class Approx(object):
 
     def integral(self, b, p, i):
         q1, q2 = sqrt(i.lower), sqrt(i.upper)
-        return sqrt(fabs(i.ds - self.model.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) -  q1 * j1(b * q1 / k_fm))
+        return sqrt((i.ds - self.model.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) -  q1 * j1(b * q1 / k_fm))
 
 
     def __call__(self ,b, p):

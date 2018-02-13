@@ -14,19 +14,19 @@ from impact.impactanalysis import *
 
 class ValidateNewSolution(unittest.TestCase):
         
-    @unittest.skip('')
     def test_parametrization_fits_the_data(self):
         with open('config/input.json') as f:
             data = json.load(f)
 
-        model = SymbolicUpdated()
+        model = Symbolic()
 
-        totem7tev = DataSet(data['data'][0])
+        totem7tev = DataSet(data['data'][-2])
 
         visualisator = Plots()
-        visualisator.fit(model, totem7tev, 'config/triple-exponent.json')   
-        # visualisator.draw_results(model, totem7tev, 'config/datafit.json')    
+        # visualisator.fit(model, totem7tev, 'config/triple-exponent.json')   
+        visualisator.draw_results(model, totem7tev, 'config/datafit.json')    
 
+    @unittest.skip('')
     def test_the_results(self):
         with open('config/input.json') as f:
             data = json.load(f) 
