@@ -22,7 +22,6 @@ class Error(object):
         self.gausf.SetParameter(1, 0.1)
         self.gausf.SetParameter(2, 1)       
 
-        
     def average_and_deviation(self, data):
         pivot = data[0]  # chosing some random pivot
         hist = ROOT.TH1F('hist', 'gamma distribution', 100, pivot - 0.2, pivot - 0.2)
@@ -55,7 +54,7 @@ class Error(object):
                 p.upper
             ) 
         for p in dataset.data]
-
+        
 
     # TODO: Nb introduce additional parameter for nsample points
     def generate_mc_gamma(self, dataset, index):
