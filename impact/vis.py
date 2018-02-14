@@ -7,16 +7,63 @@ from impact.impactanalysis import ImpactAnalysis
 from impact.model import Approx
 from impact.datafit import DataFit
 
+ROOT.TH1.AddDirectory(False)
+
 class Plots(object):
 
-    def fit(self, model, dataset, conffile='config/datafit.json'):
+    def __init__(self):
+        super(Plots, self).__init__()
+        self._cache = []
+
+    def draw_results(self, model, dataset, conffile='config/datafit.json'):
+        canvas = ut.canvas('The results')
+        self._cache = []
+
+        canvas.Divide(2, 1)
+        self.fit(model, dataset, conffile, canvas.cd(1))
+        self.draw_gamma(model, dataset, conffile, canvas.cd(2))
+        raw_input('Press enter to continue ...')
+
+
+
+    def draw_gamma(self,
+            model,
+            dataset,
+            conffile='config/datafit.json',
+            canvas=ut.canvas('The results')
+        ):
+
+        analysis = ImpactAnalysis(model, conffile)
+        output = analysis.run(dataset)
+
+        # canvas.SetLogy(False)
+        real_gamma = self.graph(output.index, -output['real_gamma'], output['real_gamma_error'], '-Re #Gamma(b)', 36)
+        real_gamma.Draw('AP')
+
+        print output['image_gamma']
+        image_gamma = self.graph(output.index, output['image_gamma'], output['image_error'], 'Im #Gamma(b)', 46)
+        image_gamma.Draw('same ap')
+
+        self._cache.append(real_gamma)
+        self._cache.append(image_gamma)
+
+        canvas.Update()
+
+
+    def fit(self,
+            model,
+            dataset,
+            conffile='config/datafit.json',
+            canvas=ut.canvas("testfit")
+        ):
+
+        canvas.SetLogy(True)
         fitter = DataFit(model, conffile)
         fitter.fit(dataset)
 
         data = dataset.differential_cs()
         crossection = fitter.fitfunction(dataset.parameters)
 
-        canvas = ut.canvas("testfit")
         data.Draw("AP")
         crossection.Draw("same")
         crossection.SetLineColor(3)
@@ -32,28 +79,14 @@ class Plots(object):
         legend.AddEntry(ratio, "#rho(t) with the same parameters","l");
         legend.Draw("same")
 
+        self._cache.append(data)
+        self._cache.append(ratio)
+        self._cache.append(crossection)
+        self._cache.append(legend)
+
         print 'Fitted parameters:'
         print dataset.parameters[0:-2]
-
         canvas.Update()
-        raw_input()
-
-    def draw_results(self, model, dataset, conffile='config/datafit.json' ):
-        analysis = ImpactAnalysis(model, conffile)
-        output = analysis.run(dataset)
-
-        canvas = ut.canvas('The results')
-        # canvas.SetLogy(False)
-        real_gamma = self.graph(output.index, -output['real_gamma'], output['real_gamma_error'], '-Re #Gamma(b)', 36)
-        real_gamma.Draw('AP')
-
-        imag_gamma = self.graph(output.index, output['image_gamma'], output['image_error'], 'Im #Gamma(b)', 46)
-        imag_gamma.Draw('same ap')
-
-        canvas.Update()
-        raw_input()
-
-
 
     @classmethod
     def graph(cls, b, data, errors, title, color):

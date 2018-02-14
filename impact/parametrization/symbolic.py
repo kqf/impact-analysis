@@ -102,7 +102,7 @@ class SymbolicUpdated(Symbolic):
         )
 
         try:
-            ampl = amplitude(t)
+            ampl = amplitude(t) * sqrt(k_norm / 4. / pi)
         except OverflowError:
             ampl = 0
 
@@ -111,4 +111,4 @@ class SymbolicUpdated(Symbolic):
 
     def diff_cs(self, t, p):
         cs = super(SymbolicUpdated, self).diff_cs(t, p)
-        return k_norm * cs / 4. / pi
+        return cs

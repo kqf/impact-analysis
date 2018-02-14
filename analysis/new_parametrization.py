@@ -20,7 +20,7 @@ class ValidateNewSolution(unittest.TestCase):
 
         model = SymbolicUpdated()
 
-        totem7tev = DataSet(data['data'][-2])
+        totem7tev = DataSet(data['data'][-1])
 
         visualisator = Plots()
         visualisator.draw_results(model, totem7tev, 'config/triple-exponent.json')   
