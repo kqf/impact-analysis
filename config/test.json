@@ -22,7 +22,8 @@
         "SIGMA"  : 98.3,
         "PROCESS" : "pp",
         "DSIGMA" : 2.23,
-        "DRHO" : 0.007
+        "DRHO" : 0.007,
+        "index": 10
     },
     "pdimension": 6
 

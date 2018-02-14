@@ -20,6 +20,7 @@ class DataSet(object):
         self.sigma = parameters["SIGMA"]
         self.drho = parameters["DRHO"]
         self.rho =  parameters["RHO"]
+        self.index = str(parameters["index"])
         self._data = None
         self._parameters = None
         self._covariance = None

@@ -39,7 +39,7 @@ class DataFit(object):
         quantity = self.model.diff_cs if ftype == 'crossection' else self.model.ratio
         function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 10, npar)
 
-        for i, par in enumerate(self.inpar):
+        for i, par in enumerate(parameters):
             function.SetParameter(i, par)
 
         function.FixParameter(npar - 2, parameters[-2])
@@ -53,7 +53,7 @@ class DataFit(object):
         return function
 
     def fit(self, dataset):
-        in_parameters = self.conf['initial_parameters'] + [dataset.sigma, dataset.rho]
+        in_parameters = self.inpar[dataset.index] + [dataset.sigma, dataset.rho]
 
         cs_data = dataset.differential_cs()
         cs_func = self.fitfunction(in_parameters)
