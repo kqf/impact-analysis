@@ -1,3 +1,4 @@
+from math import sqrt, pi
 from impact.utils import hankel_transform
 
 class Amplitude(object):
@@ -27,7 +28,7 @@ class Amplitude(object):
         A = self.amplitude(t,p)
         return A.real / A.imag
 
-        
+
     def partial_derivatives(self, t, p):
         A = [
             self.d_a1(t, p),
@@ -40,3 +41,22 @@ class Amplitude(object):
             # self.d_rho(t, p) 
         ] 
         return A
+
+    def treal_error(self, t, dataset):
+        p = dataset.parameters
+        
+        A = self.partial_derivatives(t, p)
+        error_squared = 0
+
+        # REMEMBER that a_s error should be multiplied by 1/(sqrt(pi)*4)
+        for i in range(len(A)):
+            for j in range(len(A)):
+                error_squared += dataset.covariance[i][j] * A[i] * A[j]
+
+        error_squared += (
+            (dataset.dsigma ** 2) * (self.d_as(t, p) / 4. / sqrt(pi)) ** 2 +
+            (dataset.drho ** 2) * (self.d_rho(t, p)) ** 2
+        )
+
+        error = sqrt(error_squared)
+        return error     

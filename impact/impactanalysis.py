@@ -5,10 +5,8 @@ import progressbar
 import json
 
 from ROOT import *
-from model import RealGammaEstimator, ImageGammaEstimator
+from model import RealGammaEstimator, ImageGammaEstimator, RealGammaErrorEstimator
 from utils import impact_range
-
-import errors.real as err_real 
 import errors.imag as err_imag
 
 from datafit import DataFit
@@ -36,7 +34,7 @@ class ImpactAnalysis(object):
             RealGammaEstimator(self.model),
             ImageGammaEstimator(self.model),
             err_imag.Error(self.model),
-            err_real.Error(self.model)
+            RealGammaErrorEstimator(self.model)
         ]
 
         output = pd.DataFrame(index=impact_range())

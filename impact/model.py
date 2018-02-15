@@ -33,6 +33,25 @@ class ImageGammaEstimator(object):
         return output[self.outname].values
 
 
+class RealGammaErrorEstimator(object):
+    def __init__(self, model, outname='real_gamma_error'):
+        super(RealGammaErrorEstimator, self).__init__()
+        self.outname = outname
+        self.model = model
+
+        @hankel_transform
+        def evaluate_(x, dataset):
+            return self.model.treal_error(x, dataset)
+        self.evaluate_ = evaluate_
+
+
+    def evaluate(self, dataset, output):
+        output[self.outname] = map(
+            lambda x: self.evaluate_(x, dataset),
+            output.index
+        )
+        return output[self.outname]
+
 class Approx(object):
     
     def __init__(self, model, dataset):

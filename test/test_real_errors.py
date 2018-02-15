@@ -1,17 +1,14 @@
-import random
+import unittest
 
-from impact.constants import k_fm, k_norm
+import cmath
+import numpy as np
+import sympy as smp
+
+
 from test.configurable import Configurable
-import impact.errors.real as err_real
-
 from impact.parametrization.numeric import Numeric
 from impact.parametrization.symbolic import Symbolic
 
-
-import numpy as np
-import cmath
-import unittest
-import sympy as smp
 
 
 class TestNumericSymbolicConsistency(Configurable):
