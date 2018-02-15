@@ -25,20 +25,8 @@ class Error(object):
 
     def treal_error(self, t, dataset):
         p = dataset.parameters
-        a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
-
-        A = [
-                self.model.d_a1(t, p), 
-                self.model.d_a2(t, p), 
-                self.model.d_b1(t, p), 
-                self.model.d_b2(t, p), 
-                0, #b3
-                self.model.d_b4(t, p), 
-                # self.model.d_as(t, p), 
-                # self.model.d_rho(t, p) 
-            ]
-
+        
+        A = self.model.partial_derivatives(t, p)
         error_squared = 0
 
         # REMEMBER that a_s error should be multiplied by 1/(sqrt(pi)*4)

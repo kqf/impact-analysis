@@ -27,3 +27,16 @@ class Amplitude(object):
         A = self.amplitude(t,p)
         return A.real / A.imag
 
+        
+    def partial_derivatives(self, t, p):
+        A = [
+            self.d_a1(t, p),
+            self.d_a2(t, p), 
+            self.d_b1(t, p), 
+            self.d_b2(t, p), 
+            0, #b3
+            self.d_b4(t, p), 
+            # self.d_as(t, p), 
+            # self.d_rho(t, p) 
+        ] 
+        return A

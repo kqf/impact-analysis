@@ -22,6 +22,9 @@ class Plots(object):
         canvas.Divide(2, 1)
         self.fit(model, dataset, conffile, canvas.cd(1))
         self.draw_gamma(model, dataset, conffile, canvas.cd(2))
+        
+        canvas.Update()
+        canvas.SaveAs('impact-analysis-{0}.eps'.format(dataset.energy))
         raw_input('Press enter to continue ...')
 
 
@@ -33,6 +36,7 @@ class Plots(object):
             canvas=ut.canvas('The results')
         ):
 
+        ut.decorate_pad(canvas)
         analysis = ImpactAnalysis(model, conffile)
         output = analysis.run(dataset)
 
@@ -46,8 +50,9 @@ class Plots(object):
 
         self._cache.append(real_gamma)
         self._cache.append(image_gamma)
-
         canvas.Update()
+        output.to_csv('impact-analysis-{0}.csv'.format(dataset.energy))
+
 
 
     def fit(self,
@@ -57,6 +62,7 @@ class Plots(object):
             canvas=ut.canvas("testfit")
         ):
 
+        ut.decorate_pad(canvas)
         canvas.SetLogy(True)
         fitter = DataFit(model, conffile)
         fitter.fit(dataset)
