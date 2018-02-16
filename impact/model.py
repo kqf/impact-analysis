@@ -51,6 +51,58 @@ class RealGammaErrorEstimator(object):
             output.index
         )
         return output[self.outname]
+        
+        
+class ImageGammaEstimator(object):
+    def __init__(self, model, outname="image_gamma"):
+        self.model = model
+        self.outname = outname
+        # Define these functions in a very strange way to avoid code replication
+        @hankel_transform
+        def bspace_low_t(b, p):
+            return self._im_amplitude_low_t(b, p)
+        self.bspace_low_t = bspace_low_t
+
+
+    def evaluate(self, dataset, output):
+        f = lambda x: self.gamma(x, dataset)
+        output[self.outname] = map(f, output.index)
+        return output[self.outname].values
+
+
+    def _im_amplitude_low_t(self, t, dataset):
+        """Calculates imaginary part of extrapolated amplitude"""
+        data = dataset.data
+        sigma = dataset.sigma
+        a0 = sigma / (4 * sqrt(pi * k_norm) )
+        a1 = sqrt(data[0].ds - self.model.amplitude(data[0].t, dataset.parameters).real ** 2)
+        b0 = (1./(data[0].t)) * log(a0 / a1)
+
+        result = a0 * exp(-1. * b0 * t)
+        return result
+
+    def _integral(self, b, p, i):
+        q1, q2 = sqrt(i.lower), sqrt(i.upper)
+        return sqrt((i.ds - self.model.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) -  q1 * j1(b * q1 / k_fm))
+
+
+    def gamma(self, b, dataset):
+        """Calculates gamma(b) using data points"""
+        data = dataset.data
+
+        # Taking into account low-t extrapolation
+        extrapolation1 = self.bspace_low_t(b, dataset, (0, data[0].lower ** 0.5))
+
+        # High t-contribution
+        extrapolation2 = self.model.imag_gamma(b, dataset.parameters, (data[-1].upper ** 0.5, float("inf")))
+
+        # Integrated values from data
+        gamma_data = sum(self._integral(b, dataset.parameters, i) for i in data) 
+
+        # All contributions
+        result = extrapolation1 + extrapolation2 + (gamma_data * k_fm / sqrt(pi * k_norm) / b)
+        return result
+
 
 class Approx(object):
     
@@ -61,11 +113,11 @@ class Approx(object):
         # Define these functions in a very strange way to avoid code replication
         @hankel_transform
         def bspace_low_t(b, p):
-            return self.im_amplitude_low_t(b, p)
+            return self._im_amplitude_low_t(b, p)
         self.bspace_low_t = bspace_low_t
 
 
-    def im_amplitude_low_t(self, t, p):
+    def _im_amplitude_low_t(self, t, p):
         """Calculates imaginary part of extrapolated amplitude"""
         data = self.dataset.data
         sigma = self.dataset.sigma
@@ -77,7 +129,7 @@ class Approx(object):
         result = a0 * exp(-1. * b0 * t)
         return result
 
-    def integral(self, b, p, i):
+    def _integral(self, b, p, i):
         q1, q2 = sqrt(i.lower), sqrt(i.upper)
         return sqrt((i.ds - self.model.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) -  q1 * j1(b * q1 / k_fm))
 
@@ -95,7 +147,7 @@ class Approx(object):
 
 
         # Integrated values from data
-        gamma_data = sum(self.integral(b, p, i) for i in data) 
+        gamma_data = sum(self._integral(b, p, i) for i in data) 
 
         # All contributions
         result = extrapolation1 + extrapolation2 + (gamma_data * k_fm / sqrt(pi * k_norm) / b)

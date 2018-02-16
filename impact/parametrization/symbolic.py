@@ -65,19 +65,7 @@ class Symbolic(Amplitude):
             ampl = 0
         return ampl 
 
-    def partial_derivatives(self, t, p):
-        A = [
-            self.d_a1(t, p),
-            self.d_a2(t, p), 
-            self.d_b1(t, p), 
-            self.d_b2(t, p), 
-            0, #b3
-            self.d_b4(t, p), 
-            # self.d_as(t, p), 
-            # self.d_rho(t, p) 
-        ] 
-        return A
-
+        
 class SymbolicUpdated(Symbolic):
 
     def __init__(self):
@@ -124,4 +112,3 @@ class SymbolicUpdated(Symbolic):
     def diff_cs(self, t, p):
         cs = super(SymbolicUpdated, self).diff_cs(t, p)
         return cs
-        

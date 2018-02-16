@@ -18,7 +18,7 @@ from impact.parametrization.numeric import Numeric
 
 class ImpactAnalysis(object):
 
-    def __init__(self, model=Numeric(), conffile='config/datafit.json'):
+    def __init__(self, model=Symbolic(), conffile='config/datafit.json'):
         super(ImpactAnalysis, self).__init__()
         self.model = model
         self.conffile = conffile

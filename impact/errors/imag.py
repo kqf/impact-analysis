@@ -3,9 +3,10 @@ import ROOT
 import progressbar
 import random as rnd
 
-from impact.model import Approx
+from impact.model import ImageGammaEstimator
 from impact.datapoint import DataPoint, DataSet
 import copy
+import pandas as pd
 
 
 class Error(object):
@@ -69,14 +70,10 @@ class Error(object):
         generated_dataset.sigma = new_sigma
         generated_dataset._data = mcPoints
 
-
         ## Calculate values of Gamma function for the mc
         ## Index should be applied here
-        return Approx.values(
-            self.model,
-            generated_dataset,
-            index
-        )
+        estimator = ImageGammaEstimator(self.model)
+        return estimator.evaluate(generated_dataset, pd.DataFrame(index=index))
 
 
     def generate_mc_data(self, dataset, index):
