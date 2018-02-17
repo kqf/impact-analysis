@@ -47,8 +47,8 @@ class RealGammaErrorEstimator(object):
         return output[self.outname]
         
         
-class ImageGammaEstimator(object):
-    def __init__(self, model, outname="image_gamma"):
+class ImagGammaEstimator(object):
+    def __init__(self, model, outname="imag_gamma"):
         self.model = model
         self.outname = outname
         # Define these functions in a very strange way to avoid code replication
@@ -97,9 +97,9 @@ class ImageGammaEstimator(object):
         return result
 
 
-class ImageGammaErrorEstimator(object):
-    def __init__(self, model, outname="image_error", outaverage="average_impact_amplitude"):
-        super(ImageGammaErrorEstimator, self).__init__()
+class ImagGammaErrorEstimator(object):
+    def __init__(self, model, outname="imag_gamma_error", outaverage="average_impact_amplitude"):
+        super(ImagGammaErrorEstimator, self).__init__()
         # This is value should be fixed
         self.generator = GammaGeneratorMC(model)
         self.outname = outname
@@ -140,7 +140,7 @@ class GammaGeneratorMC(object):
 
     def __init__(self, model, mcsize=100):
         super(GammaGeneratorMC, self).__init__()
-        self.image_gamma = ImageGammaEstimator(model)
+        self.imag_gamma = ImagGammaEstimator(model)
         self.model = model
         self.mcsize = mcsize
 
@@ -177,7 +177,7 @@ class GammaGeneratorMC(object):
 
         ## Calculate values of Gamma function for the mc
         ## Index should be applied here
-        return self.image_gamma.evaluate(generated_dataset, pd.DataFrame(index=index))
+        return self.imag_gamma.evaluate(generated_dataset, pd.DataFrame(index=index))
 
 
     def evaluate(self, dataset, index):
