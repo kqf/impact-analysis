@@ -4,7 +4,6 @@ import json
 import utils as ut
 
 from impact.impactanalysis import ImpactAnalysis
-from impact.model import Approx
 from impact.datafit import DataFit
 
 ROOT.TH1.AddDirectory(False)

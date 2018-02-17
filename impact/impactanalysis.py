@@ -3,14 +3,12 @@
 import os
 import progressbar
 import json
+import pandas as pd
 
 from ROOT import *
-from model import RealGammaEstimator, ImageGammaEstimator, RealGammaErrorEstimator
-from utils import impact_range
-import errors.imag as err_imag
-
-from datafit import DataFit
-import pandas as pd
+from impact.model import RealGammaEstimator, ImageGammaEstimator, RealGammaErrorEstimator, ImageGammaErrorEstimator
+from impact.utils import impact_range
+from impact.datafit import DataFit
 
 from impact.parametrization.symbolic import Symbolic
 from impact.parametrization.numeric import Numeric
@@ -33,7 +31,7 @@ class ImpactAnalysis(object):
         pipeline = [
             RealGammaEstimator(self.model),
             ImageGammaEstimator(self.model),
-            err_imag.Error(self.model),
+            ImageGammaErrorEstimator(self.model),
             RealGammaErrorEstimator(self.model)
         ]
 
