@@ -84,7 +84,7 @@ class SymbolicUpdated(Symbolic):
             + a3 * smp.exp(b3 * self.t) * 1j
             + a4 * smp.exp(b4 * self.t)
         )
-        return amplitude
+        return amplitude * sqrt(k_norm / 4. / pi)
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p

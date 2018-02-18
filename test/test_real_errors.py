@@ -18,15 +18,16 @@ class TestNumericSymbolicConsistency(Configurable):
         self.parameters = self.data['initial_parameters'] + [self.dataset.sigma, self.dataset.rho]
 
 
-    # TODO: Check extra k_norm factor
     def test_sympy_calculates_partial_derivatives(self):
         es, ep = Symbolic(), Numeric()
-        numeric  = ep.d_a1, ep.d_a2, ep.d_b1, ep.d_b2, ep.d_b4, ep.d_as, ep.d_rho
-        symbolic = es.d_a1, es.d_a2, es.d_b1, es.d_b2, es.d_b4, es.d_as, es.d_rho # Why there is no b3?
+        numeric  = ep.d_a1, ep.d_a2, ep.d_b1, ep.d_b2, ep.d_b3, ep.d_b4, ep.d_as, ep.d_rho
+        symbolic = es.d_a1, es.d_a2, es.d_b1, es.d_b2, es.d_b3, es.d_b4, es.d_as, es.d_rho 
 
         for symbolic, numeric in zip(symbolic, numeric):
 
+            print 'a'
             for t in np.linspace(0.1, 10):
+                print t
                 symval = symbolic(t, self.parameters)
                 trueval = numeric(t, self.parameters)
                 self.assertAlmostEqual(symval, trueval) 

@@ -83,6 +83,10 @@ class Numeric(Amplitude):
                                  - ((1 - a1)*(a2 + a_s)*Power(E,((-a2 - a_s)*b2*t)/2.)*t*rho*Sin(((a2 + a_s)*b2*t*rho)/2.))/2.)
                              )
 
+    def d_b3(self, t, p):
+        a1, a2, b1, b2, b3, b4, a_s, rho = p
+        return (0.5 * 1j * a2 * Exp(-0.5 * b3 * t) * t).real
+
     def d_b4(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
         a_s = a_s / (sqrt(pi * k_norm) * 4)
