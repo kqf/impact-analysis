@@ -43,12 +43,12 @@ class Plots(object):
         real_gamma = self.graph(output.index, -output['real_gamma'], output['real_gamma_error'], '-Re #Gamma(b)', 36)
         real_gamma.Draw('AP')
 
-        print output['image_gamma']
-        image_gamma = self.graph(output.index, output['image_gamma'], output['image_error'], 'Im #Gamma(b)', 46)
-        image_gamma.Draw('same ap')
+        print output['imag_gamma']
+        imag_gamma = self.graph(output.index, output['imag_gamma'], output['imag_gamma_error'], 'Im #Gamma(b)', 46)
+        imag_gamma.Draw('same ap')
 
         self._cache.append(real_gamma)
-        self._cache.append(image_gamma)
+        self._cache.append(imag_gamma)
         canvas.Update()
         output.to_csv('impact-analysis-{0}.csv'.format(dataset.energy))
 

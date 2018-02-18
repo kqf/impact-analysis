@@ -16,4 +16,4 @@ class TestFinalResult(Configurable):
         output = analysis.run(self.dataset)
         
         for column in self.nominal.columns:
-            pd.util.testing.assert_series_equal(self.nominal[column], output[column]) 
+            pd.util.testing.assert_series_equal(self.nominal[column], output[column])

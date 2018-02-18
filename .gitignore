@@ -7,3 +7,6 @@ new_results
 errors_mathematica
 config/impact.sublime-project
 config/impact.sublime-workspace
+*.csv
+*.pdf
+

@@ -1,8 +1,10 @@
 #!/usr/bin/python2.7
 
-from math  import exp, pi, fabs, sqrt, log
-from scipy import integrate
+import numpy as np
 from scipy.special import j0, j1
+from scipy import integrate
+from math import exp, pi, fabs, sqrt, log
+
 import pandas as pd
 import progressbar
 import random as rnd
@@ -14,6 +16,8 @@ from constants import k_fm, k_norm
 from impact.utils import hankel_transform, impact_range
 from impact.datapoint import DataPoint
 from parametrization.symbolic import Symbolic, SymbolicUpdated
+import impact.utils as ut
+
 
 
 class RealGammaEstimator(object):
@@ -98,25 +102,39 @@ class ImagGammaEstimator(object):
 
 
 class ImagGammaErrorEstimator(object):
-    def __init__(self, model, outname="imag_gamma_error", outaverage="average_impact_amplitude"):
+    def __init__(self, model, outname="imag_gamma_error", outaverage="average_impact_amplitude", resolution=100):
         super(ImagGammaErrorEstimator, self).__init__()
         # This is value should be fixed
         self.generator = GammaGeneratorMC(model)
+        self.gamma_resolution = resolution
         self.outname = outname
         self.outaverage = outaverage
 
-        self.gausf = ROOT.TF1('gaussFunction','gaus', 0, 1.4)
-        self.gausf.SetParameter(0, 1)
-        self.gausf.SetParameter(1, 0.1)
-        self.gausf.SetParameter(2, 1)       
-
 
     def _average_and_deviation(self, data):
-        pivot = data[0]  # chosing some random pivot
-        hist = ROOT.TH1F('hist', 'gamma distribution', 100, pivot - 0.2, pivot - 0.2)
-        map(hist.Fill, data)
-        hist.Fit(self.gausf,'0qr')
-        mu, sigma = self.gausf.GetParameter(1), self.gausf.GetParameter(2)
+        indata = np.array(data)
+
+        hist = ROOT.TH1F(
+            'gamma_hist',
+            'MC generated im #Gamma(b) points at same b; Im #Gamma(b); counts',
+            self.gamma_resolution,
+            np.min(indata) * 0.98,
+            np.max(indata) * 1.02
+        )
+
+        map(hist.Fill, indata)
+
+        # canvas = ut.canvas('test')
+
+        gausf = ROOT.TF1('gaussFunction','gaus')
+        gausf.SetParameter(0, 1)
+        gausf.SetParameter(1, np.std(indata))
+        gausf.SetParameter(2, np.mean(indata)) 
+        hist.Fit(gausf, '0q')
+
+        # canvas.Update()
+        # canvas.SaveAs("test-{0}.pdf".format(rnd.randint(0, 100000)))
+        mu, sigma = gausf.GetParameter(1), gausf.GetParameter(2)
         return mu, sigma
 
 
