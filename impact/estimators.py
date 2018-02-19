@@ -210,8 +210,7 @@ class GInelEstimator(object):
     """GInelEstimator
 
         The $G_{inel}$ function is defined as:
-
-        $$H(s, b) = H(s, b) (1 - H(s, b))$$, Where $H(s, b) = 2i\Gamma(s, b)$
+        $$H(s, b) = H(s, b) (1 - H(s, b))$$, where $H(s, b) = 2i\Gamma(s, b)$
     """
     def __init__(self, inpname, outname):
         super(GInelEstimator, self).__init__()
@@ -221,6 +220,27 @@ class GInelEstimator(object):
     def evaluate(self, dataset, output):
         Hsb = 2 * output[self.inpname].values
         output[self.outname] = Hsb * (1 - Hsb)
+        return output[self.outname].values
+
+
+class GInelErrorEstimator(object):
+    """GInelErrorEstimator
+
+        The $G_{inel}$ function is defined as:
+        $$\Delta $G_{inel}$  = (1 - 2 * H(s, b)) ^2 \Delta H ^ 2 $$, where $H(s, b) = 2i\Gamma(s, b)$
+
+    """
+    def __init__(self, inpgamma, inpgammaerr, outname):
+        super(GInelErrorEstimator, self).__init__()
+        self.inpgamma = inpgamma
+        self.inpgammaerr = inpgammaerr
+        self.outname = outname
+        
+    def evaluate(self, dataset, output):
+        Hsb = 2 * output[self.inpgamma].values
+        dHsb = 2 * output[self.inpgammaerr].values
+
+        output[self.outname] = np.sqrt((dHsb ** 2) * (1 - 2 * Hsb) ** 2)
         return output[self.outname].values
 
 
