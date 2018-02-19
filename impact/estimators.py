@@ -206,6 +206,23 @@ class GammaGeneratorMC(object):
         return mc
 
 
+class GInelEstimator(object):
+    """GInelEstimator
+
+        The $G_{inel}$ function is defined as:
+
+        $$H(s, b) = H(s, b) (1 - H(s, b))$$, Where $H(s, b) = 2i\Gamma(s, b)$
+    """
+    def __init__(self, inpname, outname):
+        super(GInelEstimator, self).__init__()
+        self.inpname = inpname
+        self.outname = outname
+        
+    def evaluate(self, dataset, output):
+        Hsb = 2 * output[self.inpname].values
+        output[self.outname] = Hsb * (1 - Hsb)
+        return output[self.outname].values
+
 
 
 

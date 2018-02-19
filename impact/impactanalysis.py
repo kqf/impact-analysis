@@ -5,7 +5,7 @@ import progressbar
 import json
 import pandas as pd
 
-from impact.estimators import RealGammaEstimator, ImagGammaEstimator, RealGammaErrorEstimator, ImagGammaErrorEstimator
+from impact.estimators import RealGammaEstimator, ImagGammaEstimator, RealGammaErrorEstimator, ImagGammaErrorEstimator, GInelEstimator
 from impact.utils import impact_range
 from impact.datafit import DataFit
 
@@ -31,7 +31,8 @@ class ImpactAnalysis(object):
             RealGammaEstimator(self.model, outname="real_gamma"),
             ImagGammaEstimator(self.model, outname="imag_gamma"),
             RealGammaErrorEstimator(self.model, outname="real_gamma_error"),
-            ImagGammaErrorEstimator(self.model, outname="imag_gamma_error")
+            ImagGammaErrorEstimator(self.model, outname="imag_gamma_error"),
+            GInelEstimator(inpname="imag_gamma", outname="g_inel")
         ]
 
         output = pd.DataFrame(index=impact_range())
@@ -40,4 +41,6 @@ class ImpactAnalysis(object):
         for estimator in pipeline:
             estimator.evaluate(dataset, output)
             
+        # print
+        # print output
         return output

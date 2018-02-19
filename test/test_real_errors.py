@@ -24,10 +24,7 @@ class TestNumericSymbolicConsistency(Configurable):
         symbolic = es.d_a1, es.d_a2, es.d_b1, es.d_b2, es.d_b3, es.d_b4, es.d_as, es.d_rho 
 
         for symbolic, numeric in zip(symbolic, numeric):
-
-            print 'a'
             for t in np.linspace(0.1, 10):
-                print t
                 symval = symbolic(t, self.parameters)
                 trueval = numeric(t, self.parameters)
                 self.assertAlmostEqual(symval, trueval) 
