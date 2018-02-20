@@ -39,16 +39,29 @@ class Plots(object):
         analysis = ImpactAnalysis(model, conffile)
         output = analysis.run(dataset)
 
-        # canvas.SetLogy(False)
+        canvas.SetLogy(False)
         real_gamma = self.graph(output.index, -output['real_gamma'], output['real_gamma_error'], '-Re #Gamma(b)', 36)
         real_gamma.Draw('AP')
 
-        print output['imag_gamma']
+        # print output['imag_gamma']
         imag_gamma = self.graph(output.index, output['imag_gamma'], output['imag_gamma_error'], 'Im #Gamma(b)', 46)
-        imag_gamma.Draw('same ap')
+        imag_gamma.Draw('same')
 
+        g_inel = self.graph(output.index, output['g_inel'], output['g_inel_error'], 'Im #Gamma(b)', 4)
+        g_inel.Draw('same')
+  
+        multigraph = ROOT.TMultiGraph()
+        multigraph.SetTitle("H(s, b), G_{inel}(s, b); b, fm; H(s,b), G_{inel}(s, b)")
+        multigraph.Add(real_gamma, "cp")
+        multigraph.Add(imag_gamma, "cp")
+        multigraph.Add(g_inel, "cp")
+        multigraph.Draw("ap")
+  
+        self._cache.append(multigraph)
         self._cache.append(real_gamma)
         self._cache.append(imag_gamma)
+        self._cache.append(g_inel)
+
         canvas.Update()
         output.to_csv('impact-analysis-{0}.csv'.format(dataset.energy))
 

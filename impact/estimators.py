@@ -210,16 +210,18 @@ class GInelEstimator(object):
     """GInelEstimator
 
         The $G_{inel}$ function is defined as:
-        $$H(s, b) = H(s, b) (1 - H(s, b))$$, where $H(s, b) = 2i\Gamma(s, b)$
+        $$G_{inel} = Im H(s, b) - |H(s, b)|^2 $$, where $H(s, b) = 2i\Gamma(s, b)$
     """
-    def __init__(self, inpname, outname):
+    def __init__(self, inreal, inimag, outname):
         super(GInelEstimator, self).__init__()
-        self.inpname = inpname
+        self.inreal = inreal 
+        self.inimag = inimag
         self.outname = outname
         
     def evaluate(self, dataset, output):
-        Hsb = 2 * output[self.inpname].values
-        output[self.outname] = Hsb * (1 - Hsb)
+        hreal = 0.5 * output[self.inreal].values
+        himag = 0.5 * output[self.inimag].values
+        output[self.outname] = himag - hreal ** 2 - himag ** 2
         return output[self.outname].values
 
 
@@ -230,17 +232,23 @@ class GInelErrorEstimator(object):
         $$\Delta $G_{inel}$  = (1 - 2 * H(s, b)) ^2 \Delta H ^ 2 $$, where $H(s, b) = 2i\Gamma(s, b)$
 
     """
-    def __init__(self, inpgamma, inpgammaerr, outname):
+    def __init__(self, inimag, inreal, inimagerr, inrealerr, outname):
         super(GInelErrorEstimator, self).__init__()
-        self.inpgamma = inpgamma
-        self.inpgammaerr = inpgammaerr
+        self.inimag = inimag
+        self.inreal = inreal
+        self.inimagerr = inimagerr
+        self.inrealerr = inrealerr
         self.outname = outname
         
     def evaluate(self, dataset, output):
-        Hsb = 2 * output[self.inpgamma].values
-        dHsb = 2 * output[self.inpgammaerr].values
+        hreal = 0.5 * output[self.inreal].values
+        himag = 0.5 * output[self.inimag].values
+        dhreal = 0.5 * output[self.inrealerr].values
+        dhimag = 0.5 * output[self.inimagerr].values
 
-        output[self.outname] = np.sqrt((dHsb ** 2) * (1 - 2 * Hsb) ** 2)
+        output[self.outname] = np.sqrt(
+            (dhimag ** 2) * (1 - 2 * himag) ** 2  + (dhreal ** 2) * (2 * hreal) ** 2
+        )
         return output[self.outname].values
 
 

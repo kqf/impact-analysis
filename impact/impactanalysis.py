@@ -39,8 +39,14 @@ class ImpactAnalysis(object):
             ImagGammaEstimator(self.model, outname="imag_gamma"),
             RealGammaErrorEstimator(self.model, outname="real_gamma_error"),
             ImagGammaErrorEstimator(self.model, outname="imag_gamma_error"),
-            GInelEstimator(inpname="imag_gamma", outname="g_inel"),
-            GInelErrorEstimator(inpgamma="imag_gamma", inpgammaerr="imag_gamma_error", outname="g_inel_error")
+            GInelEstimator(inreal="real_gamma", inimag="imag_gamma", outname="g_inel"),
+            GInelErrorEstimator(
+                inreal="real_gamma",
+                inimag="imag_gamma",
+                inimagerr="imag_gamma_error",
+                inrealerr="real_gamma_error",
+                outname="g_inel_error"
+            )
         ]
 
         output = pd.DataFrame(index=impact_range())
