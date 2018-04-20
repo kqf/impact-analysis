@@ -81,6 +81,7 @@ class ImagGammaEstimator(object):
 
     def _integral(self, b, p, i):
         q1, q2 = sqrt(i.lower), sqrt(i.upper)
+        # print((i.ds - self.model.amplitude(i.t, p).real ** 2), i.ds, self.model.amplitude(i.t, p))
         return sqrt((i.ds - self.model.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) -  q1 * j1(b * q1 / k_fm))
 
 
