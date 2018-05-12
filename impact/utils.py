@@ -1,8 +1,9 @@
+from math import pi, sqrt
+
 import ROOT
-from scipy import integrate
-from scipy.special import j0, j1
 from constants import k_fm, k_norm
-from math import sqrt, pi
+from scipy import integrate
+from scipy.special import j0
 
 
 def decorate_pad(pad):
@@ -13,18 +14,25 @@ def decorate_pad(pad):
     pad.SetGridx()
     return pad
 
+
 def canvas(name='name', x=5, y=5, scale=1.0):
-    canvas = ROOT.TCanvas(name, 'Canvas', int(128 * x * scale) , int(96 * y * scale))
+    canvas = ROOT.TCanvas(name, 'Canvas', int(
+        128 * x * scale), int(96 * y * scale))
     return decorate_pad(canvas)
     # return adjust_canvas(canvas)
 
+
 def hankel_transform(func):
-    def impact_version(b, p, limits = (0, float("inf"))):
-        f = lambda q : q * j0(b * q / k_fm) *  func(q * q, p) / sqrt(pi * k_norm)
-        result = integrate.quad(f, *limits)[0]  # integral from zero to lower bound
+    def impact_version(b, p, limits=(0, float("inf"))):
+        def f(q):
+            return q * j0(b * q / k_fm) * \
+                func(q * q, p) / sqrt(pi * k_norm)
+        # integral from zero to lower bound
+        result = integrate.quad(f, *limits)[0]
         return result
 
-    return impact_version 
+    return impact_version
 
-def impact_range(npoints = 30, step = 10.0, zero = 1e-5):
+
+def impact_range(npoints=30, step=10.0, zero=1e-5):
     return (zero * (i == 0) + i / step for i in range(npoints))

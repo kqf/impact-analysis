@@ -7,6 +7,7 @@ import ROOT
 class NotFittedError(IOError):
     pass
 
+
 class DataSet(object):
     def __init__(self, parameters):
         super(DataSet, self).__init__()
@@ -19,7 +20,7 @@ class DataSet(object):
         self.dsigma = parameters["DSIGMA"]
         self.sigma = parameters["SIGMA"]
         self.drho = parameters["DRHO"]
-        self.rho =  parameters["RHO"]
+        self.rho = parameters["RHO"]
         self.index = str(parameters["index"])
         self._data = None
         self._parameters = None
@@ -63,8 +64,8 @@ class DataSet(object):
 
 
     def _read_raw(self, ptype):
-        toint1 = lambda x: int( 1000 * float(x) )
-        toint2 = lambda x: int( float(x) )
+        toint1 = lambda x: int(1000 * float(x))
+        toint2 = lambda x: int(float(x))
 
         raw_data = []
         with open(self.filename,'r') as f:

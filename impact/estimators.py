@@ -61,7 +61,8 @@ class ImagGammaEstimator(object):
         self.bspace_low_t = bspace_low_t
 
     def evaluate(self, dataset, output):
-        def f(x): return self._gamma(x, dataset)
+        def f(x):
+            return self._gamma(x, dataset)
         output[self.outname] = map(f, output.index)
         return output[self.outname].values
 
@@ -81,8 +82,8 @@ class ImagGammaEstimator(object):
 
     def _integral(self, b, p, i):
         q1, q2 = sqrt(i.lower), sqrt(i.upper)
-        # print((i.ds - self.model.amplitude(i.t, p).real ** 2), i.ds, self.model.amplitude(i.t, p))
-        return sqrt((i.ds - self.model.amplitude(i.t, p).real ** 2)) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
+        diff = i.ds - self.model.amplitude(i.t, p).real ** 2
+        return sqrt(diff) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
 
     def _gamma(self, b, dataset):
         data = dataset.data
@@ -106,7 +107,8 @@ class ImagGammaEstimator(object):
 
 
 class ImagGammaErrorEstimator(object):
-    def __init__(self, model, outname="imag_gamma_error", outaverage="average_impact_amplitude", resolution=100):
+    def __init__(self, model, outname="imag_gamma_error",
+                 outaverage="average_impact_amplitude", resolution=100):
         super(ImagGammaErrorEstimator, self).__init__()
         # This is value should be fixed
         self.generator = GammaGeneratorMC(model)
@@ -211,7 +213,8 @@ class GInelEstimator(object):
     """GInelEstimator
 
         The $G_{inel}$ function is defined as:
-        $$G_{inel} = Im H(s, b) - |H(s, b)|^2 $$, where $H(s, b) = 2i\Gamma(s, b)$
+        $$G_{inel} = Im H(s, b) - |H(s, b)|^2 $$,
+        where $H(s, b) = 2i\Gamma(s, b)$
     """
 
     def __init__(self, inreal, inimag, outname):

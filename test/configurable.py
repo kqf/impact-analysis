@@ -1,9 +1,8 @@
-import unittest
 import json
-import hashlib
+import unittest
 
-from impact.impactanalysis import ImpactAnalysis
 from impact.datapoint import DataSet
+
 
 class Configurable(unittest.TestCase):
 

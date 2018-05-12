@@ -9,4 +9,4 @@ config/impact.sublime-project
 config/impact.sublime-workspace
 *.csv
 *.pdf
-
+*.sortie

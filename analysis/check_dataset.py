@@ -1,13 +1,12 @@
 #!/usr/bin/python
-import unittest
 import json
-import sys
+import unittest
 
 from impact.datapoint import DataSet
 from impact.impactanalysis import ImpactAnalysis
 
+
 class AnalyzeSingleDataset(unittest.TestCase):
-        
 
     def test_selected_dataset(self):
         with open('config/input.json') as f:
@@ -17,4 +16,3 @@ class AnalyzeSingleDataset(unittest.TestCase):
         analysis = ImpactAnalysis()
         dataset = DataSet(p)
         analysis.run(dataset)
-
