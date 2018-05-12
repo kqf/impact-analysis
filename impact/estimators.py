@@ -83,7 +83,12 @@ class ImagGammaEstimator(object):
     def _integral(self, b, p, i):
         q1, q2 = sqrt(i.lower), sqrt(i.upper)
         diff = i.ds - self.model.amplitude(i.t, p).real ** 2
-        return sqrt(diff) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
+        try:
+            return sqrt(diff) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
+        except ValueError:
+            print diff, i.ds, self.model.amplitude(i.t, p).real ** 2, self.model.amplitude(i.t, p).imag ** 2, i.t
+            print sqrt(abs(diff)) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
+            return 0
 
     def _gamma(self, b, dataset):
         data = dataset.data

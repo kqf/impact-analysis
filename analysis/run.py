@@ -5,7 +5,8 @@ import unittest
 from impact.datapoint import DataSet
 from impact.impactanalysis import ImpactAnalysis
 from impact.parametrization.symbolic import Symbolic
-from impact.parametrization.symbolic import SymbolicUpdated
+from impact.parametrization.symbolic import TripleExponent
+from impact.parametrization.symbolic import TripleExponentGeneral
 from impact.vis import Plots
 
 
@@ -18,7 +19,8 @@ class RunTheSolutin(unittest.TestCase):
 
         models = {
             'config/datafit.json': Symbolic,
-            'config/triple-exponent.json': SymbolicUpdated,
+            'config/triple-exponent.json': TripleExponent,
+            'config/triple-exponent-general.json': TripleExponentGeneral,
         }
 
         # TODO: Move conigs to the amplitude definitions
@@ -26,8 +28,10 @@ class RunTheSolutin(unittest.TestCase):
 
         for config, algo in models.iteritems():
             dataset = DataSet(data['data'][-1])
+            print algo.name
             visualisator = Plots()
             visualisator.draw_results(algo(), dataset, config)
 
-            # analysis = ImpactAnalysis(algo(), config)
-            # print analysis.run(dataset)
+            analysis = ImpactAnalysis(algo(), config)
+            pandas = analysis.run(dataset)
+            pandas.to_csv(algo.name + ".csv")

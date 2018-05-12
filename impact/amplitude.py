@@ -55,7 +55,7 @@ class Amplitude(object):
         # Sigma and rho aren't parameters of the fit
         # we can't find the covariance matrix between them
         error_squared += (
-            (dataset.dsigma ** 2) * (self.d_as(t, p) / 4. / sqrt(pi)) ** 2 +
+            (dataset.dsigma ** 2) * (self.d_as(t, p)) ** 2 +
             (dataset.drho ** 2) * (self.d_rho(t, p)) ** 2
         )
 

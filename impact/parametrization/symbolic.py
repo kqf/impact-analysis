@@ -7,18 +7,20 @@ from impact.constants import k_norm
 
 
 class Symbolic(Amplitude):
+    name = "standard-parametrization"
 
     def __init__(self):
         super(Symbolic, self).__init__()
-        self.variable_names = 'a1 a2 b1 b2 b3 b4 a_s rho'.split()
-        self.variables = smp.symbols(self.variable_names)
+        self.name = "standard-parametrization"
+        variable_names = 'a1 a2 b1 b2 b3 b4 a_s rho'.split()
+
+        self.variables = smp.symbols(variable_names)
         self.t = smp.Symbol('t')
         self.symbol_amplitude = self.analytic_formula()
 
-        useful_pars = 'a1 a2 b1 b2 b3 b4 a_s rho'.split()
         self.d_a1, self.d_a2, self.d_b1, self.d_b2,\
             self.d_b3, self.d_b4, self.d_as, self.d_rho = \
-            map(self._partial, useful_pars)
+            map(self._partial, variable_names)
 
         # Calculate using sympy
         #
@@ -73,10 +75,11 @@ class Symbolic(Amplitude):
         return ampl
 
 
-class SymbolicUpdated(Symbolic):
+class TripleExponent(Symbolic):
+    name = "three-exponents"
 
     def __init__(self):
-        super(SymbolicUpdated, self).__init__()
+        super(TripleExponent, self).__init__()
 
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
@@ -119,5 +122,98 @@ class SymbolicUpdated(Symbolic):
         return ampl
 
     def diff_cs(self, t, p):
-        cs = super(SymbolicUpdated, self).diff_cs(t, p)
+        cs = super(TripleExponent, self).diff_cs(t, p)
         return cs
+
+
+class TripleExponentGeneral(Amplitude):
+    name = "three-exponents-extended"
+
+    def __init__(self):
+        super(TripleExponentGeneral, self).__init__()
+        variable_names = 'a1 a2 a5 b1 b2 b3 b4 b5 a_s rho'.split()
+
+        self.variables = smp.symbols(variable_names)
+        self.t = smp.Symbol('t')
+        self.symbol_amplitude = self.analytic_formula()
+
+        self.d_a1, self.d_a2, self.d_a5, self.d_b1, self.d_b2,\
+            self.d_b3, self.d_b4, self.d_b5, self.d_as, self.d_rho = \
+            map(self._partial, variable_names)
+
+        # Calculate using sympy
+        #
+        self.amplitude_symbolic = smp.lambdify(
+            (self.t, self.variables),
+            self.symbol_amplitude,
+            'numpy'
+        )
+
+    def analytic_formula(self):
+        print len(self.variables)
+        a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = self.variables
+        a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
+
+        a3 = -a1 - a2 + 0.5 * a_s / k_norm
+        a4 = rho * (a1 + a2 + a3)
+
+        amplitude = (
+            a1 * smp.exp(b1 * self.t) * 1j +
+            a2 * smp.exp(b2 * self.t) * 1j +
+            a3 * smp.exp(b3 * self.t) * 1j +
+            a4 * smp.exp(b4 * self.t) +
+            a5 * smp.exp(b5 * self.t)
+        )
+        return amplitude * sqrt(k_norm / 4. / pi)
+
+    def amplitude(self, t, p):
+        a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = p
+        # TODO: Fix me
+        # a_s = a_s / (sqrt(pi * k_norm) * 4)
+
+        a3 = -a1 - a2 + 0.5 * a_s / k_norm
+        a4 = rho * (a1 + a2 + a3)
+
+        from math import exp
+
+        def amplitude(tt):
+            return (
+                a1 * exp(b1 * tt) * 1j +
+                a2 * exp(b2 * tt) * 1j +
+                a3 * exp(b3 * tt) * 1j +
+                a4 * exp(b4 * tt) +
+                a5 * exp(b5 * tt)
+            )
+
+        try:
+            ampl = amplitude(t) * sqrt(k_norm / 4. / pi)
+        except OverflowError:
+            ampl = 0
+
+        # print '>>> ', abs(ampl) ** 2
+        return ampl
+
+    def _partial(self, arg):
+        symbols = self.symbol_amplitude.free_symbols
+        fpar = next(
+            (i for i in symbols if i.name == arg), None)
+
+        partial_derivative = smp.lambdify(
+            (self.t, self.variables),
+            smp.re(self.symbol_amplitude.diff(fpar)),
+            'numpy')
+
+        return partial_derivative
+
+    def partial_derivatives(self, t, p):
+        A = [
+            self.d_a1(t, p),
+            self.d_a2(t, p),
+            self.d_a5(t, p),
+            self.d_b1(t, p),
+            self.d_b2(t, p),
+            self.d_b3(t, p),
+            self.d_b4(t, p),
+            self.d_b5(t, p),
+        ]
+        return A

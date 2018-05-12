@@ -57,7 +57,7 @@ class Numeric(Amplitude):
             * ralpha * (-0.5 * t)
 
         result = first + second
-        return result.real
+        return result.real / 4. / sqrt(pi)
 
     
     def d_b1(self, t, p):

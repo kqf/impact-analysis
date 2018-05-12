@@ -4,7 +4,7 @@ import unittest
 
 from impact.datapoint import DataSet
 from impact.parametrization.symbolic import Symbolic
-# from impact.parametrization.symbolic import SymbolicUpdated
+# from impact.parametrization.symbolic import TripleExponent
 from impact.vis import Plots
 
 

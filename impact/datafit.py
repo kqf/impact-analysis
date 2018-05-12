@@ -1,7 +1,8 @@
 #!/usr/bin/python2
 
-import ROOT
 import json
+
+import ROOT
 
 
 class DataFit(object):
