@@ -10,6 +10,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.23386,
             "DRHO" : 0.05,
+            "TRANGE": [0.1, -1],
             "index": 1
         },
 
@@ -23,6 +24,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.2,
             "DRHO" : 0.06,
+            "TRANGE": [0.1, -1],
             "index": 2
         },
 
@@ -36,6 +38,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.24,
             "DRHO" : 0.0185,
+            "TRANGE": [0.1, -1],
             "index": 3
         },
 
@@ -49,6 +52,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.4183,
             "DRHO" : 0.0092,
+            "TRANGE": [0.1, -1],
             "index": 4
         },
 
@@ -63,6 +67,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.7161,
             "DRHO" : 0.01787,
+            "TRANGE": [0.1, -1],
             "index": 5
         },
 
@@ -77,6 +82,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.446,
             "DRHO" : 0.0187,
+            "TRANGE": [0.1, -1],
             "index": 6
         },
 
@@ -91,6 +97,7 @@
             "PROCESS" : "p#bar{p}",
             "DSIGMA" : 0.7161,
             "DRHO" : 0.0187,
+            "TRANGE": [0.1, -1],
             "index": 7
         },
 
@@ -105,6 +112,7 @@
             "PROCESS" : "p#bar{p}",
             "DSIGMA" : 6.4768,
             "DRHO" : 0.0149,
+            "TRANGE": [0.1, -1],
             "index": 8
         },
 
@@ -118,6 +126,7 @@
             "PROCESS" : "p#bar{p}",
             "DSIGMA" : 2.02,
             "DRHO" : 0.069,
+            "TRANGE": [0.1, -1],
             "index": 9
         },
         {
@@ -130,6 +139,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 2.23,
             "DRHO" : 0.007,
+            "TRANGE": [0.1, -1],
             "index": 10
         },
         {
@@ -142,6 +152,19 @@
             "PROCESS" : "pp",
             "DSIGMA" : 3.0,
             "DRHO" : 0.01,
+            "TRANGE": [0.1, -1],
+            "index": 11
+        },
+        {
+            "hsum256": "bd6cf9aa1072b80621088b38299096f7303f26fdb38925c98f80328e19b6a41b",
+            "infile": "input/TOTEM-13TeV-preliminary.dat",
+            "ENERGY" : 13000,
+            "RHO"    : 0.1,
+            "SIGMA"  : 0.11060e+03,
+            "PROCESS" : "pp",
+            "DSIGMA" : 3.0,
+            "DRHO" : 0.01,
+            "TRANGE": [0.1, -1],
             "index": 11
         }
     ]

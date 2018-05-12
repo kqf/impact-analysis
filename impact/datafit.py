@@ -22,7 +22,6 @@ class DataFit(object):
         self.par_fixed = self.conf['par_fixed']
         self.par_limits = self.conf['par_limits']
         self.par_names = self.conf['par_names']
-        self.cov_size = self.conf['cov_size']
 
     def covariance(self, size):
         fitter = ROOT.TVirtualFitter.GetFitter()

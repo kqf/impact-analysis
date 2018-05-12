@@ -23,6 +23,7 @@
         "PROCESS" : "pp",
         "DSIGMA" : 2.23,
         "DRHO" : 0.007,
+        "TRANGE": [0.1, -1],
         "index": 10
     },
     "pdimension": 6
