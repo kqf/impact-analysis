@@ -165,7 +165,7 @@
             "DSIGMA" : 3.0,
             "DRHO" : 0.01,
             "TRANGE": [0.01, -1],
-            "index": 11
+            "index": 13
         }
     ]
 }

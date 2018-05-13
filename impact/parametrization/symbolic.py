@@ -74,6 +74,9 @@ class Symbolic(Amplitude):
             ampl = 0
         return ampl
 
+    def dsisdt_norm(self):
+        return 1.
+
 
 class TripleExponent(Symbolic):
     name = "three-exponents"
@@ -114,16 +117,15 @@ class TripleExponent(Symbolic):
             )
 
         try:
-            ampl = amplitude(t) * sqrt(k_norm / 4. / pi)
+            ampl = amplitude(t)
         except OverflowError:
             ampl = 0
 
         # print '>>> ', abs(ampl) ** 2
         return ampl
 
-    def diff_cs(self, t, p):
-        cs = super(TripleExponent, self).diff_cs(t, p)
-        return cs
+    def dsisdt_norm(self):
+        return k_norm / 4. / pi
 
 
 class TripleExponentGeneral(Amplitude):
@@ -152,7 +154,7 @@ class TripleExponentGeneral(Amplitude):
     def analytic_formula(self):
         print len(self.variables)
         a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = self.variables
-        a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
+        # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
 
         a3 = -a1 - a2 + 0.5 * a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
@@ -164,7 +166,7 @@ class TripleExponentGeneral(Amplitude):
             a4 * smp.exp(b4 * self.t) +
             a5 * smp.exp(b5 * self.t)
         )
-        return amplitude * sqrt(k_norm / 4. / pi)
+        return amplitude
 
     def amplitude(self, t, p):
         a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = p
@@ -217,3 +219,6 @@ class TripleExponentGeneral(Amplitude):
             self.d_b5(t, p),
         ]
         return A
+
+    def dsisdt_norm(self):
+        return k_norm / 4. / pi

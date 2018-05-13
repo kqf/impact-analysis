@@ -120,3 +120,7 @@ class Numeric(Amplitude):
         except OverflowError:
             ampl = 0
         return ampl 
+
+    def dsisdt_norm(self):
+        return 1.
+

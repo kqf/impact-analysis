@@ -1,4 +1,5 @@
-from math import sqrt, pi
+from math import sqrt
+
 from impact.utils import hankel_transform
 
 
@@ -20,7 +21,7 @@ class Amplitude(object):
     def diff_cs(self, t, p):
         A = self.amplitude(t, p)
         try:
-            result = abs(A) ** 2
+            result = self.dsisdt_norm() * abs(A) ** 2
         except OverflowError:
             result = A.imag
         return result
