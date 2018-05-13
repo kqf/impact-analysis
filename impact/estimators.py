@@ -70,7 +70,7 @@ class ImagGammaEstimator(object):
         """Calculates imaginary part of extrapolated amplitude"""
         data = dataset.data
         sigma = dataset.sigma
-        a0 = sigma / (4 * sqrt(pi * k_norm))
+        a0 = sigma / self.model.sigma_norm()
         a1 = sqrt(data[0].ds / self.model.dsisdt_norm() - self.model.amplitude(
             data[0].t,
             dataset.parameters).real ** 2
@@ -115,7 +115,9 @@ class ImagGammaEstimator(object):
 
         # All contributions
         result = extrapolation1 + extrapolation2 + \
-            (gamma_data * k_fm / sqrt(pi * k_norm) / b)
+            (gamma_data * k_fm / b / self.model.sigma_norm() * 4)
+
+        # print b, extrapolation1, extrapolation2, (gamma_data * k_fm / b / self.model.sigma_norm() * 4)
         return result
 
 
@@ -180,7 +182,8 @@ class GammaGeneratorMC(object):
 
     def _generrate_diff_cs(self, p, dataset):
         cs, re2 = -1, self.model.amplitude(p.t, dataset.parameters).real ** 2
-        while (cs - re2) < 0:  # Generate only positive cs
+        # Generate only positive cs
+        while (cs / self.model.dsisdt_norm() - re2) < 0:
             cs = rnd.gauss(p.ds, p.err)
         return cs
 

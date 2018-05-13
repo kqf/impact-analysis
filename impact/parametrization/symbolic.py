@@ -77,6 +77,9 @@ class Symbolic(Amplitude):
     def dsisdt_norm(self):
         return 1.
 
+    def sigma_norm(self):
+        return 4 * sqrt(pi * k_norm)
+
 
 class TripleExponent(Symbolic):
     name = "three-exponents"
@@ -126,6 +129,9 @@ class TripleExponent(Symbolic):
 
     def dsisdt_norm(self):
         return k_norm / 4. / pi
+
+    def sigma_norm(self):
+        return 2 * k_norm
 
 
 class TripleExponentGeneral(Amplitude):
@@ -222,3 +228,6 @@ class TripleExponentGeneral(Amplitude):
 
     def dsisdt_norm(self):
         return k_norm / 4. / pi
+
+    def sigma_norm(self):
+        return 2 * k_norm

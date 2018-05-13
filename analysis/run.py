@@ -18,16 +18,15 @@ class RunTheSolutin(unittest.TestCase):
             data = json.load(f)
 
         models = {
-            # 'config/datafit.json': Symbolic,
+            'config/datafit.json': Symbolic,
             'config/triple-exponent.json': TripleExponent,
             # 'config/triple-exponent-general.json': TripleExponentGeneral,
         }
 
         # TODO: Move conigs to the amplitude definitions
         #
-
         for config, algo in models.iteritems():
-            dataset = DataSet(data['data'][-1])
+            dataset = DataSet(data['data'][-3])
             print algo.name
             visualisator = Plots()
             visualisator.draw_results(algo(), dataset, config)
@@ -35,3 +34,4 @@ class RunTheSolutin(unittest.TestCase):
             analysis = ImpactAnalysis(algo(), config)
             pandas = analysis.run(dataset)
             pandas.to_csv(algo.name + ".csv")
+            print pandas

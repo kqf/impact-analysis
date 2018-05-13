@@ -44,7 +44,7 @@ class DataFit(object):
         function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 10, npar)
 
         for i, par in enumerate(parameters):
-            function.FixParameter(i, par)
+            function.SetParameter(i, par)
 
         function.FixParameter(npar - 2, parameters[-2])
         function.FixParameter(npar - 1, parameters[-1])

@@ -1,18 +1,19 @@
-from math import sin as Sin
 from math import cos as Cos
-from math import pow as Power
 from math import e as E
-from math import sqrt, pi
-from cmath import exp as Exp
+from math import pow as Power
+from math import sin as Sin
+from math import pi, sqrt
 
-from impact.constants import k_norm
+from cmath import exp as Exp
 from impact.amplitude import Amplitude
+from impact.constants import k_norm
+
 
 class Numeric(Amplitude):
 
     def d_a1(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
 
         return  (a2 + a_s) * ( 
                                 rho*( Power(E,((-a2 - a_s)*b1*t)/2.)*Cos(((a2 + a_s)*b1*t*rho)/2.) 
@@ -23,7 +24,7 @@ class Numeric(Amplitude):
 
     def d_a2(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
 
         return  ( 
                     - (rho/Power(1 + t/b4,4)) 
@@ -48,9 +49,9 @@ class Numeric(Amplitude):
 
     def d_as(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
         alpha = (1 - 1j*rho)*(a_s + a2)
-        ralpha = (1 - 1j*rho) / (sqrt(pi * k_norm) * 4)
+        ralpha = (1 - 1j*rho) / self.sigma_norm() 
 
         first = 1j * (a1 * Exp(-0.5 * alpha * b1 * t) + (1 - a1) * Exp(-0.5 * alpha * b2 * t)) * ralpha 
         second = 1j * alpha * (b1 * a1 * Exp(-0.5 * alpha * b1 * t) + (1 - a1) * b2 * Exp(-0.5 * alpha * b2 * t)) \
@@ -62,7 +63,7 @@ class Numeric(Amplitude):
     
     def d_b1(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
 
 
         return (a2 + a_s) * (
@@ -75,7 +76,7 @@ class Numeric(Amplitude):
 
     def d_b2(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
         return  (a2 + a_s) * (
                                  - ((1 - a1)*(a2 + a_s)*Power(E,((-a2 - a_s)*b2*t)/2.)*t*rho*Cos(((a2 + a_s)*b2*t*rho)/2.))/2. 
                                  - ((1 - a1)*(-a2 - a_s)*Power(E,((-a2 - a_s)*b2*t)/2.)*t*Sin(((a2 + a_s)*b2*t*rho)/2.))/2. 
@@ -89,14 +90,14 @@ class Numeric(Amplitude):
 
     def d_b4(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
 
         return (-4*a2*t*rho)/(Power(b4,2)*Power(1 + t/b4,5))
 
 
     def d_rho(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
 
         return ( -(a2/Power(1 + t/b4,4)) + 
                    (a2 + a_s) * (
@@ -111,7 +112,7 @@ class Numeric(Amplitude):
         
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s/(sqrt(pi *  k_norm) * 4)
+        a_s = a_s / self.sigma_norm() 
         
         alpha = (1 - 1j*rho)*(a_s + a2)
 
@@ -124,3 +125,5 @@ class Numeric(Amplitude):
     def dsisdt_norm(self):
         return 1.
 
+    def sigma_norm(self):
+        return 4 * sqrt(pi * k_norm)
