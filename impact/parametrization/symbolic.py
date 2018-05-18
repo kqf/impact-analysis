@@ -33,7 +33,7 @@ class Symbolic(Amplitude):
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
         t = self.t
-        a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
+        # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
         alpha = (1 - 1j * rho) * (a_s + a2)
         return (
             1j * alpha * (
@@ -74,7 +74,7 @@ class Symbolic(Amplitude):
             ampl = 0
         return ampl
 
-    def dsisdt_norm(self):
+    def dsigdt_norm(self):
         return 1.
 
     def sigma_norm(self):
@@ -89,7 +89,7 @@ class TripleExponent(Symbolic):
 
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
-        a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
+        # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
 
         a3 = -a1 - a2 + 0.5 * a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
@@ -100,7 +100,7 @@ class TripleExponent(Symbolic):
             a3 * smp.exp(b3 * self.t) * 1j +
             a4 * smp.exp(b4 * self.t)
         )
-        return amplitude * sqrt(k_norm / 4. / pi)
+        return amplitude
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
@@ -127,7 +127,7 @@ class TripleExponent(Symbolic):
         # print '>>> ', abs(ampl) ** 2
         return ampl
 
-    def dsisdt_norm(self):
+    def dsigdt_norm(self):
         return k_norm / 4. / pi
 
     def sigma_norm(self):
@@ -194,7 +194,7 @@ class TripleExponentGeneral(Amplitude):
             )
 
         try:
-            ampl = amplitude(t) * sqrt(k_norm / 4. / pi)
+            ampl = amplitude(t)
         except OverflowError:
             ampl = 0
 
@@ -226,7 +226,7 @@ class TripleExponentGeneral(Amplitude):
         ]
         return A
 
-    def dsisdt_norm(self):
+    def dsigdt_norm(self):
         return k_norm / 4. / pi
 
     def sigma_norm(self):

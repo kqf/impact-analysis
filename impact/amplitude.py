@@ -21,7 +21,7 @@ class Amplitude(object):
     def diff_cs(self, t, p):
         A = self.amplitude(t, p)
         try:
-            result = self.dsisdt_norm() * abs(A) ** 2
+            result = self.dsigdt_norm() * abs(A) ** 2
         except OverflowError:
             result = A.imag
         return result
