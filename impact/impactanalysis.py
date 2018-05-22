@@ -9,6 +9,7 @@ from impact.parametrization.symbolic import Symbolic
 from impact.estimators import (
     RealGammaEstimator,
     ImagGammaEstimator,
+    ImagGammaParametrization,
     RealGammaErrorEstimator,
     ImagGammaErrorEstimator,
     GInelEstimator,
@@ -32,6 +33,7 @@ class ImpactAnalysis(object):
         pipeline = [
             RealGammaEstimator(self.model, outname="real_gamma"),
             ImagGammaEstimator(self.model, outname="imag_gamma"),
+            # ImagGammaParametrization(self.model, outname="imag_gamma"),
             RealGammaErrorEstimator(self.model, outname="real_gamma_error"),
             ImagGammaErrorEstimator(self.model, outname="imag_gamma_error"),
             GInelEstimator(inreal="real_gamma",
@@ -51,6 +53,10 @@ class ImpactAnalysis(object):
         for estimator in pipeline:
             estimator.evaluate(dataset, output)
 
-        # print
-        # print output
+        output["im_h"] = output["imag_gamma"].values * 0.5
+        output["re_h"] = -output["real_gamma"].values * 0.5
+        output["im_h_error"] = output["imag_gamma_error"].values * 0.5
+        output["re_h_error"] = output["real_gamma_error"].values * 0.5
+        print
+        print output
         return output

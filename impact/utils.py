@@ -25,8 +25,7 @@ def canvas(name='name', x=5, y=5, scale=1.0):
 def hankel_transform(func):
     def impact_version(b, p, limits=(0, float("inf"))):
         def f(q):
-            return q * j0(b * q / k_fm) * \
-                func(q * q, p) / sqrt(pi * k_norm)
+            return q * j0(b * q / k_fm) * func(q * q, p) / 8 / pi
         # integral from zero to lower bound
         result = integrate.quad(f, *limits)[0]
         return result

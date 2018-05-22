@@ -61,14 +61,27 @@ class Plots(object):
         multigraph.Add(imag_gamma, "cp")
         multigraph.Add(g_inel, "cp")
         multigraph.Draw("ap")
-
+        legend = ROOT.TLegend(0.7, 0.7, 0.95, 0.9)
+        legend.SetBorderSize(0)
+        legend.SetFillStyle(0)
+        legend.AddEntry(imag_gamma, "Im #Gamma(s, b)")
+        legend.AddEntry(real_gamma, "Re #Gamma(s, b)")
+        legend.AddEntry(g_inel, "G_{inel}(s, b)")
+        legend.Draw("same")
+        self._cache.append(legend)
         self._cache.append(multigraph)
         self._cache.append(real_gamma)
         self._cache.append(imag_gamma)
         self._cache.append(g_inel)
 
         canvas.Update()
-        output.to_csv('impact-analysis-{0}.csv'.format(dataset.energy))
+        output = output[["im_h", "re_h", "im_h_error",
+                         "re_h_error", "g_inel", "g_inel_error"]]
+        ofile = '{1}-{0}GeV.csv'.format(
+            dataset.energy, model.name)
+
+        print "saving the file", ofile
+        output.to_csv(ofile)
 
     def fit(self,
             model,
@@ -93,11 +106,11 @@ class Plots(object):
         ratio.SetLineColor(2)
         ratio.Draw("same")
 
-        legend = ROOT.TLegend(0.7, 0.6, 0.9, 0.9)
+        legend = ROOT.TLegend(0.7, 0.7, 0.95, 0.9)
         legend.SetBorderSize(0)
         legend.SetFillStyle(0)
-        legend.AddEntry(crossection, "d#sigma/dt param", "l")
-        legend.AddEntry(ratio, "#rho(t) with the same parameters", "l")
+        legend.AddEntry(crossection, "d#sigma/dt param")
+        legend.AddEntry(ratio, "#rho(t)")
         legend.Draw("same")
 
         self._cache.append(data)

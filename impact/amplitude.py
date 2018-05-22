@@ -1,6 +1,7 @@
-from math import sqrt
+from math import sqrt, pi
 
 from impact.utils import hankel_transform
+from impact.constants import k_norm
 
 
 class Amplitude(object):
@@ -64,4 +65,13 @@ class Amplitude(object):
         return error
 
     def h_norm(self):
-        return 1.0
+        return 8 * pi * sqrt(pi * k_norm)
+
+    def dsigdt_norm(self):
+        return 1.
+
+    def sigma_norm(self):
+        return 4 * sqrt(pi * k_norm)
+
+    def hdata_norm(self):
+        return 1. / self.sigma_norm() * 4

@@ -11,7 +11,7 @@ import copy
 
 import ROOT
 
-from constants import k_fm, k_norm
+from constants import k_fm
 from impact.utils import hankel_transform
 from impact.datapoint import DataPoint
 # import impact.utils as ut
@@ -25,7 +25,7 @@ class RealGammaEstimator(object):
 
     def evaluate(self, dataset, output):
         output[self.outname] = map(lambda x: self.model.real_gamma(
-            x, dataset.parameters), output.index)
+            x, dataset.parameters) * self.model.h_norm(), output.index)
         return output[self.outname].values
 
 
@@ -37,7 +37,7 @@ class RealGammaErrorEstimator(object):
 
         @hankel_transform
         def evaluate_(x, dataset):
-            return self.model.treal_error(x, dataset)
+            return self.model.treal_error(x, dataset) * self.model.h_norm()
         self.evaluate_ = evaluate_
 
     def evaluate(self, dataset, output):
@@ -46,6 +46,18 @@ class RealGammaErrorEstimator(object):
             output.index
         )
         return output[self.outname]
+
+
+class ImagGammaParametrization(object):
+
+    def __init__(self, model, outname="real_gamma"):
+        self.model = model
+        self.outname = outname
+
+    def evaluate(self, dataset, output):
+        output[self.outname] = map(lambda x: -self.model.imag_gamma(
+            x, dataset.parameters) * self.model.h_norm(), output.index)
+        return output[self.outname].values
 
 
 class ImagGammaEstimator(object):
@@ -57,7 +69,7 @@ class ImagGammaEstimator(object):
 
         @hankel_transform
         def bspace_low_t(b, p):
-            return self._im_amplitude_low_t(b, p)
+            return self._im_amplitude_low_t(b, p) * self.model.h_norm()
         self.bspace_low_t = bspace_low_t
 
     def evaluate(self, dataset, output):
@@ -89,12 +101,12 @@ class ImagGammaEstimator(object):
         try:
             return sqrt(diff) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
         except ValueError:
-            print (diff, i.ds / self.model.dsigdt_norm(),
-                   self.model.amplitude(i.t, p).real ** 2,
-                   self.model.amplitude(i.t, p).imag ** 2, i.t,
-                   self.model.diff_cs(i.t, p),
-                   i.ds
-                   )
+            # print (diff, i.ds / self.model.dsigdt_norm(),
+            #        self.model.amplitude(i.t, p).real ** 2,
+            #        self.model.amplitude(i.t, p).imag ** 2, i.t,
+            #        self.model.diff_cs(i.t, p),
+            #        i.ds
+            #        )
             print sqrt(abs(diff)) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
             return 0
 
@@ -113,14 +125,12 @@ class ImagGammaEstimator(object):
         gamma_data = sum(self._integral(b, dataset.parameters, i)
                          for i in data)
 
-        gamma_data_scaled = (gamma_data * k_fm / b /
-                             self.model.sigma_norm() * 4)
+        gamma_data_scaled = gamma_data * k_fm / b * self.model.hdata_norm()
         # All contributions
         result = extrapolation1 + extrapolation2 + gamma_data_scaled
 
-
-        print b, extrapolation1, gamma_data_scaled, extrapolation2
-        return result * self.model.h_norm()
+        # print b, extrapolation1, gamma_data_scaled, extrapolation2
+        return result
 
 
 class ImagGammaErrorEstimator(object):
@@ -172,6 +182,9 @@ class ImagGammaErrorEstimator(object):
         output[self.outaverage] = average
         output[self.outname] = deviation
         return average, deviation
+        # output[self.outaverage] = output.index * 0.0
+        # output[self.outname] = output.index * 0.0
+        # return output.index * 0.0, output.index * 0.0
 
 
 class GammaGeneratorMC(object):

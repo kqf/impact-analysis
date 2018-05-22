@@ -74,18 +74,12 @@ class Symbolic(Amplitude):
             ampl = 0
         return ampl
 
-    def dsigdt_norm(self):
-        return 1.
-
-    def sigma_norm(self):
-        return 4 * sqrt(pi * k_norm)
-
 
 class TripleExponent(Symbolic):
-    name = "three-exponents"
 
     def __init__(self):
         super(TripleExponent, self).__init__()
+        self.name = "three-exponents"
 
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
@@ -134,7 +128,10 @@ class TripleExponent(Symbolic):
         return 2 * k_norm
 
     def h_norm(self):
-        return 1. / 8 / pi
+        return 4.
+
+    def hdata_norm(self):
+        return 4. / 8 / pi
 
 
 class TripleExponentGeneral(Amplitude):
@@ -143,6 +140,7 @@ class TripleExponentGeneral(Amplitude):
     def __init__(self):
         super(TripleExponentGeneral, self).__init__()
         variable_names = 'a1 a2 a5 b1 b2 b3 b4 b5 a_s rho'.split()
+        self.name = "three-exponents-extended"
 
         self.variables = smp.symbols(variable_names)
         self.t = smp.Symbol('t')
@@ -236,4 +234,7 @@ class TripleExponentGeneral(Amplitude):
         return 2 * k_norm
 
     def h_norm(self):
-        return 1. / 8 / pi
+        return 4.
+
+    def hdata_norm(self):
+        return 4. / 8 / pi

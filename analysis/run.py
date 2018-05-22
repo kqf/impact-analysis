@@ -20,7 +20,7 @@ class RunTheSolutin(unittest.TestCase):
         models = {
             'config/datafit.json': Symbolic,
             'config/triple-exponent.json': TripleExponent,
-            # 'config/triple-exponent-general.json': TripleExponentGeneral,
+            'config/triple-exponent-general.json': TripleExponentGeneral,
         }
 
         # TODO: Move conigs to the amplitude definitions
