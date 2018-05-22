@@ -62,3 +62,6 @@ class Amplitude(object):
 
         error = sqrt(error_squared)
         return error
+
+    def h_norm(self):
+        return 1.0

@@ -120,7 +120,7 @@ class ImagGammaEstimator(object):
 
 
         print b, extrapolation1, gamma_data_scaled, extrapolation2
-        return result
+        return result * self.model.h_norm()
 
 
 class ImagGammaErrorEstimator(object):

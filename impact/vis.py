@@ -20,7 +20,7 @@ class Plots(object):
 
         canvas.Divide(2, 1)
         self.fit(model, dataset, conffile, canvas.cd(1))
-        # self.draw_gamma(model, dataset, conffile, canvas.cd(2))
+        self.draw_gamma(model, dataset, conffile, canvas.cd(2))
 
         canvas.Update()
         canvas.SaveAs('impact-analysis-{0}.eps'.format(dataset.energy))

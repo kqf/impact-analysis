@@ -133,6 +133,9 @@ class TripleExponent(Symbolic):
     def sigma_norm(self):
         return 2 * k_norm
 
+    def h_norm(self):
+        return 1. / 8 / pi
+
 
 class TripleExponentGeneral(Amplitude):
     name = "three-exponents-extended"
@@ -231,3 +234,6 @@ class TripleExponentGeneral(Amplitude):
 
     def sigma_norm(self):
         return 2 * k_norm
+
+    def h_norm(self):
+        return 1. / 8 / pi

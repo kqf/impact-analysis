@@ -26,12 +26,16 @@ class RunTheSolutin(unittest.TestCase):
         # TODO: Move conigs to the amplitude definitions
         #
         for config, algo in models.iteritems():
-            dataset = DataSet(data['data'][-3])
+            dataset = DataSet(data['data'][-1])
             print algo.name
             visualisator = Plots()
             visualisator.draw_results(algo(), dataset, config)
 
-            analysis = ImpactAnalysis(algo(), config)
-            pandas = analysis.run(dataset)
-            pandas.to_csv(algo.name + ".csv")
-            print pandas
+            # analysis = ImpactAnalysis(algo(), config)
+            # pandas = analysis.run(dataset)
+            # pandas.to_csv(algo.name + ".csv")
+            # visualisator = Plots()
+            # visualisator.draw_results(model,
+            # totem7tev, 'config/triple-exponent.json')
+            # visualisator.draw_results(algo, dataset, config)
+            # print pandas
