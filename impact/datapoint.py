@@ -1,6 +1,9 @@
 #!/usr/bin/python2
 
 import hashlib
+
+import numpy as np
+import pandas as pd
 import ROOT
 
 
@@ -9,6 +12,8 @@ class NotFittedError(IOError):
 
 
 class DataSet(object):
+    data_fiels = "s", "-t", "obs", "stat", "syst", "total err.", "code"
+
     def __init__(self, parameters):
         super(DataSet, self).__init__()
         # Instead of copy constructor
@@ -22,6 +27,8 @@ class DataSet(object):
         self.drho = parameters["DRHO"]
         self.rho = parameters["RHO"]
         self.trange = parameters["TRANGE"]
+        self.trange[0] = self.trange[0] if self.trange[0] > 0 else -float('inf')
+        self.trange[1] = self.trange[1] if self.trange[1] > 0 else float('inf')
         self.index = str(parameters["index"])
         self._data = None
         self._parameters = None
@@ -39,7 +46,7 @@ class DataSet(object):
 
     def _validate_dataset(self):
         hashsum = hashlib.sha256()
-        with open(self.filename, 'rb') as f:
+        with open(self.filename, "rb") as f:
                 data = f.read()
         hashsum.update(data)
 
@@ -59,49 +66,27 @@ class DataSet(object):
             graph.SetPoint(i, p.t, p.ds)
             graph.SetPointError(i, 0, p.err)
 
-        graph.GetXaxis().SetTitle('-t, GeV/c')
-        graph.GetYaxis().SetTitle('#frac{d#sigma}{dt}, mb/GeV^{2}')
+        graph.GetXaxis().SetTitle("-t, GeV/c")
+        graph.GetYaxis().SetTitle("#frac{d#sigma}{dt}, mb/GeV^{2}")
         graph.SetMarkerStyle(20)
         graph.SetMarkerColor(46)
         return graph
 
     def _read_raw(self, ptype):
-        def toint(x):
-            return int(1000 * float(x))
-
-        raw_data = []
-        with open(self.filename, 'r') as f:
-            for line in f:
-                data = line.lower().split()
-                # Silly but simpliest way to handle problem
-                if 1000 * self.energy == 52818 and toint(data[0]) == 53018:
-                    data[0] = 52.818
-
-                energy_ok = (toint(data[0]) == 1000 * self.energy)
-                if not energy_ok:
-                    continue
-
-                type_ok = (int(float(data[6])) == ptype)
-                if not type_ok:
-                    continue
-
-                t_ok = self.within_trange(float(data[1]))
-                if not t_ok:
-                    continue
-
-                raw_data.append(
-                    [float(data[1]), float(data[2]), float(data[5])]
-                )
-
-        return raw_data
+        data = pd.read_csv(
+            self.filename,
+            sep="\s+",
+            names=self.data_fiels,
+            usecols=[i for i, _ in enumerate(self.data_fiels)]
+        )
+        data = data[data['code'] == ptype]
+        data = data[np.isclose(data['s'], self.energy)]
+        data['-t'] = data['-t'].astype('float64')
+        data = data[data['-t'].between(*self.trange, inclusive=False)]
+        return data[['-t', 'obs', 'total err.']].values
 
     def within_trange(self, t):
         lower, upper = self.trange
-        if lower < 0 and upper > 0:
-            return t < upper
-
-        if lower > 0 and upper < 0:
-            return lower < t
         return lower < t < upper
 
     def read(self):
@@ -146,7 +131,7 @@ class DataSet(object):
 
 
 class DataPoint(object):
-    observable = {'pp': 310, 'p#bar{p}': 311}
+    observable = {"pp": 310, "p#bar{p}": 311}
 
     def __init__(self, t, ds, err, lower=0, upper=0):
         self.t = t
@@ -159,8 +144,8 @@ class DataPoint(object):
         return self.t < other.t
 
     def __repr__(self):
-        # return 't = %f ds/dt = %f' % (self.t, self.ds)
-        return 't = %0.4g;\tds/dt = %0.4g\n' % (self.t, self.ds)
+        # return "t = %f ds/dt = %f" % (self.t, self.ds)
+        return "t = %0.4g;\tds/dt = %0.4g\n" % (self.t, self.ds)
 
     def setBinRange(self, l, u):
         self.lower = l

@@ -26,7 +26,7 @@ class RunTheSolutin(unittest.TestCase):
         # TODO: Move conigs to the amplitude definitions
         #
         for config, algo in models.iteritems():
-            dataset = DataSet(data['data'][-1])
+            dataset = DataSet(data['data'][-3])
             print algo.name
             visualisator = Plots()
             visualisator.draw_results(algo(), dataset, config)
