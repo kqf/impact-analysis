@@ -88,7 +88,6 @@ class ImagGammaEstimator(object):
             dataset.parameters).real ** 2
         )
         b0 = (1. / (data[0].t)) * log(a0 / a1)
-
         result = a0 * exp(-1. * b0 * t)
         return result
 
@@ -98,8 +97,9 @@ class ImagGammaEstimator(object):
             i.ds / self.model.dsigdt_norm() -
             self.model.amplitude(i.t, p).real ** 2
         )
+        weight = (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
         try:
-            return sqrt(diff) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
+            return sqrt(diff) * weight
         except ValueError:
             # print (diff, i.ds / self.model.dsigdt_norm(),
             #        self.model.amplitude(i.t, p).real ** 2,
@@ -107,7 +107,7 @@ class ImagGammaEstimator(object):
             #        self.model.diff_cs(i.t, p),
             #        i.ds
             #        )
-            print sqrt(abs(diff)) * (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
+            print sqrt(abs(diff)) * weight
             return 0
 
     def _gamma(self, b, dataset):
@@ -119,7 +119,7 @@ class ImagGammaEstimator(object):
 
         # High t-contribution
         extrapolation2 = self.model.imag_gamma(
-            b, dataset.parameters, (data[-1].upper ** 0.5, float("inf")))
+            b, dataset.parameters, (data[-1].upper ** 0.5, float("inf"))) * self.model.h_norm()
 
         # Integrated values from data
         gamma_data = sum(self._integral(b, dataset.parameters, i)
@@ -129,7 +129,7 @@ class ImagGammaEstimator(object):
         # All contributions
         result = extrapolation1 + extrapolation2 + gamma_data_scaled
 
-        # print b, extrapolation1, gamma_data_scaled, extrapolation2
+        print b, extrapolation1, gamma_data_scaled, extrapolation2
         return result
 
 
@@ -175,16 +175,16 @@ class ImagGammaErrorEstimator(object):
         return [self._average_and_deviation(p) for p in bar(zip(*mc))]
 
     def evaluate(self, dataset, output):
-        mc = self.generator.evaluate(dataset, output.index)
-        mc_av_and_deviation = self._estimate_deviations(mc)
-        average, deviation = zip(*mc_av_and_deviation)
+        # mc = self.generator.evaluate(dataset, output.index)
+        # mc_av_and_deviation = self._estimate_deviations(mc)
+        # average, deviation = zip(*mc_av_and_deviation)
 
-        output[self.outaverage] = average
-        output[self.outname] = deviation
-        return average, deviation
-        # output[self.outaverage] = output.index * 0.0
-        # output[self.outname] = output.index * 0.0
-        # return output.index * 0.0, output.index * 0.0
+        # output[self.outaverage] = average
+        # output[self.outname] = deviation
+        # return average, deviation
+        output[self.outaverage] = output.index * 0.0
+        output[self.outname] = output.index * 0.0
+        return output.index * 0.0, output.index * 0.0
 
 
 class GammaGeneratorMC(object):

@@ -65,7 +65,7 @@ class Amplitude(object):
         return error
 
     def h_norm(self):
-        return 8 * pi * sqrt(pi * k_norm)
+        return 8 * pi / sqrt(pi * k_norm)
 
     def dsigdt_norm(self):
         return 1.
