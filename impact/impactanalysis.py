@@ -57,6 +57,6 @@ class ImpactAnalysis(object):
         output["re_h"] = -output["real_gamma"].values * 0.5
         output["im_h_error"] = output["imag_gamma_error"].values * 0.5
         output["re_h_error"] = output["real_gamma_error"].values * 0.5
-        print
-        print output
+        # print
+        # print output
         return output

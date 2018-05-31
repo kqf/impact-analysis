@@ -107,7 +107,7 @@ class ImagGammaEstimator(object):
             #        self.model.diff_cs(i.t, p),
             #        i.ds
             #        )
-            print sqrt(abs(diff)) * weight
+            # print sqrt(abs(diff)) * weight
             return 0
 
     def _gamma(self, b, dataset):
@@ -129,7 +129,7 @@ class ImagGammaEstimator(object):
         # All contributions
         result = extrapolation1 + extrapolation2 + gamma_data_scaled
 
-        print b, extrapolation1, gamma_data_scaled, extrapolation2
+        # print b, extrapolation1, gamma_data_scaled, extrapolation2
         return result
 
 
@@ -175,16 +175,16 @@ class ImagGammaErrorEstimator(object):
         return [self._average_and_deviation(p) for p in bar(zip(*mc))]
 
     def evaluate(self, dataset, output):
-        # mc = self.generator.evaluate(dataset, output.index)
-        # mc_av_and_deviation = self._estimate_deviations(mc)
-        # average, deviation = zip(*mc_av_and_deviation)
+        mc = self.generator.evaluate(dataset, output.index)
+        mc_av_and_deviation = self._estimate_deviations(mc)
+        average, deviation = zip(*mc_av_and_deviation)
 
-        # output[self.outaverage] = average
-        # output[self.outname] = deviation
-        # return average, deviation
-        output[self.outaverage] = output.index * 0.0
-        output[self.outname] = output.index * 0.0
-        return output.index * 0.0, output.index * 0.0
+        output[self.outaverage] = average
+        output[self.outname] = deviation
+        return average, deviation
+        # output[self.outaverage] = output.index * 0.0
+        # output[self.outname] = output.index * 0.0
+        # return output.index * 0.0, output.index * 0.0
 
 
 class GammaGeneratorMC(object):

@@ -1,7 +1,7 @@
 .PHONY: test all clean
 
 all:
-	python impact config/input.json
+	python -m unittest analysis.run
 
 test:
 	python -m unittest discover 	
