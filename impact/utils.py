@@ -15,8 +15,8 @@ def decorate_pad(pad):
     return pad
 
 
-def canvas(name='name', x=5, y=5, scale=1.0):
-    canvas = ROOT.TCanvas(name, 'Canvas', int(
+def canvas(name='name', title='canvas', x=5, y=5, scale=1.0):
+    canvas = ROOT.TCanvas(name, title, int(
         128 * x * scale), int(96 * y * scale))
     return decorate_pad(canvas)
     # return adjust_canvas(canvas)
