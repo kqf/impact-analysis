@@ -166,6 +166,18 @@
             "DRHO" : 0.01,
             "TRANGE": [0.01, -1],
             "index": 13
+        },
+        {
+            "hsum256": "bd6cf9aa1072b80621088b38299096f7303f26fdb38925c98f80328e19b6a41b",
+            "infile": "input/TOTEM-13TeV-preliminary.dat",
+            "ENERGY" : 13000,
+            "RHO"    : 0.1,
+            "SIGMA"  : 0.11060e+03,
+            "PROCESS" : "pp",
+            "DSIGMA" : 3.0,
+            "DRHO" : 0.01,
+            "TRANGE": [0.01, -1],
+            "index": 13
         }
     ]
 }
