@@ -3,10 +3,11 @@
 import json
 
 import ROOT
+import pandas as pd
 
 
 class DataFit(object):
-    def __init__(self, model, conffile='config/datafit.json'):
+    def __init__(self, model, conffile="config/datafit.json"):
         super(DataFit, self).__init__()
         self.model = model
         # NB: Keep all objects that you want to reuse
@@ -19,10 +20,10 @@ class DataFit(object):
             self.conf = json.load(f)
         # Configure fit
         #
-        self.inpar = self.conf['initial_parameters']
-        self.par_fixed = self.conf['par_fixed']
-        self.par_limits = self.conf['par_limits']
-        self.par_names = self.conf['par_names']
+        self.inpar = self.conf["initial_parameters"]
+        self.par_fixed = self.conf["par_fixed"]
+        self.par_limits = self.conf["par_limits"]
+        self.par_names = self.conf["par_names"]
 
     def covariance(self, size):
         fitter = ROOT.TVirtualFitter.GetFitter()
@@ -37,10 +38,10 @@ class DataFit(object):
         ]
         return covariance
 
-    def fitfunction(self, parameters, ftype='crossection'):
+    def fitfunction(self, parameters, ftype="crossection"):
         npar = len(parameters)
 
-        quantity = self.model.diff_cs if ftype == 'crossection' else self.model.ratio
+        quantity = self.model.diff_cs if ftype == "crossection" else self.model.ratio
         function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 10, npar)
 
         for i, par in enumerate(parameters):
@@ -57,14 +58,46 @@ class DataFit(object):
         return function
 
     def fit(self, dataset):
-        variables = self.inpar[dataset.index] 
+        variables = self.inpar[dataset.index]
         in_parameters = variables + [dataset.sigma, dataset.rho]
 
         cs_data = dataset.differential_cs()
         cs_func = self.fitfunction(in_parameters)
-        cs_data.Fit(cs_func, '0NrE')
+        cs_data.Fit(cs_func, "0NrE")
 
-        dataset.parameters = [cs_func.GetParameter(
-            i) for i, _ in enumerate(in_parameters)]
+        dataset.parameters = [
+            cs_func.GetParameter(i)
+            for i, _ in enumerate(in_parameters)
+        ]
         dataset.covariance = self.covariance(len(variables))
+        self._save_parameters(cs_func)
+        self._save_datapoints(cs_func, dataset)
         return dataset
+
+    def _save_datapoints(self, cs_func, dataset):
+        output = pd.DataFrame()
+        output["-t"] = [p.t for p in dataset.data]
+        output["obs"] = [p.ds for p in dataset.data]
+        output["theory"] = [cs_func.Eval(p.t) for p in dataset.data]
+        output["total exp. err"] = [p.err for p in dataset.data]
+        oname = "dsigma_{}.csv".format(self.model.name)
+        output.to_csv(oname, index=False)
+
+    def _save_parameters(self, cs_func):
+        data = {}
+        data["par. value"] = [
+            cs_func.GetParameter(i)
+            for i in range(cs_func.GetNpar())
+        ]
+        data["par. error"] = [
+            cs_func.GetParError(i)
+            for i in range(cs_func.GetNpar())
+        ]
+        names = [
+            cs_func.GetParName(i)
+            for i in range(cs_func.GetNpar())
+        ]
+        output = pd.DataFrame(data, index=names)
+        output = output.reindex_axis(["par. value", "par. error"], axis=1)
+        oname = "parameters-{}.tex".format(self.model.name)
+        output.to_latex(oname)

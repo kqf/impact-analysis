@@ -11,3 +11,4 @@ config/impact.sublime-workspace
 *.pdf
 *.sortie
 .DS_Store
+parameters*.tex
