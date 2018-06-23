@@ -72,6 +72,7 @@ class DataFit(object):
         dataset.covariance = self.covariance(len(variables))
         self._save_parameters(cs_func)
         self._save_datapoints(cs_func, dataset)
+        self._print_chi2(cs_func, dataset)
         return dataset
 
     def _save_datapoints(self, cs_func, dataset):
@@ -101,3 +102,13 @@ class DataFit(object):
         output = output.reindex_axis(["par. value", "par. error"], axis=1)
         oname = "parameters-{}.tex".format(self.model.name)
         output.to_latex(oname)
+
+    def _print_chi2(self, cs_func, dataset):
+        output = "{}: chi2/ndof = {}, chi2 = {}, ndf = {}, npoints = {}".format(
+            self.model.name, 
+            cs_func.GetChisquare() / cs_func.GetNDF(),
+            cs_func.GetChisquare(),
+            cs_func.GetNDF(),
+            len(dataset.data)
+        )
+        print output
