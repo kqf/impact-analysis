@@ -82,7 +82,7 @@ class DataFit(object):
         output["theory"] = [cs_func.Eval(p.t) for p in dataset.data]
         output["total exp. err"] = [p.err for p in dataset.data]
         oname = "dsigma_{}.csv".format(self.model.name)
-        output.to_csv(oname, index=False)
+        output.to_csv(oname, index=False, sep="\t")
 
     def _save_parameters(self, cs_func):
         data = {}

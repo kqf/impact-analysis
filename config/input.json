@@ -168,8 +168,8 @@
             "index": 13
         },
         {
-            "hsum256": "bd6cf9aa1072b80621088b38299096f7303f26fdb38925c98f80328e19b6a41b",
-            "infile": "input/TOTEM-13TeV-preliminary.dat",
+            "hsum256": "f23bf82dd0e8364c5061db2a89327ba1d62ea4fadf83c5bba8f0b10f95030575",
+            "infile": "input/TOTEM-13.dat",
             "ENERGY" : 13000,
             "RHO"    : 0.1,
             "SIGMA"  : 0.11060e+03,

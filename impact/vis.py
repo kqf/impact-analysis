@@ -85,7 +85,7 @@ class Plots(object):
             dataset.energy, model.name)
 
         print "saving the file", ofile
-        output.to_csv(ofile)
+        output.to_csv(ofile, sep="\t")
         return model
 
     def fit(self,
