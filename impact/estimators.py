@@ -14,7 +14,7 @@ import ROOT
 from constants import k_fm
 from impact.utils import hankel_transform
 from impact.datapoint import DataPoint
-# import impact.utils as ut
+import impact.utils as ut
 
 
 class RealGammaEstimator(object):
@@ -162,8 +162,8 @@ class ImagGammaErrorEstimator(object):
         gausf.SetParameter(0, 1)
         gausf.SetParameter(1, np.std(indata))
         gausf.SetParameter(2, np.mean(indata))
-        hist.Fit(gausf, '0q')
-
+        hist.Fit(gausf, 'q')
+        # hist.Draw()
         # canvas.Update()
         # canvas.SaveAs("test-{0}.pdf".format(rnd.randint(0, 100000)))
         mu, sigma = gausf.GetParameter(1), gausf.GetParameter(2)
@@ -189,17 +189,18 @@ class ImagGammaErrorEstimator(object):
 
 class GammaGeneratorMC(object):
 
-    def __init__(self, model, mcsize=100):
+    def __init__(self, model, mcsize=100, n_sigma=1):
         super(GammaGeneratorMC, self).__init__()
         self.imag_gamma = ImagGammaEstimator(model)
         self.model = model
         self.mcsize = mcsize
+        self.n_sigma = n_sigma
 
     def _generrate_diff_cs(self, p, dataset):
         cs, re2 = -1, self.model.amplitude(p.t, dataset.parameters).real ** 2
         # Generate only positive cs
         while (cs / self.model.dsigdt_norm() - re2) < 0:
-            cs = rnd.gauss(p.ds, p.err)
+            cs = rnd.gauss(p.ds, self.n_sigma * p.err)
         return cs
 
     def _datapoints(self, dataset):
