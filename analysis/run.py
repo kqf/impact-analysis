@@ -30,12 +30,3 @@ class RunTheSolutin(unittest.TestCase):
             print algo.name
             visualisator = Plots()
             visualisator.draw_results(algo(), dataset, config)
-
-            # analysis = ImpactAnalysis(algo(), config)
-            # pandas = analysis.run(dataset)
-            # pandas.to_csv(algo.name + ".csv")
-            # visualisator = Plots()
-            # visualisator.draw_results(model,
-            # totem7tev, "config/triple-exponent.json")
-            # visualisator.draw_results(algo, dataset, config)
-            # print pandas

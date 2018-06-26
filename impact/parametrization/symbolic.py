@@ -181,7 +181,7 @@ class TripleExponentGeneral(Amplitude):
         # a_s = a_s / (sqrt(pi * k_norm) * 4)
 
         a3 = -a1 - a2 + 0.5 * a_s / k_norm
-        a4 = rho * (a1 + a2 + a3)
+        a4 = rho * (a1 + a2 + a3) - a5
 
         from math import exp
 

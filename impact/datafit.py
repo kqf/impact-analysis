@@ -81,6 +81,14 @@ class DataFit(object):
         output["obs"] = [p.ds for p in dataset.data]
         output["theory"] = [cs_func.Eval(p.t) for p in dataset.data]
         output["total exp. err"] = [p.err for p in dataset.data]
+
+        par = [
+            cs_func.GetParameter(i)
+            for i in range(cs_func.GetNpar())
+        ]
+
+        output["Re A(s, t)"] = [self.model.amplitude(p.t, par).real for p in dataset.data]
+        output["Im A(s, t)"] = [self.model.amplitude(p.t, par).imag for p in dataset.data]
         oname = "dsigma_{}.csv".format(self.model.name)
         output.to_csv(oname, index=False, sep="\t")
 
