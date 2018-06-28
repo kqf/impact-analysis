@@ -33,7 +33,7 @@ class Symbolic(Amplitude):
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
         t = self.t
-        # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
+        a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
         alpha = (1 - 1j * rho) * (a_s + a2)
         return (
             1j * alpha * (
@@ -58,7 +58,6 @@ class Symbolic(Amplitude):
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-
         a_s = a_s / (sqrt(pi * k_norm) * 4)
 
         alpha = (1 - 1j * rho) * (a_s + a2)
