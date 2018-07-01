@@ -64,14 +64,14 @@ class Amplitude(object):
         error = sqrt(error_squared)
         return error
 
-    def h_norm(self):
-        return 8 * pi / sqrt(pi * k_norm)
-
     def dsigdt_norm(self):
-        return 1.
+        return k_norm / 16. / pi
 
     def sigma_norm(self):
-        return 4 * sqrt(pi * k_norm)
+        return k_norm
+
+    def h_norm(self):
+        return 2.
 
     def hdata_norm(self):
-        return 1. / self.sigma_norm() * 4
+        return 2. / 8 / pi

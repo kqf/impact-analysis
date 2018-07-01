@@ -58,7 +58,7 @@ class Symbolic(Amplitude):
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        a_s = a_s / (sqrt(pi * k_norm) * 4)
+        a_s = a_s / k_norm
 
         alpha = (1 - 1j * rho) * (a_s + a2)
 
@@ -84,7 +84,7 @@ class TripleExponent(Symbolic):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
         # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
 
-        a3 = -a1 - a2 + 0.5 * a_s / k_norm
+        a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
 
         amplitude = (
@@ -99,7 +99,7 @@ class TripleExponent(Symbolic):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
         # a_s = a_s / (sqrt(pi * k_norm) * 4)
 
-        a3 = -a1 - a2 + 0.5 * a_s / k_norm
+        a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
 
         from math import exp
@@ -119,18 +119,6 @@ class TripleExponent(Symbolic):
 
         # print '>>> ', abs(ampl) ** 2
         return ampl
-
-    def dsigdt_norm(self):
-        return k_norm / 4. / pi
-
-    def sigma_norm(self):
-        return 2 * k_norm
-
-    def h_norm(self):
-        return 4.
-
-    def hdata_norm(self):
-        return 4. / 8 / pi
 
 
 class TripleExponentGeneral(Amplitude):
@@ -162,7 +150,7 @@ class TripleExponentGeneral(Amplitude):
         a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = self.variables
         # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
 
-        a3 = -a1 - a2 + 0.5 * a_s / k_norm
+        a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
 
         amplitude = (
@@ -179,7 +167,7 @@ class TripleExponentGeneral(Amplitude):
         # TODO: Fix me
         # a_s = a_s / (sqrt(pi * k_norm) * 4)
 
-        a3 = -a1 - a2 + 0.5 * a_s / k_norm
+        a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3) - a5
 
         from math import exp
@@ -225,15 +213,3 @@ class TripleExponentGeneral(Amplitude):
             self.d_b5(t, p),
         ]
         return A
-
-    def dsigdt_norm(self):
-        return k_norm / 4. / pi
-
-    def sigma_norm(self):
-        return 2 * k_norm
-
-    def h_norm(self):
-        return 4.
-
-    def hdata_norm(self):
-        return 4. / 8 / pi
