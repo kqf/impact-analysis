@@ -4,7 +4,7 @@ import unittest
 
 from impact.datapoint import DataSet
 from impact.impactanalysis import ImpactAnalysis
-from impact.parametrization.symbolic import Symbolic
+from impact.parametrization.symbolic import Standard
 from impact.parametrization.symbolic import TripleExponent
 from impact.parametrization.symbolic import TripleExponentGeneral
 from impact.vis import Plots
@@ -18,7 +18,7 @@ class RunTheSolutin(unittest.TestCase):
             data = json.load(f)
 
         models = {
-            "config/datafit.json": Symbolic,
+            "config/standard.json": Standard,
             "config/triple-exponent.json": TripleExponent,
             "config/triple-exponent-general.json": TripleExponentGeneral,
         }

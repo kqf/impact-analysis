@@ -14,7 +14,7 @@ class Plots(object):
         super(Plots, self).__init__()
         self._cache = []
 
-    def draw_results(self, model, dataset, conffile="config/datafit.json"):
+    def draw_results(self, model, dataset, conffile="config/standard.json"):
         canvas = ut.canvas("The results {0}".format(model.name), "Results")
         canvas.SetMargin(0, 0, 0, 0)
         self._cache = []
@@ -32,7 +32,7 @@ class Plots(object):
                    model,
                    dataset,
                    canvas,
-                   conffile="config/datafit.json",
+                   conffile="config/standard.json",
                    ):
 
         ut.decorate_pad(canvas)
@@ -92,7 +92,7 @@ class Plots(object):
             model,
             dataset,
             canvas,
-            conffile="config/datafit.json"
+            conffile="config/standard.json"
             ):
 
         canvas.Divide(1, 2, 0, 0)

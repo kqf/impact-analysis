@@ -6,11 +6,11 @@ from impact.amplitude import Amplitude
 from impact.constants import k_norm
 
 
-class Symbolic(Amplitude):
+class Standard(Amplitude):
     name = "standard-parametrization"
 
     def __init__(self):
-        super(Symbolic, self).__init__()
+        super(Standard, self).__init__()
         self.name = "standard-parametrization"
         variable_names = 'a1 a2 b1 b2 b3 b4 a_s rho'.split()
 
@@ -74,7 +74,7 @@ class Symbolic(Amplitude):
         return ampl
 
 
-class TripleExponent(Symbolic):
+class TripleExponent(Standard):
 
     def __init__(self):
         super(TripleExponent, self).__init__()

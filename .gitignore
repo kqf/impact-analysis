@@ -12,3 +12,4 @@ config/impact.sublime-workspace
 *.sortie
 .DS_Store
 parameters*.tex
+*.zip

@@ -5,11 +5,10 @@ import pandas as pd
 from impact.utils import impact_range
 from impact.datafit import DataFit
 
-from impact.parametrization.symbolic import Symbolic
+from impact.parametrization.symbolic import Standard
 from impact.estimators import (
     RealGammaEstimator,
     ImagGammaEstimator,
-    ImagGammaParametrization,
     RealGammaErrorEstimator,
     ImagGammaErrorEstimator,
     GInelEstimator,
@@ -19,7 +18,7 @@ from impact.estimators import (
 
 class ImpactAnalysis(object):
 
-    def __init__(self, model=Symbolic(), conffile='config/datafit.json'):
+    def __init__(self, model=Standard(), conffile='config/standard.json'):
         super(ImpactAnalysis, self).__init__()
         self.model = model
         self.conffile = conffile

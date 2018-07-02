@@ -7,7 +7,7 @@ import pandas as pd
 
 
 class DataFit(object):
-    def __init__(self, model, conffile="config/datafit.json"):
+    def __init__(self, model, conffile="config/standard.json"):
         super(DataFit, self).__init__()
         self.model = model
         # NB: Keep all objects that you want to reuse
