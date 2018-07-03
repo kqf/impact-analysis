@@ -39,8 +39,6 @@ class Amplitude(object):
             self.d_b2(t, p),
             self.d_b3(t, p),
             self.d_b4(t, p)
-            # self.d_as(t, p),
-            # self.d_rho(t, p)
         ]
         return A
 

@@ -1,20 +1,18 @@
 #!/usr/bin/python2.7
 
-import numpy as np
-from scipy.special import j1
-from math import exp, pi, sqrt, log
+import copy
+import random as rnd
+from math import exp, log, sqrt
 
+import impact.utils as ut
+import numpy as np
 import pandas as pd
 import progressbar
-import random as rnd
-import copy
-
 import ROOT
-
 from constants import k_fm
-from impact.utils import hankel_transform
 from impact.datapoint import DataPoint
-import impact.utils as ut
+from impact.utils import hankel_transform
+from scipy.special import j1
 
 
 class RealGammaEstimator(object):
@@ -118,8 +116,10 @@ class ImagGammaEstimator(object):
             b, dataset, (0, data[0].lower ** 0.5))
 
         # High t-contribution
+        data_range = data[-1].upper ** 0.5, float("inf")
         extrapolation2 = self.model.imag_gamma(
-            b, dataset.parameters, (data[-1].upper ** 0.5, float("inf"))) * self.model.h_norm()
+            b, dataset.parameters, data_range)
+        extrapolation2 *= self.model.h_norm()
 
         # Integrated values from data
         gamma_data = sum(self._integral(b, dataset.parameters, i)
@@ -128,8 +128,6 @@ class ImagGammaEstimator(object):
         gamma_data_scaled = gamma_data * k_fm / b * self.model.hdata_norm()
         # All contributions
         result = extrapolation1 + extrapolation2 + gamma_data_scaled
-
-        # print b, extrapolation1, gamma_data_scaled, extrapolation2
         return result
 
 
