@@ -99,13 +99,6 @@ class ImagGammaEstimator(object):
         try:
             return sqrt(diff) * weight
         except ValueError:
-            # print (diff, i.ds / self.model.dsigdt_norm(),
-            #        self.model.amplitude(i.t, p).real ** 2,
-            #        self.model.amplitude(i.t, p).imag ** 2, i.t,
-            #        self.model.diff_cs(i.t, p),
-            #        i.ds
-            #        )
-            # print sqrt(abs(diff)) * weight
             return 0
 
     def _gamma(self, b, dataset):
