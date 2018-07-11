@@ -13,7 +13,8 @@ class TestHankelTransformation(Configurable):
 
     def setUp(self):
         super(TestHankelTransformation, self).setUp()
-        self.parameters = self.data['initial_parameters'] + \
+        data = self.data["test_hankel_transform"]
+        self.parameters = data["params"] + \
             [self.dataset.sigma, self.dataset.rho]
         self.cov_size = 6
 

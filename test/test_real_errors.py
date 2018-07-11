@@ -11,10 +11,10 @@ class TestNumericSymbolicConsistency(Configurable):
 
     def setUp(self):
         super(TestNumericSymbolicConsistency, self).setUp()
-        self.parameters = self.data['initial_parameters'] + \
-            [self.dataset.sigma, self.dataset.rho]
+        data = self.data["test_real_errors"]
+        self.params = data["params"] + [self.dataset.sigma, self.dataset.rho]
 
-    @unittest.skip("There might be some problems with normalisation")
+    @unittest.skip("Check the normalisation in numeric amplitude")
     def test_sympy_calculates_partial_derivatives(self):
         es, ep = Standard(), Numeric()
         numeric = (ep.d_a1, ep.d_a2, ep.d_b1, ep.d_b2,
@@ -23,8 +23,8 @@ class TestNumericSymbolicConsistency(Configurable):
                     es.d_b3, es.d_b4, es.d_as, es.d_rho)
 
         for standard, numeric in zip(standard, numeric):
-            print standard
+            # print standard
             for t in np.linspace(0.1, 10):
-                symval = standard(t, self.parameters)
-                trueval = numeric(t, self.parameters)
+                symval = standard(t, self.params)
+                trueval = numeric(t, self.params)
                 self.assertAlmostEqual(symval, trueval)

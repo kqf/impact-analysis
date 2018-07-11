@@ -41,7 +41,10 @@ class DataFit(object):
     def fitfunction(self, parameters, ftype="crossection"):
         npar = len(parameters)
 
-        quantity = self.model.diff_cs if ftype == "crossection" else self.model.ratio
+        quantity = self.model.diff_cs
+        if ftype != "crossection":
+            quantity = self.model.ratio
+
         function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 10, npar)
 
         for i, par in enumerate(parameters):
@@ -86,9 +89,11 @@ class DataFit(object):
             cs_func.GetParameter(i)
             for i in range(cs_func.GetNpar())
         ]
+        amplitudes = [self.model.amplitude(p.t, par)
+                      for p in dataset.data]
 
-        output["Re A(s, t)"] = [self.model.amplitude(p.t, par).real for p in dataset.data]
-        output["Im A(s, t)"] = [self.model.amplitude(p.t, par).imag for p in dataset.data]
+        output["Re A(s, t)"] = [a.real for a in amplitudes]
+        output["Im A(s, t)"] = [a.imag for a in amplitudes]
         oname = "dsigma_{}.csv".format(self.model.name)
         output.to_csv(oname, index=False, sep="\t")
 
@@ -107,13 +112,14 @@ class DataFit(object):
             for i in range(cs_func.GetNpar())
         ]
         output = pd.DataFrame(data, index=names)
-        output = output.reindex_axis(["par. value", "par. error"], axis=1)
+        output = output.reindex(["par. value", "par. error"], axis=1)
         oname = "parameters-{}.tex".format(self.model.name)
         output.to_latex(oname)
 
     def _print_chi2(self, cs_func, dataset):
-        output = "{}: chi2/ndof = {}, chi2 = {}, ndf = {}, npoints = {}".format(
-            self.model.name, 
+        msg = "{}: chi2/ndof = {}, chi2 = {}, ndf = {}, npoints = {}"
+        output = msg.format(
+            self.model.name,
             cs_func.GetChisquare() / cs_func.GetNDF(),
             cs_func.GetChisquare(),
             cs_func.GetNDF(),

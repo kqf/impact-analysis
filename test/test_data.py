@@ -13,4 +13,5 @@ class TestDataset(Configurable):
             len(DataSet(dset).data)
             for dset in input_data['data']
         ]
-        self.assertEqual(output, self.data["dataset_sizes"])
+        data = self.data["test_data"]
+        self.assertEqual(output, data["dataset_sizes"])
