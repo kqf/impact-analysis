@@ -58,7 +58,7 @@ class Numeric(Amplitude):
             * ralpha * (-0.5 * t)
 
         result = first + second
-        return result.real / 4. / sqrt(pi)
+        return result.real
 
     
     def d_b1(self, t, p):
@@ -126,4 +126,4 @@ class Numeric(Amplitude):
         return 1.
 
     def sigma_norm(self):
-        return 4 * sqrt(pi * k_norm)
+        return k_norm

@@ -1,5 +1,4 @@
 import random
-import unittest
 
 import pandas as pd
 from impact.impactanalysis import ImpactAnalysis
@@ -15,15 +14,14 @@ class TestFinalResult(Configurable):
         self.nominal = pd.DataFrame(data).infer_objects().set_index('b')
         self.longMessage = True
 
-    @unittest.skip("Fix fitting in the standard param.")
-    def testValues(self):
+    def test_calculates_default_param(self):
         analysis = ImpactAnalysis()
         output = analysis.run(self.dataset)
 
         message = "\n"
         for column in self.nominal.columns:
             msg = "\"{}\": {},\n"
-            message += msg.format(column, list(self.nominal[column].values))
+            message += msg.format(column, list(output[column].values))
 
         for column in self.nominal.columns:
             for pair in zip(self.nominal[column].values,
