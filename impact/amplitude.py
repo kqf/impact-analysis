@@ -11,16 +11,16 @@ class Amplitude(object):
 
         @hankel_transform
         def imag_gamma(x, p):
-            return self.amplitude(x, p).imag
+            return self.total_amplitude(x, p).imag
         self.imag_gamma = imag_gamma
 
         @hankel_transform
         def real_gamma(x, p):
-            return -self.amplitude(x, p).real
+            return -self.total_amplitude(x, p).real
         self.real_gamma = real_gamma
 
     def diff_cs(self, t, p):
-        A = self.amplitude(t, p)
+        A = self.total_amplitude(t, p)
         try:
             result = self.dsigdt_norm() * abs(A) ** 2
         except OverflowError:
@@ -28,8 +28,14 @@ class Amplitude(object):
         return result
 
     def ratio(self, t, p):
-        A = self.amplitude(t, p)
+        A = self.total_amplitude(t, p)
         return A.real / A.imag
+
+    def total_amplitude(self, t, p):
+        return self.amplitude(t, p) + self.coulomb(t, p)
+
+    def coulomb(self, t, p):
+        return 0
 
     def partial_derivatives(self, t, p):
         A = [

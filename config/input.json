@@ -166,6 +166,18 @@
             "DRHO" : 0.01,
             "TRANGE": [0.01, -1],
             "index": 13
+        },
+        {
+            "hsum256": "0273795d368b8086e914c874c4f8d4ad5fd4f328590a144d4dea631745a4012f",
+            "infile": "input/TOTEM-13-fixed-errors.dat",
+            "ENERGY" : 13000,
+            "RHO"    : 0.99000E-01,
+            "SIGMA"  : 0.11202E+03,
+            "PROCESS" : "pp",
+            "DSIGMA" : 3.0,
+            "DRHO" : 0.01,
+            "TRANGE": [0.00001, -1],
+            "index": 14
         }
     ]
 }

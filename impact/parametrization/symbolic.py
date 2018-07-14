@@ -1,9 +1,20 @@
-from math import pi, sqrt
+from math import pi, log
 
 import sympy as smp
-from cmath import exp as Exp
+from cmath import exp
 from impact.amplitude import Amplitude
 from impact.constants import k_norm
+
+
+class Coulomb(object):
+    def coulomb(self, t, p):
+        amcp = 0.71
+        eg = 0.577
+        aem = 0.007297
+        ffp = 1. / (1. + t / amcp) ** 2
+        phase = aem * (log(10.2 * t) + eg)
+        coulomb = - 8 * pi * aem * ffp ** 2 * exp(-1j * phase) / t
+        return coulomb * (t < 0.2)
 
 
 class Standard(Amplitude):
@@ -65,10 +76,10 @@ class Standard(Amplitude):
         try:
             ampl = (
                 1j * alpha * (
-                    Exp(-0.5 * alpha * b1 * t) * a1 +
-                    Exp(-0.5 * alpha * b2 * t) * (1 - a1)
+                    exp(-0.5 * alpha * b1 * t) * a1 +
+                    exp(-0.5 * alpha * b2 * t) * (1 - a1)
                 ) -
-                1j * Exp(-0.5 * b3 * t) * a2 - a2 * rho / ((1 + t / b4)**4))
+                1j * exp(-0.5 * b3 * t) * a2 - a2 * rho / ((1 + t / b4)**4))
         except OverflowError:
             ampl = 0
         return ampl
@@ -82,7 +93,6 @@ class TripleExponent(Standard):
 
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
-        # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
 
         a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
@@ -97,7 +107,6 @@ class TripleExponent(Standard):
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
-        # a_s = a_s / (sqrt(pi * k_norm) * 4)
 
         a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
@@ -148,7 +157,6 @@ class TripleExponentGeneral(Amplitude):
     def analytic_formula(self):
         print len(self.variables)
         a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = self.variables
-        # a_s = a_s / (smp.sqrt(smp.pi * k_norm) * 4)
 
         a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
@@ -165,7 +173,6 @@ class TripleExponentGeneral(Amplitude):
     def amplitude(self, t, p):
         a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = p
         # TODO: Fix me
-        # a_s = a_s / (sqrt(pi * k_norm) * 4)
 
         a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3) - a5
@@ -213,3 +220,15 @@ class TripleExponentGeneral(Amplitude):
             self.d_b5(t, p),
         ]
         return A
+
+
+class FullStandard(Coulomb, Standard):
+    pass
+
+
+class FullTripleExponent(TripleExponent, Coulomb):
+    pass
+
+
+class FullTripleExponentGeneral(TripleExponentGeneral, Coulomb):
+    pass
