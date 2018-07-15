@@ -1,7 +1,7 @@
-from math import pi, sqrt
+from math import pi
 
 import ROOT
-from constants import k_fm, k_norm
+from constants import k_fm
 from scipy import integrate
 from scipy.special import j0
 

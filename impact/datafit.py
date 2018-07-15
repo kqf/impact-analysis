@@ -48,19 +48,69 @@ class DataFit(object):
         function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 10, npar)
 
         for i, par in enumerate(parameters):
-            function.FixParameter(i, par)
+            function.SetParameter(i, par)
 
         function.FixParameter(npar - 2, parameters[-2])
         function.FixParameter(npar - 1, parameters[-1])
         function.SetParNames(*self.par_names)
 
-        map(lambda x: function.FixParameter(*x), self.par_fixed)
+        for index in self.par_fixed:
+            function.FixParameter(index, parameters[index])
+
         map(lambda x: function.SetParLimits(*x), self.par_limits)
 
         function.SetLineColor(38)
         return function
 
+    def sigma_rho_fitfunction(self, parameters):
+        def quantity(x, p):
+            if x[0] < -10:
+                return self.model.ratio(t=0, p=p)
+
+            if -10 < x[0] < 0:
+                return self.model.sigma(t=0, p=p)
+
+            return self.model.diff_cs(x[0], p)
+
+        npar = len(parameters)
+        function = ROOT.TF1("data", quantity, 0, 10, npar)
+
+        for i, par in enumerate(parameters):
+            function.SetParameter(i, par)
+        function.SetParNames(*self.par_names)
+
+        for index in self.par_fixed:
+            function.FixParameter(index, parameters[index])
+
+        map(lambda x: function.SetParLimits(*x), self.par_limits)
+        function.SetLineColor(38)
+        return function
+
     def fit(self, dataset):
+        if not dataset.fit_sigma_rho:
+            return self._fit(dataset)
+        return self._fit_sigma_rho(dataset)
+
+    def _fit_sigma_rho(self, dataset):
+        variables = self.inpar[dataset.index]
+        in_parameters = variables
+
+        cs_data = dataset.sigma_rho_differential_cs()
+        cs_func = self.sigma_rho_fitfunction(in_parameters)
+        cs_data.Fit(cs_func, "0NE")
+
+        dataset.parameters = [
+            cs_func.GetParameter(i)
+            for i, _ in enumerate(in_parameters)
+        ]
+        dataset.covariance = self.covariance(len(in_parameters))
+        # print dataset.report_chi2(self.model)
+        self._save_parameters(cs_func)
+        self._save_datapoints(cs_func, dataset)
+        self._print_chi2(cs_func, dataset)
+        return dataset
+
+    def _fit(self, dataset):
         variables = self.inpar[dataset.index]
         in_parameters = variables + [dataset.sigma, dataset.rho]
 
@@ -72,7 +122,8 @@ class DataFit(object):
             cs_func.GetParameter(i)
             for i, _ in enumerate(in_parameters)
         ]
-        dataset.covariance = self.covariance(len(variables))
+
+        dataset.covariance = self.covariance(len(in_parameters))
         self._save_parameters(cs_func)
         self._save_datapoints(cs_func, dataset)
         self._print_chi2(cs_func, dataset)

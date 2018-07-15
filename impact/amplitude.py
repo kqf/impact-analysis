@@ -1,5 +1,6 @@
 from math import sqrt, pi
 
+import numpy as np
 from impact.utils import hankel_transform
 from impact.constants import k_norm
 
@@ -11,13 +12,17 @@ class Amplitude(object):
 
         @hankel_transform
         def imag_gamma(x, p):
-            return self.total_amplitude(x, p).imag
+            return self.amplitude(x, p).imag
         self.imag_gamma = imag_gamma
 
         @hankel_transform
         def real_gamma(x, p):
-            return -self.total_amplitude(x, p).real
+            return -self.amplitude(x, p).real
         self.real_gamma = real_gamma
+
+    def sigma(self, t, p):
+        A = self.total_amplitude(t, p)
+        return self.sigma_norm() * A.imag
 
     def diff_cs(self, t, p):
         A = self.total_amplitude(t, p)
@@ -38,33 +43,24 @@ class Amplitude(object):
         return 0
 
     def partial_derivatives(self, t, p):
-        A = [
+        da = np.asarray([
             self.d_a1(t, p),
             self.d_a2(t, p),
             self.d_b1(t, p),
             self.d_b2(t, p),
             self.d_b3(t, p),
-            self.d_b4(t, p)
-        ]
-        return A
+            self.d_b4(t, p),
+            self.d_as(t, p),
+            self.d_rho(t, p),
+        ])
+        return da
 
     def treal_error(self, t, dataset):
-        p = dataset.parameters
-
-        A = self.partial_derivatives(t, p)
-        error_squared = 0
-
-        for i in range(len(A)):
-            for j in range(len(A)):
-                error_squared += dataset.covariance[i][j] * A[i] * A[j]
-
-        # Sigma and rho aren't parameters of the fit
-        # we can't find the covariance matrix between them
-        error_squared += (
-            (dataset.dsigma ** 2) * (self.d_as(t, p)) ** 2 +
-            (dataset.drho ** 2) * (self.d_rho(t, p)) ** 2
-        )
-
+        partial = self.partial_derivatives(t, dataset.parameters)
+        # The covariance is modified in dataset class
+        # when sigma and rho are not fitted
+        covariance = dataset.covariance
+        error_squared = partial.T.dot(covariance.dot(partial))
         error = sqrt(error_squared)
         return error
 

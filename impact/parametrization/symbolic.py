@@ -1,5 +1,6 @@
 from math import pi, log
 
+import numpy as np
 import sympy as smp
 from cmath import exp
 from impact.amplitude import Amplitude
@@ -8,13 +9,15 @@ from impact.constants import k_norm
 
 class Coulomb(object):
     def coulomb(self, t, p):
+        if not t > 0:
+            return 0
         amcp = 0.71
         eg = 0.577
         aem = 0.007297
         ffp = 1. / (1. + t / amcp) ** 2
         phase = aem * (log(10.2 * t) + eg)
         coulomb = - 8 * pi * aem * ffp ** 2 * exp(-1j * phase) / t
-        return coulomb * (t < 0.2)
+        return coulomb * (0 < t < 0.2)
 
 
 class Standard(Amplitude):
@@ -209,7 +212,7 @@ class TripleExponentGeneral(Amplitude):
         return partial_derivative
 
     def partial_derivatives(self, t, p):
-        A = [
+        partial = np.asarray([
             self.d_a1(t, p),
             self.d_a2(t, p),
             self.d_a5(t, p),
@@ -218,17 +221,19 @@ class TripleExponentGeneral(Amplitude):
             self.d_b3(t, p),
             self.d_b4(t, p),
             self.d_b5(t, p),
-        ]
-        return A
+            self.d_as(t, p),
+            self.d_rho(t, p),
+        ])
+        return partial
 
 
 class FullStandard(Coulomb, Standard):
     pass
 
 
-class FullTripleExponent(TripleExponent, Coulomb):
+class FullTripleExponent(Coulomb, TripleExponent):
     pass
 
 
-class FullTripleExponentGeneral(TripleExponentGeneral, Coulomb):
+class FullTripleExponentGeneral(Coulomb, TripleExponentGeneral):
     pass
