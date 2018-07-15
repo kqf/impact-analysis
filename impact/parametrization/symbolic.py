@@ -17,7 +17,7 @@ class Coulomb(object):
         ffp = 1. / (1. + t / amcp) ** 2
         phase = aem * (log(10.2 * t) + eg)
         coulomb = - 8 * pi * aem * ffp ** 2 * exp(-1j * phase) / t
-        return coulomb * (0 < t < 0.2)
+        return coulomb
 
 
 class Standard(Amplitude):

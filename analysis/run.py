@@ -18,7 +18,7 @@ class RunTheSolutin(unittest.TestCase):
             data = json.load(f)
 
         models = {
-            "config/standard.json": FullStandard,
+            "config/full-standard.json": FullStandard,
             # "config/triple-exponent.json": TripleExponent,
             # "config/triple-exponent-general.json": TripleExponentGeneral,
         }
