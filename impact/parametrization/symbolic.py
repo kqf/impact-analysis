@@ -85,10 +85,7 @@ class Standard(Amplitude):
 
 
 class TripleExponent(Standard):
-
-    def __init__(self):
-        super(TripleExponent, self).__init__()
-        self.name = "three-exponents"
+    name = "three-exponents"
 
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
@@ -234,5 +231,44 @@ class FullTripleExponent(Coulomb, Standard):
         return ampl
 
 
-class FullTripleExponentGeneral(Coulomb, TripleExponentGeneral):
-    pass
+class FullTripleExponentGeneral(Coulomb, Standard):
+    name = "full-three-exponents-general"
+    variable_names = 'a1 a2 a5 b1 b2 b3 b4 b5 a_s rho'.split()
+
+    def analytic_formula(self):
+        a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = self.variables
+        a3 = -a1 - a2 + a_s / k_norm
+        a4 = rho * (a1 + a2 + a3)
+        t = -self.t
+        amplitude = (
+            a1 * smp.exp(b1 * t) * 1j +
+            a2 * smp.exp(b2 * t) * 1j +
+            a3 * smp.exp(b3 * t) * 1j +
+            a4 * smp.exp(b4 * t) +
+            a5 * smp.exp(b5 * t)
+        )
+        return amplitude
+
+    def amplitude(self, t, p):
+        a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = p
+
+        a3 = -a1 - a2 + a_s / k_norm
+        a4 = rho * (a1 + a2 + a3) - a5
+
+        from math import exp
+
+        def amplitude(tt):
+            return (
+                a1 * exp(b1 * tt) * 1j +
+                a2 * exp(b2 * tt) * 1j +
+                a3 * exp(b3 * tt) * 1j +
+                a4 * exp(b4 * tt) +
+                a5 * exp(b5 * tt)
+            )
+
+        try:
+            ampl = amplitude(-t)
+        except OverflowError:
+            ampl = 0
+
+        return ampl

@@ -52,7 +52,8 @@ class DataFit(object):
 
         function.FixParameter(npar - 2, parameters[-2])
         function.FixParameter(npar - 1, parameters[-1])
-        function.SetParNames(*self.par_names)
+        for i, n in enumerate(self.par_names):
+            function.SetParName(i, n)
 
         for index in self.par_fixed:
             function.FixParameter(index, parameters[index])
@@ -77,7 +78,9 @@ class DataFit(object):
 
         for i, par in enumerate(parameters):
             function.SetParameter(i, par)
-        function.SetParNames(*self.par_names)
+
+        for i, n in enumerate(self.par_names):
+            function.SetParName(i, n)
 
         for index in self.par_fixed:
             function.FixParameter(index, parameters[index])
