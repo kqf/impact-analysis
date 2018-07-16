@@ -43,17 +43,7 @@ class Amplitude(object):
         return 0
 
     def partial_derivatives(self, t, p):
-        da = np.asarray([
-            self.d_a1(t, p),
-            self.d_a2(t, p),
-            self.d_b1(t, p),
-            self.d_b2(t, p),
-            self.d_b3(t, p),
-            self.d_b4(t, p),
-            self.d_as(t, p),
-            self.d_rho(t, p),
-        ])
-        return da
+        pass
 
     def treal_error(self, t, dataset):
         partial = self.partial_derivatives(t, dataset.parameters)

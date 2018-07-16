@@ -15,8 +15,7 @@ class TestNumericSymbolicConsistency(Configurable):
         es, ep = Standard(), Numeric()
         numeric = (ep.d_a1, ep.d_a2, ep.d_b1, ep.d_b2,
                    ep.d_b3, ep.d_b4, ep.d_as, ep.d_rho)
-        standard = (es.d_a1, es.d_a2, es.d_b1, es.d_b2,
-                    es.d_b3, es.d_b4, es.d_as, es.d_rho)
+        standard = map(es._partial, es.variables)
 
         for standard, numeric in zip(standard, numeric):
             for t in np.linspace(0.1, 10):

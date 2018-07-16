@@ -22,27 +22,25 @@ class Coulomb(object):
 
 class Standard(Amplitude):
     name = "standard-parametrization"
+    variable_names = 'a1 a2 b1 b2 b3 b4 a_s rho'.split()
 
     def __init__(self):
         super(Standard, self).__init__()
-        self.name = "standard-parametrization"
-        variable_names = 'a1 a2 b1 b2 b3 b4 a_s rho'.split()
-
-        self.variables = smp.symbols(variable_names)
+        self._partials = None
+        self.variables = smp.symbols(self.variable_names)
         self.t = smp.Symbol('t')
         self.symbol_amplitude = self.analytic_formula()
-
-        self.d_a1, self.d_a2, self.d_b1, self.d_b2,\
-            self.d_b3, self.d_b4, self.d_as, self.d_rho = \
-            map(self._partial, variable_names)
-
-        # Calculate using sympy
-        #
         self.amplitude_symbolic = smp.lambdify(
             (self.t, self.variables),
             self.symbol_amplitude,
             'numpy'
         )
+
+    @property
+    def partials(self):
+        if not self._partials:
+            self._partials = map(self._partial, self.variables)
+        return self._partials
 
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
@@ -58,17 +56,15 @@ class Standard(Amplitude):
             a2 * rho / ((1 + t / b4)**4)
         )
 
-    def _partial(self, arg):
-        symbols = self.symbol_amplitude.free_symbols
-        fpar = next(
-            (i for i in symbols if i.name == arg), None)
-
+    def _partial(self, fpar):
         partial_derivative = smp.lambdify(
             (self.t, self.variables),
             smp.re(self.symbol_amplitude.diff(fpar)),
             'numpy')
-
         return partial_derivative
+
+    def partial_derivatives(self, t, p):
+        return np.asarray([f(t, p) for f in self.partials])
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
@@ -135,31 +131,11 @@ class TripleExponent(Standard):
 
 class TripleExponentGeneral(Amplitude):
     name = "three-exponents-extended"
-
-    def __init__(self):
-        super(TripleExponentGeneral, self).__init__()
-        variable_names = 'a1 a2 a5 b1 b2 b3 b4 b5 a_s rho'.split()
-        self.name = "three-exponents-extended"
-
-        self.variables = smp.symbols(variable_names)
-        self.t = smp.Symbol('t')
-        self.symbol_amplitude = self.analytic_formula()
-
-        self.d_a1, self.d_a2, self.d_a5, self.d_b1, self.d_b2,\
-            self.d_b3, self.d_b4, self.d_b5, self.d_as, self.d_rho = \
-            map(self._partial, variable_names)
-
-        # Calculate using sympy
-        #
-        self.amplitude_symbolic = smp.lambdify(
-            (self.t, self.variables),
-            self.symbol_amplitude,
-            'numpy'
-        )
+    variable_names = 'a1 a2 a6 b1 b2 b3 b4 b5 a_s rho'.split()
 
     def analytic_formula(self):
         print len(self.variables)
-        a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = self.variables
+        a1, a2, a6, b1, b2, b3, b4, b5, a_s, rho = self.variables
 
         a3 = -a1 - a2 + a_s / k_norm
         a4 = rho * (a1 + a2 + a3)
@@ -169,16 +145,16 @@ class TripleExponentGeneral(Amplitude):
             a2 * smp.exp(b2 * self.t) * 1j +
             a3 * smp.exp(b3 * self.t) * 1j +
             a4 * smp.exp(b4 * self.t) +
-            a5 * smp.exp(b5 * self.t)
+            a6 * smp.exp(b5 * self.t)
         )
         return amplitude
 
     def amplitude(self, t, p):
-        a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = p
+        a1, a2, a6, b1, b2, b3, b4, b5, a_s, rho = p
         # TODO: Fix me
 
         a3 = -a1 - a2 + a_s / k_norm
-        a4 = rho * (a1 + a2 + a3) - a5
+        a4 = rho * (a1 + a2 + a3) - a6
 
         from math import exp
 
@@ -188,7 +164,7 @@ class TripleExponentGeneral(Amplitude):
                 a2 * exp(b2 * tt) * 1j +
                 a3 * exp(b3 * tt) * 1j +
                 a4 * exp(b4 * tt) +
-                a5 * exp(b5 * tt)
+                a6 * exp(b5 * tt)
             )
 
         try:
@@ -211,28 +187,51 @@ class TripleExponentGeneral(Amplitude):
 
         return partial_derivative
 
-    def partial_derivatives(self, t, p):
-        partial = np.asarray([
-            self.d_a1(t, p),
-            self.d_a2(t, p),
-            self.d_a5(t, p),
-            self.d_b1(t, p),
-            self.d_b2(t, p),
-            self.d_b3(t, p),
-            self.d_b4(t, p),
-            self.d_b5(t, p),
-            self.d_as(t, p),
-            self.d_rho(t, p),
-        ])
-        return partial
-
 
 class FullStandard(Coulomb, Standard):
     pass
 
 
-class FullTripleExponent(Coulomb, TripleExponent):
-    pass
+class FullTripleExponent(Coulomb, Standard):
+    name = "full-three-exponents"
+    variable_names = 'a1 a2 a6 b1 b2 b3 b4 b6 a_s rho'.split()
+
+    def analytic_formula(self):
+        a1, a2, a6, b1, b2, b3, b4, b6, a_s, rho = self.variables
+        a3 = -a1 - a2 - a6 + a_s / k_norm
+        a4 = rho * (a1 + a2 + a3 + a6)
+        t = -self.t
+        amplitude = (
+            a1 * smp.exp(b1 * t) * 1j +
+            a2 * smp.exp(b2 * t) * 1j +
+            a3 * smp.exp(b3 * t) * 1j +
+            a4 * smp.exp(b4 * t) +
+            a6 * 1j / (1 - t / b6) ** 4)
+        return amplitude
+
+    def amplitude(self, t, p):
+        a1, a2, a6, b1, b2, b3, b4, b6, a_s, rho = p
+
+        a3 = -a1 - a2 - a6 + a_s / k_norm
+        a4 = rho * (a1 + a2 + a3 + a6)
+
+        from math import exp
+
+        def amplitude(tt):
+            return (
+                a1 * exp(b1 * tt) * 1j +
+                a2 * exp(b2 * tt) * 1j +
+                a3 * exp(b3 * tt) * 1j +
+                a4 * exp(b4 * tt) +
+                a6 * 1j / (1 - tt / b6) ** 4
+            )
+
+        try:
+            ampl = amplitude(-t)
+        except OverflowError:
+            ampl = 0
+
+        return ampl
 
 
 class FullTripleExponentGeneral(Coulomb, TripleExponentGeneral):
