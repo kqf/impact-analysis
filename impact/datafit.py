@@ -100,7 +100,7 @@ class DataFit(object):
 
         cs_data = dataset.sigma_rho_differential_cs()
         cs_func = self.sigma_rho_fitfunction(in_parameters)
-        cs_data.Fit(cs_func, "0NE")
+        cs_data.Fit(cs_func)
 
         dataset.parameters = [
             cs_func.GetParameter(i)

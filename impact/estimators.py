@@ -78,7 +78,7 @@ class ImagGammaEstimator(object):
 
     def _im_amplitude_low_t(self, t, dataset):
         """Calculates imaginary part of extrapolated amplitude"""
-        data = dataset.data
+        data = dataset.hadron_data
         sigma = dataset.sigma
         a0 = sigma / self.model.sigma_norm()
         a1 = sqrt(data[0].ds / self.model.dsigdt_norm() - self.model.amplitude(
@@ -102,7 +102,7 @@ class ImagGammaEstimator(object):
             return 0
 
     def _gamma(self, b, dataset):
-        data = dataset.data
+        data = dataset.hadron_data
 
         # Taking into account low-t extrapolation
         extrapolation1 = self.bspace_low_t(
@@ -180,7 +180,7 @@ class ImagGammaErrorEstimator(object):
 
 class GammaGeneratorMC(object):
 
-    def __init__(self, model, mcsize=100, n_sigma=1):
+    def __init__(self, model, mcsize=100, n_sigma=2):
         super(GammaGeneratorMC, self).__init__()
         self.imag_gamma = ImagGammaEstimator(model)
         self.model = model
@@ -203,7 +203,7 @@ class GammaGeneratorMC(object):
                 p.lower,
                 p.upper
             )
-            for p in dataset.data]
+            for p in dataset.hadron_data]
 
     def _gamma(self, dataset, index):
         # Read parameters for real data approximation

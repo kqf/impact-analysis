@@ -17,9 +17,9 @@ class RunTheSolutin(unittest.TestCase):
             data = json.load(f)
 
         models = {
-            # "config/full-standard.json": FullStandard,
+            "config/full-standard.json": FullStandard,
             "config/full-triple-exponent.json": FullTripleExponent,
-            # "config/full-triple-exponent-general.json": FullTripleExponentGeneral,
+            "config/full-triple-exponent-general.json": FullTripleExponentGeneral,
         }
 
         # TODO: Move conigs to the amplitude definitions

@@ -27,11 +27,13 @@ class DataSet(object):
         self.drho = parameters["DRHO"]
         self.rho = parameters["RHO"]
         self.trange = parameters["TRANGE"]
+        self.hadron_minimum = parameters["HADRON_MINIMUM"]
         self.fit_sigma_rho = parameters["FIT_SIGMA_RHO"]
         self.trange[0] = self.trange[0] if self.trange[0] > 0 else -float('inf')
         self.trange[1] = self.trange[1] if self.trange[1] > 0 else float('inf')
         self.index = str(parameters["index"])
         self._data = None
+        self._hadron_data = None
         self._parameters = None
         self._covariance = None
 
@@ -151,6 +153,13 @@ class DataSet(object):
         if not self._data:
             self._data = self.read()
         return self._data
+
+    @property
+    def hadron_data(self):
+        if not self._hadron_data:
+            self._hadron_data = [p for p in self.data
+                                 if p.t > self.hadron_minimum]
+        return self._hadron_data
 
     @property
     def parameters(self):
