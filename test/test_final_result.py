@@ -15,7 +15,7 @@ class TestFinalResult(Configurable):
         self.longMessage = True
 
     def test_calculates_default_param(self):
-        analysis = ImpactAnalysis()
+        analysis = ImpactAnalysis(n_sigma=1.0)
         output = analysis.run(self.dataset)
 
         message = "\n"

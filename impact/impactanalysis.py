@@ -18,10 +18,12 @@ from impact.estimators import (
 
 class ImpactAnalysis(object):
 
-    def __init__(self, model=Standard(), conffile='config/standard.json'):
+    def __init__(self, model=Standard(),
+                 conffile='config/standard.json', n_sigma=2.):
         super(ImpactAnalysis, self).__init__()
         self.model = model
         self.conffile = conffile
+        self.n_sigma = n_sigma
 
     def run(self, dataset):
         # Calculate experimental values of gamma
@@ -34,7 +36,8 @@ class ImpactAnalysis(object):
             ImagGammaEstimator(self.model, outname="imag_gamma"),
             # ImagGammaParametrization(self.model, outname="imag_gamma"),
             RealGammaErrorEstimator(self.model, outname="real_gamma_error"),
-            ImagGammaErrorEstimator(self.model, outname="imag_gamma_error"),
+            ImagGammaErrorEstimator(self.model, outname="imag_gamma_error",
+                                    n_sigma=self.n_sigma),
             GInelEstimator(inreal="real_gamma",
                            inimag="imag_gamma", outname="g_inel"),
             GInelErrorEstimator(

@@ -126,10 +126,11 @@ class ImagGammaEstimator(object):
 
 class ImagGammaErrorEstimator(object):
     def __init__(self, model, outname="imag_gamma_error",
-                 outaverage="average_impact_amplitude", resolution=100):
+                 outaverage="average_impact_amplitude",
+                 resolution=100, n_sigma=2.):
         super(ImagGammaErrorEstimator, self).__init__()
         # This is value should be fixed
-        self.generator = GammaGeneratorMC(model)
+        self.generator = GammaGeneratorMC(model, n_sigma=n_sigma)
         self.gamma_resolution = resolution
         self.outname = outname
         self.outaverage = outaverage
