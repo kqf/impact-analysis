@@ -58,6 +58,12 @@ class ImagGammaParametrization(object):
         return output[self.outname].values
 
 
+def sign(x):
+    result = np.sign(x)
+    if result == 0.0:
+        return 1.
+    return result
+
 class ImagGammaEstimator(object):
     def __init__(self, model, outname="imag_gamma"):
         self.model = model
@@ -97,7 +103,8 @@ class ImagGammaEstimator(object):
         )
         weight = (q2 * j1(b * q2 / k_fm) - q1 * j1(b * q1 / k_fm))
         try:
-            return sqrt(diff) * weight
+            image_a = self.model.amplitude(i.t, p).imag
+            return sqrt(diff) * weight * sign(image_a)
         except ValueError:
             return 0
 
