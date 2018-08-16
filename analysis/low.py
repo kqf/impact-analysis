@@ -17,17 +17,20 @@ class RunTheSolutin(unittest.TestCase):
         with open("config/input.json") as f:
             data = json.load(f)
 
+        pref = "config/low-energy/full-"
         models = {
-            "config/full-standard.json": FullStandard,
-            "config/full-triple-exponent.json": FullTripleExponent,
-            "config/full-triple-exponent-general.json": FullTripleExponentGeneral,
+            pref + "standard.json": FullStandard,
+            pref + "triple-exponent.json": FullTripleExponent,
+            pref + "triple-exponent-general.json": FullTripleExponentGeneral,
         }
 
         # TODO: Move conigs to the amplitude definitions
         #
-        for config, algo in models.iteritems():
-            dataset = DataSet(data["data"][-1])
-            print algo.name
-            visualisator = Plots()
-            visualisator.draw_results(algo(), dataset, config)
-        pack_the_dataset(str(dataset.energy) + "GeV")
+        datasets = [0, 2, 4, -5]
+        for data_index in datasets:
+            dataset = DataSet(data["data"][data_index])
+            for config, algo in models.iteritems():
+                print algo.name
+                visualisator = Plots()
+                visualisator.draw_results(algo(), dataset, config)
+            pack_the_dataset("result/" + str(dataset.energy) + "GeV")

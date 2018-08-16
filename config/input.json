@@ -4,6 +4,20 @@
         {
             "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
             "infile": "input/alldata_v1_4_with_13TeV.dat",
+            "ENERGY" : 19.418,
+            "RHO"    : 0.019 ,
+            "SIGMA"  : 38.980,
+            "PROCESS" : "pp",
+            "DSIGMA" : 0.16097,
+            "DRHO" : 0.016606,
+            "TRANGE": [0.4, -1],
+            "FIT_SIGMA_RHO": false,
+            "HADRON_MINIMUM": 0,
+            "index": 0
+        },
+        {
+            "hsum256": "bcc2932433d3841b8feea76ef0cd26caad4dd578ef48ec5aec427a8457556024",
+            "infile": "input/alldata_v1_4_with_13TeV.dat",
             "ENERGY" : 23.506,
             "RHO"    : 0.022   ,
             "SIGMA"  : 39.5  ,

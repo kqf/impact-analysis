@@ -19,7 +19,7 @@ class TestHankelTransformation(Configurable):
         self.cov_size = 6
 
     def npoints(self):
-        return np.linspace(1e-5, 3, 100)
+        return np.linspace(1e-10, 3, 100)
 
     def testRealAmplitude(self):
         model = Numeric()

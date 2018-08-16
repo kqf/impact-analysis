@@ -45,7 +45,7 @@ class DataFit(object):
         if ftype != "crossection":
             quantity = self.model.ratio
 
-        function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 10, npar)
+        function = ROOT.TF1(ftype, lambda x, p: quantity(x[0], p), 0, 20, npar)
 
         for i, par in enumerate(parameters):
             function.SetParameter(i, par)

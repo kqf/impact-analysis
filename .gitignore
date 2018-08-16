@@ -13,3 +13,8 @@ config/impact.sublime-workspace
 .DS_Store
 parameters*.tex
 *.zip
+
+
+# jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb

@@ -33,5 +33,5 @@ def hankel_transform(func):
     return impact_version
 
 
-def impact_range(npoints=30, step=10.0, zero=1e-5):
+def impact_range(npoints=30, step=10.0, zero=1e-10):
     return (zero * (i == 0) + i / step for i in range(npoints))
