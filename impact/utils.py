@@ -2,6 +2,7 @@ from math import pi
 
 import ROOT
 from constants import k_fm
+import numpy as np
 from scipy import integrate
 from scipy.special import j0
 
@@ -34,4 +35,7 @@ def hankel_transform(func):
 
 
 def impact_range(npoints=30, step=10.0, zero=1e-10):
-    return (zero * (i == 0) + i / step for i in range(npoints))
+    b = np.concatenate([np.arange(0, 0.5, 0.01), np.arange(0.5, 3, 0.1)])
+    b[0] = zero
+    return b
+    # return (zero * (i == 0) + i / step for i in range(npoints))
