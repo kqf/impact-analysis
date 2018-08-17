@@ -21,7 +21,8 @@ class Plots(object):
 
         canvas.Divide(2, 1, 0.01, 0)
         self.fit(model, dataset, canvas.cd(1), conffile)
-        # self.draw_gamma(model, dataset, canvas.cd(2), conffile)
+        print model.name, "hadron part min t:", model.find_t_hadron(dataset)
+        self.draw_gamma(model, dataset, canvas.cd(2), conffile)
 
         canvas.Update()
         canvas.SaveAs(

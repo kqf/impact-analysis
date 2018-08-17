@@ -12,7 +12,7 @@
             "DRHO" : 0.016606,
             "TRANGE": [0.4, -1],
             "FIT_SIGMA_RHO": false,
-            "HADRON_MINIMUM": 0,
+            "HADRON_MINIMUM": 0.425,
             "index": 0
         },
         {
@@ -41,7 +41,7 @@
             "DRHO" : 0.06,
             "TRANGE": [0.1, -1],
             "FIT_SIGMA_RHO": false,
-            "HADRON_MINIMUM": 0,
+            "HADRON_MINIMUM": 0.102,
             "index": 2
         },
         {
@@ -71,7 +71,7 @@
             "DRHO" : 0.0092,
             "TRANGE": [0.1, -1],
             "FIT_SIGMA_RHO": false,
-            "HADRON_MINIMUM": 0,
+            "HADRON_MINIMUM": 1.025,
             "index": 4
         },
         {
@@ -161,7 +161,7 @@
             "DRHO" : 0.007,
             "TRANGE": [0.1, -1],
             "FIT_SIGMA_RHO": false,
-            "HADRON_MINIMUM": 0,
+            "HADRON_MINIMUM":  0.112,
             "index": 10
         },
         {

@@ -1,6 +1,5 @@
 from math import sqrt, pi
 
-import numpy as np
 from impact.utils import hankel_transform
 from impact.constants import k_norm
 
@@ -65,3 +64,12 @@ class Amplitude(object):
 
     def hdata_norm(self):
         return 2. / 8 / pi
+
+    def find_t_hadron(self, dataset):
+        p = dataset.parameters
+        for i in dataset.data:
+            dsigma = self.dsigdt_norm() * abs(self.amplitude(i.t, p)) ** 2
+            ratio = i.ds / dsigma
+            if (ratio - 1.) < 0.01:
+                return i.t
+        return 9999
