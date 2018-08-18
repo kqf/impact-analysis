@@ -159,9 +159,9 @@
             "PROCESS" : "pp",
             "DSIGMA" : 2.23,
             "DRHO" : 0.007,
-            "TRANGE": [0.1, -1],
+            "TRANGE": [0, -1],
             "FIT_SIGMA_RHO": false,
-            "HADRON_MINIMUM":  0.112,
+            "HADRON_MINIMUM":  0.00515,
             "index": 10
         },
         {
