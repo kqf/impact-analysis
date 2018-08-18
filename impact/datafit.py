@@ -114,8 +114,10 @@ class DataFit(object):
         return dataset
 
     def _fit(self, dataset):
-        variables = self.inpar[dataset.index]
-        in_parameters = variables + [dataset.sigma, dataset.rho]
+        in_parameters = self.inpar[dataset.index]
+        # TODO: Change this behaviour
+        if len(in_parameters) < len(self.par_names):
+            in_parameters = in_parameters + [dataset.sigma, dataset.rho]
 
         cs_data = dataset.differential_cs()
         cs_func = self.fitfunction(in_parameters)

@@ -8,6 +8,12 @@ from impact.datafit import DataFit
 ROOT.TH1.AddDirectory(False)
 
 
+def dump_dataset(dataset):
+    print "There are", len(dataset.data), "points:"
+    for p in dataset.data:
+        print dataset.energy, p.t, p.ds, p.err
+
+
 class Plots(object):
 
     def __init__(self):
@@ -20,6 +26,7 @@ class Plots(object):
         self._cache = []
 
         canvas.Divide(2, 1, 0.01, 0)
+        # dump_dataset(dataset)
         self.fit(model, dataset, canvas.cd(1), conffile)
         print model.name, "hadron part min t:", model.find_t_hadron(dataset)
         self.draw_gamma(model, dataset, canvas.cd(2), conffile)

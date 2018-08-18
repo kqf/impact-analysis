@@ -2,7 +2,6 @@ import subprocess
 
 
 def pack_the_dataset(outdir="output"):
-    subprocess.call(["ls", "-l"])
     subprocess.call("mkdir -p " + outdir, shell=True)
     subprocess.call("mv *.eps " + outdir, shell=True)
     subprocess.call("mv *.pdf " + outdir, shell=True)

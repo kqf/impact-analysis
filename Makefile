@@ -1,10 +1,10 @@
 .PHONY: test all clean
 
-main:
-	python -m unittest analysis.run
-
 lower:
 	python -m unittest analysis.low
+
+main:
+	python -m unittest analysis.run
 
 test:
 	python -m unittest discover 	
