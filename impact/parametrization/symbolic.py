@@ -189,8 +189,8 @@ class FullStandard(Coulomb, Standard):
     pass
 
 
-class FullTripleExponent(Coulomb, Standard):
-    name = "full-three-exponents"
+class ThreePlusOne(Standard):
+    name = "three-plus-one"
     variable_names = 'a1 a2 a6 b1 b2 b3 b4 b6 a_s rho'.split()
 
     def analytic_formula(self):
@@ -231,7 +231,12 @@ class FullTripleExponent(Coulomb, Standard):
         return ampl
 
 
-class FullTripleExponentGeneral(Coulomb, Standard):
+class FullThreePlusOne(Coulomb, ThreePlusOne):
+    name = "full-three-plus-one"
+    pass
+
+
+class ThreePlusTwo(Standard):
     name = "full-three-exponents-general"
     variable_names = 'a1 a2 a5 b1 b2 b3 b4 b5 a_s rho'.split()
 
@@ -272,3 +277,8 @@ class FullTripleExponentGeneral(Coulomb, Standard):
             ampl = 0
 
         return ampl
+
+
+class FullThreePlusTwo(Coulomb, ThreePlusOne):
+    name = "full-three-exponents-general"
+    pass
