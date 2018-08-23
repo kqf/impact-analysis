@@ -10,7 +10,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.16097,
             "DRHO" : 0.016606,
-            "TRANGE": [0.4, -1],
+            "TRANGE": [0.5, 5.0],
             "FIT_SIGMA_RHO": false,
             "HADRON_MINIMUM": 0.425,
             "index": 0
@@ -39,7 +39,7 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.2,
             "DRHO" : 0.06,
-            "TRANGE": [0.1, -1],
+            "TRANGE": [0.5, 5.0],
             "FIT_SIGMA_RHO": false,
             "HADRON_MINIMUM": 0.102,
             "index": 2
@@ -69,9 +69,9 @@
             "PROCESS" : "pp",
             "DSIGMA" : 0.4183,
             "DRHO" : 0.0092,
-            "TRANGE": [0.1, -1],
+            "TRANGE": [0.05, 5.0],
             "FIT_SIGMA_RHO": false,
-            "HADRON_MINIMUM": 1.025,
+            "HADRON_MINIMUM": 0,
             "index": 4
         },
         {
@@ -159,9 +159,9 @@
             "PROCESS" : "pp",
             "DSIGMA" : 2.23,
             "DRHO" : 0.007,
-            "TRANGE": [0, -1],
+            "TRANGE": [0.0, 5.0],
             "FIT_SIGMA_RHO": false,
-            "HADRON_MINIMUM":  0.00515,
+            "HADRON_MINIMUM":  0.0,
             "index": 10
         },
         {

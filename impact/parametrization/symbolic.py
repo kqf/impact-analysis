@@ -237,7 +237,7 @@ class FullThreePlusOne(Coulomb, ThreePlusOne):
 
 
 class ThreePlusTwo(Standard):
-    name = "full-three-exponents-general"
+    name = "full-three-plus-two"
     variable_names = 'a1 a2 a5 b1 b2 b3 b4 b5 a_s rho'.split()
 
     def analytic_formula(self):
@@ -280,5 +280,5 @@ class ThreePlusTwo(Standard):
 
 
 class FullThreePlusTwo(Coulomb, ThreePlusOne):
-    name = "full-three-exponents-general"
+    name = "full-three-plus-two"
     pass
