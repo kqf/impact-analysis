@@ -26,8 +26,8 @@ class RunTheSolutin(unittest.TestCase):
 
         # TODO: Move conigs to the amplitude definitions
         #
-        # datasets = [0]
-        datasets = [0, 2, 4, -5]
+        datasets = [-5]
+        # datasets = [0, 2, 4, -5]
         for data_index in datasets:
             dataset = DataSet(data["data"][data_index])
             for config, algo in models.iteritems():
