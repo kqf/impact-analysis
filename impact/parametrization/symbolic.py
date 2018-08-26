@@ -26,7 +26,8 @@ class Standard(Amplitude):
 
     def __init__(self):
         super(Standard, self).__init__()
-        self._partials = None
+        self._re_partials = None
+        self._im_partials = None
         self.variables = smp.symbols(self.variable_names)
         self.t = smp.Symbol('t')
         self.symbol_amplitude = self.analytic_formula()
@@ -37,10 +38,16 @@ class Standard(Amplitude):
         )
 
     @property
-    def partials(self):
-        if not self._partials:
-            self._partials = map(self._partial, self.variables)
-        return self._partials
+    def re_partials(self):
+        if not self._re_partials:
+            self._re_partials = map(self._re_partial, self.variables)
+        return self._re_partials
+
+    @property
+    def im_partials(self):
+        if not self._im_partials:
+            self._im_partials = map(self._re_partial, self.variables)
+        return self._im_partials
 
     def analytic_formula(self):
         a1, a2, b1, b2, b3, b4, a_s, rho = self.variables
@@ -56,15 +63,24 @@ class Standard(Amplitude):
             a2 * rho / ((1 + t / b4)**4)
         )
 
-    def _partial(self, fpar):
+    def _re_partial(self, fpar):
         partial_derivative = smp.lambdify(
             (self.t, self.variables),
             smp.re(self.symbol_amplitude.diff(fpar)),
             'numpy')
         return partial_derivative
 
-    def partial_derivatives(self, t, p):
-        return np.asarray([f(t, p) for f in self.partials])
+    def _im_partial(self, fpar):
+        partial_derivative = smp.lambdify(
+            (self.t, self.variables),
+            smp.im(self.symbol_amplitude.diff(fpar)),
+            'numpy')
+        return partial_derivative
+
+    def partial_derivatives(self, t, p, atype="real"):
+        if atype == "real":
+            return np.asarray([f(t, p) for f in self.re_partials])
+        return np.asarray([f(t, p) for f in self.im_partials])
 
     def amplitude(self, t, p):
         a1, a2, b1, b2, b3, b4, a_s, rho = p
@@ -172,7 +188,7 @@ class TripleExponentGeneral(Amplitude):
         # print '>>> ', abs(ampl) ** 2
         return ampl
 
-    def _partial(self, arg):
+    def _re_partial(self, arg):
         symbols = self.symbol_amplitude.free_symbols
         fpar = next(
             (i for i in symbols if i.name == arg), None)

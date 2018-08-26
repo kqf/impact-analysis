@@ -41,11 +41,20 @@ class Amplitude(object):
     def coulomb(self, t, p):
         return 0
 
-    def partial_derivatives(self, t, p):
+    def partial_derivatives(self, t, p, atype="real"):
         pass
 
     def treal_error(self, t, dataset):
         partial = self.partial_derivatives(t, dataset.parameters)
+        # The covariance is modified in dataset class
+        # when sigma and rho are not fitted
+        covariance = dataset.covariance
+        error_squared = partial.T.dot(covariance.dot(partial))
+        error = sqrt(error_squared)
+        return error
+
+    def timag_error(self, t, dataset):
+        partial = self.partial_derivatives(t, dataset.parameters, "imag")
         # The covariance is modified in dataset class
         # when sigma and rho are not fitted
         covariance = dataset.covariance
