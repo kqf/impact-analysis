@@ -88,7 +88,9 @@ class Plots(object):
 
         canvas.Update()
         output = output[["im_h", "re_h", "im_h_error",
-                         "re_h_error", "g_inel", "g_inel_error"]]
+                         "re_h_error", "g_inel", "g_inel_error",
+                         "im_h_param", "im_h_error_param",
+                         "g_inel_param", "g_inel_error_param"]]
         ofile = "{1}-{0}GeV.csv".format(
             dataset.energy, model.name)
 

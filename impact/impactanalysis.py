@@ -12,7 +12,9 @@ from impact.estimators import (
     RealGammaErrorEstimator,
     ImagGammaErrorEstimator,
     GInelEstimator,
-    GInelErrorEstimator
+    GInelErrorEstimator,
+    ImagGammaParametrization,
+    ImagGammaParametrizationErrorEstimator,
 )
 
 
@@ -34,7 +36,6 @@ class ImpactAnalysis(object):
         pipeline = [
             RealGammaEstimator(self.model, outname="real_gamma"),
             ImagGammaEstimator(self.model, outname="imag_gamma"),
-            # ImagGammaParametrization(self.model, outname="imag_gamma"),
             RealGammaErrorEstimator(self.model, outname="real_gamma_error"),
             ImagGammaErrorEstimator(self.model, outname="imag_gamma_error",
                                     n_sigma=self.n_sigma),
@@ -46,6 +47,19 @@ class ImpactAnalysis(object):
                 inimagerr="imag_gamma_error",
                 inrealerr="real_gamma_error",
                 outname="g_inel_error"
+            ),
+            ImagGammaParametrization(self.model, outname="imag_gamma_param"),
+            ImagGammaParametrizationErrorEstimator(
+                self.model,
+                outname="imag_gamma_error_param"),
+            GInelEstimator(inreal="real_gamma",
+                           inimag="imag_gamma_param", outname="g_inel_param"),
+            GInelErrorEstimator(
+                inreal="real_gamma",
+                inimag="imag_gamma_param",
+                inimagerr="imag_gamma_error_param",
+                inrealerr="real_gamma_error",
+                outname="g_inel_error_param"
             )
         ]
 
@@ -59,4 +73,7 @@ class ImpactAnalysis(object):
         output["re_h"] = -output["real_gamma"].values * 0.5
         output["im_h_error"] = output["imag_gamma_error"].values * 0.5
         output["re_h_error"] = output["real_gamma_error"].values * 0.5
+
+        output["im_h_param"] = output["imag_gamma_param"].values * 0.5
+        output["im_h_error_param"] = output["imag_gamma_error_param"].values * 0.5
         return output

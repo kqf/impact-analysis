@@ -48,14 +48,33 @@ class RealGammaErrorEstimator(object):
 
 class ImagGammaParametrization(object):
 
-    def __init__(self, model, outname="real_gamma"):
+    def __init__(self, model, outname="imag_gamma_param"):
         self.model = model
         self.outname = outname
 
     def evaluate(self, dataset, output):
-        output[self.outname] = map(lambda x: -self.model.imag_gamma(
+        output[self.outname] = map(lambda x: self.model.imag_gamma(
             x, dataset.parameters) * self.model.h_norm(), output.index)
         return output[self.outname].values
+
+
+class ImagGammaParametrizationErrorEstimator(object):
+    def __init__(self, model, outname='real_gamma_error'):
+        super(ImagGammaParametrizationErrorEstimator, self).__init__()
+        self.outname = outname
+        self.model = model
+
+        @hankel_transform
+        def evaluate_(x, dataset):
+            return self.model.timag_error(x, dataset) * self.model.h_norm()
+        self.evaluate_ = evaluate_
+
+    def evaluate(self, dataset, output):
+        output[self.outname] = map(
+            lambda x: self.evaluate_(x, dataset),
+            output.index
+        )
+        return output[self.outname]
 
 
 def sign(x):
@@ -63,6 +82,7 @@ def sign(x):
     if result == 0.0:
         return 1.
     return result
+
 
 class ImagGammaEstimator(object):
     def __init__(self, model, outname="imag_gamma"):

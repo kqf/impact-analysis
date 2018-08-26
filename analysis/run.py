@@ -4,8 +4,8 @@ import unittest
 
 from impact.datapoint import DataSet
 from impact.parametrization.symbolic import FullStandard
-from impact.parametrization.symbolic import FullTripleExponent
-from impact.parametrization.symbolic import FullTripleExponentGeneral
+from impact.parametrization.symbolic import FullThreePlusOne
+from impact.parametrization.symbolic import FullThreePlusTwo
 from impact.vis import Plots
 from analysis.utils import pack_the_dataset
 
@@ -18,9 +18,9 @@ class RunTheSolutin(unittest.TestCase):
             data = json.load(f)
 
         models = {
-            "config/full-standard.json": FullStandard,
-            "config/full-triple-exponent.json": FullTripleExponent,
-            "config/full-triple-exponent-general.json": FullTripleExponentGeneral,
+            # "config/full-standard.json": FullStandard,
+            # "config/full-triple-exponent.json": FullThreePlusOne,
+            "config/full-triple-exponent-general.json": FullThreePlusTwo,
         }
 
         # TODO: Move conigs to the amplitude definitions

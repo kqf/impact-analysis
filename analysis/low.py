@@ -20,8 +20,8 @@ class RunTheSolutin(unittest.TestCase):
         pref = "config/low-energy/full-"
         models = {
             # pref + "standard.json": Standard,
-            pref + "triple-exponent.json": ThreePlusOne,
-            # pref + "triple-exponent-general.json": ThreePlusTwo,
+            # pref + "triple-exponent.json": ThreePlusOne,
+            pref + "triple-exponent-general.json": ThreePlusTwo,
         }
 
         # TODO: Move conigs to the amplitude definitions
