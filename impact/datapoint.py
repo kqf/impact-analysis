@@ -74,6 +74,10 @@ class DataSet(object):
                 data = f.read()
         hashsum.update(data)
 
+        # Ignore the hash sum if it's equal to -1
+        if int(self._hsum, 16) == -1:
+            return
+
         msg = "You are using a wrong file to test your data. "\
               "Your hash sums don't coincide."\
               "\n\nActual:  {}\nNominal: {}".format(
