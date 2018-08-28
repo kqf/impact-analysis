@@ -259,7 +259,7 @@ class ThreePlusTwo(Standard):
     def analytic_formula(self):
         a1, a2, a5, b1, b2, b3, b4, b5, a_s, rho = self.variables
         a3 = -a1 - a2 + a_s / k_norm
-        a4 = rho * (a1 + a2 + a3)
+        a4 = rho * (a1 + a2 + a3) - a5
         t = -self.t
         amplitude = (
             a1 * smp.exp(b1 * t) * 1j +
@@ -295,6 +295,6 @@ class ThreePlusTwo(Standard):
         return ampl
 
 
-class FullThreePlusTwo(Coulomb, ThreePlusOne):
+class FullThreePlusTwo(Coulomb, ThreePlusTwo):
     name = "full-three-plus-two"
     pass

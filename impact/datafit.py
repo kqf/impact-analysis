@@ -82,10 +82,11 @@ class DataFit(object):
         for i, n in enumerate(self.par_names):
             function.SetParName(i, n)
 
+        map(lambda x: function.SetParLimits(*x), self.par_limits)
+
         for index in self.par_fixed:
             function.FixParameter(index, parameters[index])
 
-        map(lambda x: function.SetParLimits(*x), self.par_limits)
         function.SetLineColor(38)
         return function
 
