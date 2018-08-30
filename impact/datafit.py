@@ -1,9 +1,16 @@
 #!/usr/bin/python2
 
+import array
 import json
 
 import ROOT
 import pandas as pd
+
+
+def set_strategy(fitdata):
+    fitter = ROOT.TVirtualFitter.Fitter(fitdata)
+    parameters = array.array('d', [2.])
+    fitter.ExecuteCommand("SET STR", parameters, 1)
 
 
 class DataFit(object):
