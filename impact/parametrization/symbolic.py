@@ -46,7 +46,7 @@ class Standard(Amplitude):
     @property
     def im_partials(self):
         if not self._im_partials:
-            self._im_partials = map(self._re_partial, self.variables)
+            self._im_partials = map(self._im_partial, self.variables)
         return self._im_partials
 
     def analytic_formula(self):
