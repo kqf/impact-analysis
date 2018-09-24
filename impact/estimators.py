@@ -309,3 +309,34 @@ class GInelErrorEstimator(object):
             (dhreal ** 2) * (2 * hreal) ** 2
         )
         return output[self.outname].values
+
+
+class DataGenerator(object):
+    def __init__(self, n_iterations, n_sigma):
+        super(DataGenerator, self).__init__()
+        self.n_iterations = n_iterations
+        self.n_sigma = n_sigma
+
+    def evaluate(self, dataset, output):
+        bar = progressbar.ProgressBar()
+        datasets = [self._generate(dataset)
+                    for _ in bar(range(self.n_iterations))]
+        return datasets
+
+    def _generate(self, dataset):
+        # Read parameters for real data approximation
+        mc_points = [
+            DataPoint(
+                p.t,
+                rnd.gauss(p.ds, self.n_sigma * p.err),
+                p.err,
+                p.lower,
+                p.upper
+            )
+            for p in dataset.hadron_data]
+
+        new_sigma = rnd.gauss(dataset.sigma, dataset.dsigma)
+        generated_dataset = copy.deepcopy(dataset)
+        generated_dataset.sigma = new_sigma
+        generated_dataset._data = mc_points
+        return generated_dataset
