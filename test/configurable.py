@@ -1,6 +1,5 @@
 import json
 import unittest
-from impact.datapoint import DataSet
 
 
 class Configurable(unittest.TestCase):
@@ -13,5 +12,6 @@ class Configurable(unittest.TestCase):
         with open('config/input.json') as f:
             data_list = json.load(f)["data"]
             params = data_list[index]
-        self.dataset = DataSet(params)
+
+        self.parms = params
         self.longMessage = True

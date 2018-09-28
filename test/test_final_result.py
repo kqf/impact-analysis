@@ -4,6 +4,7 @@ import unittest
 import pandas as pd
 from impact.impactanalysis import ImpactAnalysis
 from test.configurable import Configurable
+from impact.datapoint import DataSet
 
 
 class TestFinalResult(Configurable):
@@ -15,10 +16,10 @@ class TestFinalResult(Configurable):
         self.nominal = pd.DataFrame(data).infer_objects().set_index('b')
         self.longMessage = True
 
-    @unittest.skip("")
+    @unittest.skip("The procedure is not well established yet")
     def test_calculates_default_param(self):
         analysis = ImpactAnalysis(n_sigma=1.0)
-        output = analysis.run(self.dataset)
+        output = analysis.run(DataSet(self.parameters))
 
         message = "\n"
         for column in self.nominal.columns:
