@@ -1,4 +1,4 @@
-# Impact analysis
+# Impact analysis ![status](https://travis-ci.com/kqf/impact-analysis.svg?token=7bkqqhrPB19pD1YKrAZM&branch=master)
 
 
 This repo contains the code that estimates the profile of the impact–parameter dependent elastic scattering amplitude. In original analysis the input dataset included the experimental data on elastic hardron-hadron scattering starting from 28 GeV (ISR) up to the LHC energies (7 TeV). Impact-parameter dependent inelastic overlap function helps to reveal the asymptotics of hadron interactions. In particular LHC data should improve our understanding of the mechanisms at high energies.
