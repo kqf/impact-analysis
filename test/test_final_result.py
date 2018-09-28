@@ -1,4 +1,5 @@
 import random
+import unittest
 
 import pandas as pd
 from impact.impactanalysis import ImpactAnalysis
@@ -14,6 +15,7 @@ class TestFinalResult(Configurable):
         self.nominal = pd.DataFrame(data).infer_objects().set_index('b')
         self.longMessage = True
 
+    @unittest.skip("")
     def test_calculates_default_param(self):
         analysis = ImpactAnalysis(n_sigma=1.0)
         output = analysis.run(self.dataset)
