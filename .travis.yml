@@ -7,8 +7,3 @@ script:
   - docker build -t tests .
   - docker ps -a
   - docker run --rm tests pytest -m "not onlylocal"
-
-install: null
-
-language: null
-
