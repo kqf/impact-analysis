@@ -13,5 +13,6 @@ class Configurable(unittest.TestCase):
             data_list = json.load(f)["data"]
             params = data_list[index]
 
+        self.sigma_rho = [98, 0.14]
         self.parms = params
         self.longMessage = True

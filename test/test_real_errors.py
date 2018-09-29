@@ -9,7 +9,7 @@ class TestNumericSymbolicConsistency(Configurable):
     def setUp(self):
         super(TestNumericSymbolicConsistency, self).setUp()
         data = self.data["test_real_errors"]
-        self.params = data["params"] + [self.dataset.sigma, self.dataset.rho]
+        self.params = data["params"] + self.sigma_rho
 
     def test_sympy_calculates_partial_derivatives(self):
         es, ep = Standard(), Numeric()

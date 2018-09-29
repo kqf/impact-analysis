@@ -14,8 +14,7 @@ class TestHankelTransformation(Configurable):
     def setUp(self):
         super(TestHankelTransformation, self).setUp()
         data = self.data["test_hankel_transform"]
-        self.parameters = data["params"] + \
-            [self.dataset.sigma, self.dataset.rho]
+        self.parameters = data["params"] + self.sigma_rho
         self.cov_size = 6
 
     def npoints(self):
