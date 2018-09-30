@@ -4,7 +4,7 @@ import copy
 import random as rnd
 from math import exp, log, sqrt
 
-import impact.utils as ut
+# import impact.utils as ut
 import numpy as np
 import pandas as pd
 import progressbar
@@ -12,6 +12,7 @@ import ROOT
 from constants import k_fm
 from impact.datapoint import DataPoint
 from impact.utils import hankel_transform
+from impact.datafit import DataFit
 from scipy.special import j1
 
 
@@ -317,7 +318,7 @@ class DataGenerator(object):
         self.n_iterations = n_iterations
         self.n_sigma = n_sigma
 
-    def evaluate(self, dataset, output):
+    def evaluate(self, dataset):
         bar = progressbar.ProgressBar()
         datasets = [self._generate(dataset)
                     for _ in bar(range(self.n_iterations))]
@@ -340,3 +341,34 @@ class DataGenerator(object):
         generated_dataset.sigma = new_sigma
         generated_dataset._data = mc_points
         return generated_dataset
+
+
+class AlnternativeErrorEstimator(object):
+
+    def __init__(self, conffile, model, n_iterations, n_sigma,
+                 outname_mean, outname_std):
+        self.conffile = conffile
+        self.model = model
+        self.outname_std = outname_std
+        self.outname_mean = outname_mean
+        self.generator = DataGenerator(n_iterations, n_sigma)
+
+    def evaluate(self, dataset, output):
+        generated = self.generator.evaluate(dataset)
+        mc_gamma = np.array([
+            self._evaluate_signle(fake_dataset, output.index)
+            for fake_dataset in generated
+        ])
+        output[self.outname_mean] = np.mean(mc_gamma, axis=0)
+        output[self.outname_std] = np.std(mc_gamma, axis=0)
+
+    def _evaluate_signle(self, dataset, index):
+        local_fitter = DataFit(self.model, self.conffile)
+        local_fitter.fit(dataset)
+
+        output = pd.DataFrame(index=index)
+        ImagGammaEstimator(self.model, outname="imag_gamma").evaluate(
+            dataset,
+            output
+        )
+        return output["imag_gamma"].values
