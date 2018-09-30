@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import ROOT
 
+import utils as ut
+
 
 class NotFittedError(IOError):
     pass
@@ -99,6 +101,14 @@ class DataSet(object):
         graph.SetMarkerStyle(20)
         graph.SetMarkerColor(46)
         return graph
+
+    def draw(self, canvas=None):
+        if not canvas:
+            canvas = ut.canvas('dataset')
+        graph = self.differential_cs()
+        graph.Draw()
+        canvas.Update()
+        raw_input("Press enter to continue")
 
     def sigma_rho_differential_cs(self):
         graph = ROOT.TGraphErrors(len(self.data) + 2)
