@@ -90,7 +90,9 @@ class Plots(object):
         output = output[["im_h", "re_h", "im_h_error",
                          "re_h_error", "g_inel", "g_inel_error",
                          "im_h_param", "im_h_error_param",
-                         "g_inel_param", "g_inel_error_param"]]
+                         "g_inel_param", "g_inel_error_param",
+                         "im_h_gen", "im_h_error_gen"
+                         ]]
         ofile = "{1}-{0}GeV.csv".format(
             dataset.energy, model.name)
 

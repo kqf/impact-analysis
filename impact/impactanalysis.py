@@ -15,6 +15,7 @@ from impact.estimators import (
     GInelErrorEstimator,
     ImagGammaParametrization,
     ImagGammaParametrizationErrorEstimator,
+    AlnternativeErrorEstimator
 )
 
 
@@ -60,6 +61,14 @@ class ImpactAnalysis(object):
                 inimagerr="imag_gamma_error_param",
                 inrealerr="real_gamma_error",
                 outname="g_inel_error_param"
+            ),
+            AlnternativeErrorEstimator(
+                conffile=self.conffile,
+                model=self.model,
+                n_iterations=10,
+                n_sigma=1,
+                outname_mean="imag_gamma_gen",
+                outname_std="imag_gamma_error_gen",
             )
         ]
 
@@ -76,4 +85,7 @@ class ImpactAnalysis(object):
 
         output["im_h_param"] = output["imag_gamma_param"].values * 0.5
         output["im_h_error_param"] = output["imag_gamma_error_param"].values * 0.5
+
+        output["im_h_gen"] = output["imag_gamma_gen"].values * 0.5
+        output["im_h_error_gen"] = output["imag_gamma_error_gen"].values * 0.5
         return output
