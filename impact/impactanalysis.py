@@ -65,8 +65,8 @@ class ImpactAnalysis(object):
             AlnternativeErrorEstimator(
                 conffile=self.conffile,
                 model=self.model,
-                n_iterations=10,
-                n_sigma=1,
+                n_iterations=30,
+                n_sigma=2,
                 outname_mean="imag_gamma_gen",
                 outname_std="imag_gamma_error_gen",
             )

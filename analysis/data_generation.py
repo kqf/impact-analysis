@@ -7,9 +7,9 @@ from impact.datapoint import DataSet
 from impact.estimators import DataGenerator
 from impact.utils import impact_range
 
-# from impact.parametrization.symbolic import FullStandard
+from impact.parametrization.symbolic import FullStandard
 from impact.parametrization.symbolic import FullThreePlusOne
-# from impact.parametrization.symbolic import FullThreePlusTwo
+from impact.parametrization.symbolic import FullThreePlusTwo
 from impact.estimators import AlnternativeErrorEstimator
 
 
@@ -31,15 +31,15 @@ class RunTheAnalysis(unittest.TestCase):
             data = json.load(f)
 
         models = {
-            # "config/full-standard.json": FullStandard,
+            "config/full-standard.json": FullStandard,
             "config/full-triple-exponent.json": FullThreePlusOne,
-            # "config/full-triple-exponent-general.json": FullThreePlusTwo,
+            "config/full-triple-exponent-general.json": FullThreePlusTwo,
         }
 
         output = pd.DataFrame(index=impact_range())
         for config, algo in models.iteritems():
             estimator = AlnternativeErrorEstimator(
-                config, algo(), 10, 1,
+                config, algo(), 10, 2,
                 "generated_im_gamma",
                 "generated_im_gamma_error"
             )
