@@ -211,13 +211,13 @@
             "hsum256": "0273795d368b8086e914c874c4f8d4ad5fd4f328590a144d4dea631745a4012f",
             "infile": "input/TOTEM-13-fixed-errors.dat",
             "ENERGY" : 13000,
-            "RHO"    : 0.1,
-            "SIGMA"  : 0.11060e+03,
+            "RHO"    :  0.099,
+            "SIGMA"  : 112.05, 
             "PROCESS" : "pp",
             "DSIGMA" : 3.0,
             "DRHO" : 0.01,
             "TRANGE": [0.00001, -1],
-            "FIT_SIGMA_RHO": true,
+            "FIT_SIGMA_RHO": false,
             "HADRON_MINIMUM": 0.11562,
             "index": 14
         }

@@ -14,9 +14,10 @@ def set_strategy(fitdata):
 
 
 class DataFit(object):
-    def __init__(self, model, conffile="config/standard.json"):
+    def __init__(self, model, conffile="config/standard.json", mute=False):
         super(DataFit, self).__init__()
         self.model = model
+        self.mute = mute
         # NB: Keep all objects that you want to reuse
         #     othervise those objects will be delted
         # Configure the fitting functions
@@ -129,7 +130,9 @@ class DataFit(object):
 
         cs_data = dataset.differential_cs()
         cs_func = self.fitfunction(in_parameters)
-        cs_data.Fit(cs_func, "0NrE")
+
+        option = "q" if self.mute else ""
+        cs_data.Fit(cs_func, "0NrE" + option)
 
         dataset.parameters = [
             cs_func.GetParameter(i)

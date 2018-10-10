@@ -355,19 +355,22 @@ class AlnternativeErrorEstimator(object):
 
     def evaluate(self, dataset, output):
         generated = self.generator.evaluate(dataset)
+        bar = progressbar.ProgressBar()
         mc_gamma = np.array([
             self._evaluate_signle(fake_dataset, output.index)
-            for fake_dataset in generated
+            for fake_dataset in bar(generated)
         ])
+        pd.DataFrame(mc_gamma).to_csv("mc-gamma-{}.csv".format(
+            self.model.name), index=False)
         output[self.outname_mean] = np.mean(mc_gamma, axis=0)
         output[self.outname_std] = np.std(mc_gamma, axis=0)
 
     def _evaluate_signle(self, dataset, index):
-        local_fitter = DataFit(self.model, self.conffile)
+        local_fitter = DataFit(self.model, self.conffile, mute=True)
         local_fitter.fit(dataset)
 
         output = pd.DataFrame(index=index)
-        ImagGammaEstimator(self.model, outname="imag_gamma").evaluate(
+        ImagGammaParametrization(self.model, outname="imag_gamma").evaluate(
             dataset,
             output
         )

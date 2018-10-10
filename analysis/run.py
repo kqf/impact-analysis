@@ -10,7 +10,7 @@ from impact.vis import Plots
 from analysis.utils import pack_the_dataset
 
 
-class RunTheSolutin(unittest.TestCase):
+class RunTheSolution(unittest.TestCase):
 
     # @unittest.skip("")
     def test_visualize_the_results(self):
