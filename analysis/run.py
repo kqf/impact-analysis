@@ -18,8 +18,8 @@ class RunTheSolution(unittest.TestCase):
             data = json.load(f)
 
         models = {
-            "config/full-standard.json": FullStandard,
-            "config/full-triple-exponent.json": FullThreePlusOne,
+            # "config/full-standard.json": FullStandard,
+            # "config/full-triple-exponent.json": FullThreePlusOne,
             "config/full-triple-exponent-general.json": FullThreePlusTwo,
         }
 
