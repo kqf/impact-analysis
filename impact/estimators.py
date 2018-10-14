@@ -346,10 +346,11 @@ class DataGenerator(object):
 class AlnternativeErrorEstimator(object):
 
     def __init__(self, conffile, model, n_iterations, n_sigma,
-                 outname_mean, outname_std):
+                 outname_mean, outname_std, verbose=True):
         self.conffile = conffile
         self.model = model
         self.outname_std = outname_std
+        self.verbose = verbose
         self.outname_mean = outname_mean
         self.generator = DataGenerator(n_iterations, n_sigma)
 

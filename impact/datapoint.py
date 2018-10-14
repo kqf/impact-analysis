@@ -38,8 +38,13 @@ class DataSet(object):
         self._hadron_data = None
         self._parameters = None
         self._covariance = None
-
         self._validate_dataset()
+
+    def hanle_trange(self, start, stop):
+        return (
+            start if start > 0 else -float('inf'),
+            stop if stop > 0 else float('inf')
+        )
 
     def copy(self, data, new_sigma):
         new_set = DataSet(self._hyperparameters)

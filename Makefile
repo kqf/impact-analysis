@@ -11,5 +11,5 @@ test:
 
 
 clean:
-	rm -f *.eps *.dat 
+	rm -f *.eps *.dat *.pdf
 	rm -f output/*.eps output/*.dat	
